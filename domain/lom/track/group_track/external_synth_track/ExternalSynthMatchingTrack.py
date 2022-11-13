@@ -33,10 +33,21 @@ class ExternalSynthMatchingTrack(object):
 
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
-        return find_if(
+        audio_track = find_if(
             lambda t: not t.is_foldable and t.name == self._base_track.name,
             SongFacade.simple_tracks(SimpleAudioTrack),
         )
+        if audio_track is not None:
+            return audio_track
+        midi_track = find_if(
+                lambda t: not t.is_foldable and t.name == self._base_track.name,
+                SongFacade.simple_tracks(SimpleMidiTrack),
+            )
+
+        if midi_track is not None:
+            Backend.client().show_warning("Matching track is a midi track. Not connecting.")
+
+        return None
 
     def _get_atk_cs(self):
         # type: () -> Optional[AudioClipSlot]

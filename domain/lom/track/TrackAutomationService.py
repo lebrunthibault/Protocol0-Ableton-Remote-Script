@@ -10,10 +10,12 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 )
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -49,7 +51,11 @@ class TrackAutomationService(object):
         if not isinstance(current_track, AbstractGroupTrack) or isinstance(
             selected_track, SimpleMidiExtTrack
         ):
-            SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
+            try:
+                SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
+            except Exception as e:
+                Logger.info((SongFacade.selected_clip(), SongFacade.selected_clip()._clip, liveobj_valid(SongFacade.selected_clip()._clip), selected_parameter))
+                raise e
             return None
 
         # Special case if we clicked by mistake on a send parameter of any sub track

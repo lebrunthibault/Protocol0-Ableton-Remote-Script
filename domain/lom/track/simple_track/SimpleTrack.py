@@ -179,6 +179,9 @@ class SimpleTrack(AbstractTrack):
 
     def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]
+        if len(self.clip_slots) < scene_index + 1:
+            return {}
+
         clip = self.clip_slots[scene_index].clip
         if clip is None:
             return {}
