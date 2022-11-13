@@ -57,7 +57,7 @@ class ExternalSynthMatchingTrack(object):
     def connect_main_track(self):
         # type: () -> None
         # keep editor on only on a new track
-        if self._track is None:
+        if self._track is None and self._base_midi_track.instrument is not None:
             self._base_midi_track.instrument.force_show = True
 
         Scheduler.defer(self._connect_main_track)

@@ -25,7 +25,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
-        self.dummy_group = DummyGroup(self)
+        self.dummy_group = DummyGroup(self, is_active=False)
 
         self._solo_listener.subject = self._track
 

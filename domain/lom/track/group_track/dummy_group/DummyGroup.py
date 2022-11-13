@@ -32,11 +32,12 @@ class DummyGroup(object):
     Encapsulates an optional dummy track and dummy return track
     """
 
-    def __init__(self, track):
-        # type: (AbstractGroupTrack) -> None
+    def __init__(self, track, is_active=True):
+        # type: (AbstractGroupTrack, bool) -> None
         self._track = track
         self._dummy_track = None  # type: Optional[SimpleDummyTrack]
         self._dummy_return_track = None  # type: Optional[SimpleDummyReturnTrack]
+        self._is_active = is_active
 
     def __repr__(self):
         # type: () -> str
@@ -96,6 +97,9 @@ class DummyGroup(object):
 
     def _get_tracks(self):
         # type: () -> Tuple[Optional[AbstractTrack], Optional[AbstractTrack]]
+        if not self._is_active:
+            return None, None
+
         sub_tracks = self._track.sub_tracks
 
         has_foldable_sub_track = any(sub_track.is_foldable for sub_track in sub_tracks)

@@ -23,6 +23,7 @@ class SourceClipSlot(object):
             return
 
         self.clip_slot = track.clip_slots[scene_index]
+        assert self.clip_slot, "Cannot find clip_slot on %s at index %s" % (track, scene_index)
         self.file_path = None  # type: Optional[str]
         if self.clip is not None:
             self.file_path = self.clip.file_path
