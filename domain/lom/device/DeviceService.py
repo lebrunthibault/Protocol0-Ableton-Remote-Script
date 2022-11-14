@@ -18,6 +18,7 @@ from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterf
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -104,7 +105,12 @@ class DeviceService(object):
 
         # saturator make up gain
         if param.name == DeviceParameterEnum.SATURATOR_DRIVE.parameter_name:
-            saturator_output = SongFacade.selected_device().get_parameter_by_name(
+            device = find_if(
+                lambda d: param in d.parameters,
+                SongFacade.selected_track().devices.get_from_enum(DeviceEnum.SATURATOR),
+            )
+            saturator_output = device.get_parameter_by_name(
                 DeviceParameterEnum.SATURATOR_OUTPUT
             )
+
             saturator_output.value = -param.value

@@ -1,7 +1,10 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Any, TYPE_CHECKING
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.AbstractEnum import AbstractEnum
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 
 
 class DeviceParameterEnum(AbstractEnum):
@@ -53,6 +56,17 @@ class DeviceParameterEnum(AbstractEnum):
     @property
     def label(self):
         # type: () -> str
+        return self.get_value_from_mapping(
+            {
+                DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Low Pass Frequency",
+                DeviceParameterEnum.UTILITY_GAIN: "Gain",
+                DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: "High Pass Frequency",
+            }
+        )
+
+    @property
+    def device_enum(self):
+        # type: () -> DeviceEnum
         return self.get_value_from_mapping(
             {
                 DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Low Pass Frequency",
