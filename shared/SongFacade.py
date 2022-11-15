@@ -315,7 +315,11 @@ class SongFacade(object):
         # type: () -> Clip
         clip = cls.selected_clip_slot() and cls.selected_clip_slot().clip
         if clip is None:
+            clip = cls.selected_track().clip_slots[SongFacade.selected_scene().index].clip
+
+        if clip is None:
             raise Protocol0Warning("no selected clip")
+
         return clip
 
     @classmethod

@@ -30,6 +30,7 @@ class DeviceEnum(AbstractEnum):
     GLUE_COMPRESSOR = "GLUE_COMPRESSOR"
     KONTAKT = "KONTAKT"
     INSERT_DELAY = "INSERT_DELAY"
+    INSERT_DRY_WET = "INSERT_DRY_WET"
     INSERT_REVERB = "INSERT_REVERB"
     INSTRUMENT_RACK = "INSTRUMENT_RACK"
     LFO_TOOL = "LFO_TOOL"
@@ -96,6 +97,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.MASTERING_RACK,
             DeviceEnum.SAMPLE_PITCH_RACK,
             DeviceEnum.INSERT_DELAY,
+            DeviceEnum.INSERT_DRY_WET,
             DeviceEnum.INSERT_REVERB,
         ]
 
@@ -228,7 +230,7 @@ class DeviceEnum(AbstractEnum):
     @classmethod
     def insert_favorites(cls):
         # type: () -> List[DeviceEnum]
-        return [cls.INSERT_DELAY, cls.INSERT_REVERB]
+        return [cls.INSERT_DELAY, cls.INSERT_REVERB, cls.INSERT_DRY_WET]
 
     @property
     def load_time(self):

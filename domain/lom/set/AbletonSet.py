@@ -76,6 +76,7 @@ class AbletonSet(object):
             "muted": muted,
             "current_track_name": SongFacade.current_track().name,
             "current_track_type": SongFacade.current_track().__class__.__name__,
+            "current_track_is_grouped": SongFacade.current_track().group_track is not None,
             "drum_rack_visible": isinstance(
                 SongFacade.selected_track().instrument, InstrumentDrumRack
             ),

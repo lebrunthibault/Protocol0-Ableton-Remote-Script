@@ -10,7 +10,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -74,10 +73,13 @@ class SimpleAudioTrack(SimpleTrack):
         scene_index = PlayingSceneFacade.get().index
 
         # activate tail only if the next clip slot is empty
-        has_empty_next_cs = (
-            len(self.clip_slots) > scene_index + 1
-            and self.clip_slots[scene_index + 1].clip is None or self.clip_slots[scene_index + 1].clip.muted
-        )
+        try:
+            has_empty_next_cs = (
+                self.clip_slots[scene_index + 1].clip is None
+                or self.clip_slots[scene_index + 1].clip.muted
+            )
+        except IndexError:
+            return
 
         # let the tail play
         if (
