@@ -50,6 +50,8 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
             SongFacade.usamo_track().input_routing.track = self._midi_track
             SongFacade.usamo_track().inactivate()
 
+        self.notify_observers()
+
     def arm_track(self):
         # type: () -> Optional[Sequence]
         self._base_track.is_folded = False
@@ -70,4 +72,5 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
             ]
         )
         seq.add(self._monitoring_state.monitor_midi)
+        seq.add(self.notify_observers)
         return seq.done()

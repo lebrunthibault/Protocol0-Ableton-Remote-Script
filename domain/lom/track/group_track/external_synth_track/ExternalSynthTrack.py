@@ -87,6 +87,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.arm_state = ExternalSynthTrackArmState(
             self.base_track, self.midi_track, self.monitoring_state
         )
+        self.arm_state.register_observer(self.matching_track)
         self._is_stopping = False  # quantized, this is not part of Live API
 
         DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
@@ -456,4 +457,4 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: () -> None
         super(ExternalSynthTrack, self).disconnect()
         if not liveobj_valid(self._track):
-            Scheduler.defer(self.matching_track.disconnect_base)
+            Scheduler.defer(self.matching_track.disconnect_ext_track_routing)

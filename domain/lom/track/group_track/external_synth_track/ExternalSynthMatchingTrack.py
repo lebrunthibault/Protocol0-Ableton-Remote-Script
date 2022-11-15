@@ -7,6 +7,8 @@ from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import \
+    ExternalSynthTrackArmState
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import (  # noqa
     ExternalSynthTrackMonitoringState,
 )
@@ -19,6 +21,7 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -30,6 +33,18 @@ class ExternalSynthMatchingTrack(object):
         self._base_dummy_group = base_dummy_group
 
         self._track = self._get_track()
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(observable)
+        if isinstance(observable, ExternalSynthTrackArmState) and self._track is not None:
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev(observable.is_armed)
+            if observable.is_armed:
+                self.connect_ext_track_routing()
+            else:
+                self.disconnect_ext_track_routing()
 
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
@@ -65,6 +80,17 @@ class ExternalSynthMatchingTrack(object):
                 self._base_track.sub_tracks[1].clip_slots,
             )
 
+    def connect_ext_track_routing(self):
+        # type: () -> None
+        self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+        self._base_track.output_routing.track = self._track  # type: ignore[assignment]
+
+    def disconnect_ext_track_routing(self):
+        # type: () -> None
+        """Restore the current monitoring state of the track"""
+        if self._track is not None:
+            self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
+
     def connect_main_track(self):
         # type: () -> None
         # keep editor on only on a new track
@@ -80,8 +106,7 @@ class ExternalSynthMatchingTrack(object):
             return None
 
         seq = Sequence()
-        self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self._base_track.output_routing.track = self._track
+        self.connect_ext_track_routing()
 
         if not show_midi_clip:
             return None
@@ -186,9 +211,3 @@ class ExternalSynthMatchingTrack(object):
                 assert audio_cs.clip.looping
 
                 audio_cs.duplicate_clip_to(main_cs)
-
-    def disconnect_base(self):
-        # type: () -> None
-        """Restore the current monitoring state of the track"""
-        if self._track is not None:
-            self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
