@@ -1,4 +1,5 @@
 from functools import partial
+from os.path import basename
 
 from typing import Any, Optional, List
 
@@ -107,6 +108,7 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         message = "%s / %s clips replaced" % (clips_replaced_count, clips_count)
         if clips_count == 0:
             Backend.client().show_warning(message)
+            Backend.client().search(basename(self.atk_cs.clip.file_path))
         elif clips_count == clips_replaced_count:
             Backend.client().show_success(message)
         else:

@@ -75,7 +75,7 @@ class SimpleAudioTrack(SimpleTrack):
 
         # activate tail only if the next clip slot is empty
         has_empty_next_cs = (
-            len(SongFacade.scenes()) > scene_index + 1
+            len(self.clip_slots) > scene_index + 1
             and self.clip_slots[scene_index + 1].clip is None or self.clip_slots[scene_index + 1].clip.muted
         )
 

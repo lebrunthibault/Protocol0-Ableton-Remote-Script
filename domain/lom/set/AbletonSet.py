@@ -34,6 +34,7 @@ class AbletonSet(object):
         # type: () -> None
         self._cache = {}  # type: Dict[str, Any]
 
+        self._path = None  # type: Optional[str]
         self._title = None  # type: Optional[str]
         self._id = str(uuid4())
         self.active = True
@@ -70,8 +71,11 @@ class AbletonSet(object):
         return {
             "id": self._id,
             "active": self.active,
+            "path": self._path,
             "title": self._title,
             "muted": muted,
+            "current_track_name": SongFacade.current_track().name,
+            "current_track_type": SongFacade.current_track().__class__.__name__,
             "drum_rack_visible": isinstance(
                 SongFacade.selected_track().instrument, InstrumentDrumRack
             ),
@@ -87,17 +91,20 @@ class AbletonSet(object):
 
             if self._title is None:
                 seq.wait_for_backend_response()
-                seq.add(lambda: self._set_title(seq.res["title"]))  # type: ignore[index]
+                seq.add(lambda: self._set_from_server_response(seq.res))  # type: ignore[arg-type]
 
             seq.done()
 
         self._cache = data
 
-    def _set_title(self, title):
-        # type: (str) -> None
+    def _set_from_server_response(self, res):
+        # type: (Dict) -> None
         if self._title is not None:
             Logger.warning("Tried overwriting set title of %s" % self)
-        self._title = title
+            return
+
+        self._title = res["title"]
+        self._path = res["path"]
 
     def _disconnect(self):
         # type: () -> None
