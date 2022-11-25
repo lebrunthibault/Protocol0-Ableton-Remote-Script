@@ -2,6 +2,7 @@ from functools import partial
 
 from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivatedEvent
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
@@ -16,7 +17,7 @@ class ActionGroupSet(ActionGroupInterface):
         self.add_encoder(
             identifier=4,
             name="midi clip to mono",
-            on_press=lambda: SongFacade.selected_midi_clip().to_mono,
+            on_press=lambda: SongFacade.selected_clip(MidiClip).to_mono,
         )
 
         # INIT song encoder

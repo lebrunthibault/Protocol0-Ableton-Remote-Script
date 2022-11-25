@@ -36,11 +36,7 @@ class ExternalSynthMatchingTrack(object):
 
     def update(self, observable):
         # type: (Observable) -> None
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(observable)
         if isinstance(observable, ExternalSynthTrackArmState) and self._track is not None:
-            from protocol0.shared.logging.Logger import Logger
-            Logger.dev(observable.is_armed)
             if observable.is_armed:
                 self.connect_ext_track_routing()
             else:

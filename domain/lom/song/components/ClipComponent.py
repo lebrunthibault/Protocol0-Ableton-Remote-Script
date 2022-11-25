@@ -5,6 +5,7 @@ from typing import Optional
 from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -33,7 +34,7 @@ class ClipComponent(SlotManager):
             return
 
         try:
-            detail_clip = SongFacade.selected_midi_clip()
+            detail_clip = SongFacade.selected_clip(MidiClip)
         except Protocol0Error:
             return
 

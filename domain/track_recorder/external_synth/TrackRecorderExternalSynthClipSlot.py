@@ -53,7 +53,7 @@ class SourceClipSlot(object):
 
     def post_record(self):
         # type: () -> None
-        clip = self.clip_slot.clip
+        clip = self.clip_slot.clip if self.clip_slot is not None else None
         # in case of manual stop
         if clip is None:
             return

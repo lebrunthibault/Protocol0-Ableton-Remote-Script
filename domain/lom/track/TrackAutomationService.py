@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Optional, cast
 
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -115,7 +116,7 @@ class TrackAutomationService(object):
             isinstance(current_track, ExternalSynthTrack)
             and selected_track == current_track.midi_track
         ):
-            SongFacade.selected_midi_clip().synchronize_automation_layers(
+            SongFacade.selected_clip(MidiClip).synchronize_automation_layers(
                 SongFacade.selected_track().devices.parameters
             )
         else:

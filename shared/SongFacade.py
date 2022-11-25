@@ -111,9 +111,18 @@ class SongFacade(object):
         return cls._live_song().signature_numerator
 
     @classmethod
-    def selected_track(cls):
-        # type: () -> SimpleTrack
-        return cls.simple_track_from_live_track(cls._live_song().view.selected_track)
+    def selected_track(cls, track_cls=None):
+        # type: (Optional[Type[T]]) -> T|SimpleTrack
+        from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+
+        track_cls = track_cls or SimpleTrack
+
+        track = cls.simple_track_from_live_track(cls._live_song().view.selected_track)
+
+        if not isinstance(track, track_cls):
+            raise Protocol0Warning("track is not a %s" % track_cls.__name__)
+
+        return track
 
     @classmethod
     def current_track(cls):
@@ -296,12 +305,16 @@ class SongFacade(object):
         return Scene.LAST_MANUALLY_STARTED_SCENE or cls.selected_scene()
 
     @classmethod
-    def selected_clip_slot(cls):
-        # type: () -> Optional[ClipSlot]
+    def selected_clip_slot(cls, clip_slot_cls=None):
+        # type: (Optional[Type[T]]) -> Optional[T|ClipSlot]
+        from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+
+        clip_slot_cls = clip_slot_cls or ClipSlot
+
         if cls.selected_track() is None:
             return None
         else:
-            return next(
+            clip_slot = next(
                 (
                     cs
                     for cs in cls.selected_track().clip_slots
@@ -310,9 +323,18 @@ class SongFacade(object):
                 None,
             )
 
+            if not isinstance(clip_slot, clip_slot_cls):
+                raise Protocol0Warning("clip is not a %s" % clip_slot_cls.__name__)
+
+            return clip_slot
+
     @classmethod
-    def selected_clip(cls):
-        # type: () -> Clip
+    def selected_clip(cls, clip_cls=None):
+        # type: (Optional[Type[T]]) -> T|Clip
+        from protocol0.domain.lom.clip.Clip import Clip
+
+        clip_cls = clip_cls or Clip
+
         clip = cls.selected_clip_slot() and cls.selected_clip_slot().clip
         if clip is None:
             clip = cls.selected_track().clip_slots[SongFacade.selected_scene().index].clip
@@ -320,16 +342,9 @@ class SongFacade(object):
         if clip is None:
             raise Protocol0Warning("no selected clip")
 
-        return clip
+        if not isinstance(clip, clip_cls):
+            raise Protocol0Warning("clip is not a %s" % clip_cls.__name__)
 
-    @classmethod
-    def selected_midi_clip(cls):
-        # type: () -> MidiClip
-        from protocol0.domain.lom.clip.MidiClip import MidiClip  # noqa
-
-        clip = cls._INSTANCE._clip_component.selected_clip
-        if not isinstance(clip, MidiClip):
-            raise Protocol0Warning("no selected midi clip")
         return clip
 
     @classmethod
@@ -390,7 +405,7 @@ class SongFacade(object):
         from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 
         if ApplicationViewFacade.is_session_visible():
-            return cls.selected_midi_clip().loop
+            return cls.selected_clip(MidiClip).loop
         else:
             return cls._INSTANCE._song_loop_component
 

@@ -54,13 +54,6 @@ class ActionGroupCut(ActionGroupInterface):
             ),
         )
 
-        # Session/ARrangement encoder
-        self.add_encoder(
-            identifier=13,
-            name="toggle session / arrangement",
-            on_press=ApplicationViewFacade.toggle_session_arrangement,
-        )
-
         # COPY track devices encoder
         self.add_encoder(
             identifier=14,

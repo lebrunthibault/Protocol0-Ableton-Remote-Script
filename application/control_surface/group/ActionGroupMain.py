@@ -3,6 +3,7 @@ from functools import partial
 from typing import Optional
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
@@ -45,7 +46,7 @@ class ActionGroupMain(ActionGroupInterface):
         self.add_encoder(
             identifier=2,
             name="smooth selected clip velocities",
-            on_scroll=lambda: SongFacade.selected_midi_clip().scale_velocities,
+            on_scroll=lambda: SongFacade.selected_clip(MidiClip).scale_velocities,
         )
 
         # AUTOmation encoder

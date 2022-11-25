@@ -33,14 +33,6 @@ class ApplicationViewFacade(object):
         cls._INSTANCE._application_view.show_view("Detail/DeviceChain")
 
     @classmethod
-    def toggle_session_arrangement(cls):
-        # type: () -> None
-        if not cls.is_session_visible():
-            cls.show_session()
-        else:
-            cls.show_arrangement()
-
-    @classmethod
     def show_session(cls):
         # type: () -> None
         cls._INSTANCE._application_view.show_view("Session")
