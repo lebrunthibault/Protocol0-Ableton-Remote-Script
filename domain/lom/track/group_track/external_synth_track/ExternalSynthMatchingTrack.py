@@ -9,9 +9,6 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import \
     ExternalSynthTrackArmState
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import (  # noqa
-    ExternalSynthTrackMonitoringState,
-)
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -33,6 +30,11 @@ class ExternalSynthMatchingTrack(object):
         self._base_dummy_group = base_dummy_group
 
         self._track = self._get_track()
+
+    @property
+    def exists(self):
+        # type: () -> bool
+        return self._track is not None
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -75,6 +77,10 @@ class ExternalSynthMatchingTrack(object):
                 and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
                 self._base_track.sub_tracks[1].clip_slots,
             )
+
+    def switch_monitoring(self):
+        # type: () -> None
+        self._track.monitoring_state.switch()
 
     def connect_ext_track_routing(self):
         # type: () -> None

@@ -4,12 +4,17 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.MonitoringStateInterface import MonitoringStateInterface
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthMatchingTrack import \
+    ExternalSynthMatchingTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import \
+    ExternalSynthTrackArmState
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.shared.observer.Observable import Observable
 
 
 class ExternalSynthTrackMonitoringState(MonitoringStateInterface):
@@ -19,6 +24,7 @@ class ExternalSynthTrackMonitoringState(MonitoringStateInterface):
         audio_track,  # type: SimpleAudioTrack
         audio_tail_track,  # type: Optional[SimpleAudioTailTrack]
         dummy_group,  # type: DummyGroup
+        matching_track,  # type: ExternalSynthMatchingTrack
         external_device,  # type: Device
     ):
         # type: (...) -> None
@@ -26,7 +32,16 @@ class ExternalSynthTrackMonitoringState(MonitoringStateInterface):
         self._audio_track = audio_track
         self._audio_tail_track = audio_tail_track
         self._dummy_group = dummy_group
+        self._matching_track = matching_track
         self.external_device = external_device
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, ExternalSynthTrackArmState):
+            if observable.is_armed:
+                self.monitor_midi()
+            else:
+                self.monitor_audio()
 
     def set_audio_tail_track(self, track):
         # type: (Optional[SimpleAudioTailTrack]) -> None
@@ -35,6 +50,10 @@ class ExternalSynthTrackMonitoringState(MonitoringStateInterface):
 
     def switch(self):
         # type: () -> None
+        if self._matching_track.exists:
+            self._matching_track.switch_monitoring()
+            return
+
         if self._monitors_midi:
             self.monitor_audio()
         else:

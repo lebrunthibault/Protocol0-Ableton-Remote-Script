@@ -15,8 +15,9 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthMatchingTrack import \
-    ExternalSynthMatchingTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthMatchingTrack import (
+    ExternalSynthMatchingTrack,
+)
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
     ExternalSynthTrackArmState,
 )
@@ -66,7 +67,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
         self.dummy_group = ExternalSynthTrackDummyGroup(self)  # type: ExternalSynthTrackDummyGroup
-        self.matching_track = ExternalSynthMatchingTrack(self.base_track, self.midi_track, self.dummy_group)
+        self.matching_track = ExternalSynthMatchingTrack(
+            self.base_track, self.midi_track, self.dummy_group
+        )
 
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:
@@ -82,12 +85,12 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.audio_track,
             self.audio_tail_track,
             self.dummy_group,
+            self.matching_track,
             cast(Device, self.external_device),
         )  # type: ExternalSynthTrackMonitoringState
-        self.arm_state = ExternalSynthTrackArmState(
-            self.base_track, self.midi_track, self.monitoring_state
-        )
+        self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track)
         self.arm_state.register_observer(self.matching_track)
+        self.arm_state.register_observer(self.monitoring_state)
         self._is_stopping = False  # quantized, this is not part of Live API
 
         DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
