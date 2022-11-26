@@ -24,6 +24,7 @@ class AbletonClip(Subject):
         self.color_index = 0
         self.looping = True
         self.loop_start = 0
+        self.loop_end = 4
         self.muted = False
         self.playing_position = 0
         self.start_marker = 0

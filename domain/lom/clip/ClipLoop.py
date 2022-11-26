@@ -28,7 +28,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         self._looping_listener.subject = self._clip
 
         # caching this for when we set looping to False (used for tails)
-        self._loop_length = None  # type: Optional[float]
+        self._loop_end = None  # type: Optional[float]
 
     def __repr__(self):
         # type: () -> str
@@ -61,7 +61,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def _loop_listener(self):
         # type: () -> None
         if self.looping:
-            self._loop_length = self.length
+            self._loop_end = self._clip.loop_end
 
         self.notify_observers()
         if not self._clip.is_recording and not self._events_disabled:
@@ -80,7 +80,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (bool) -> None
         if self._clip:
             if not looping:
-                self._loop_length = self.length
+                self._loop_end = self._clip.loop_end
 
             self._clip.looping = looping
 
@@ -123,6 +123,14 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         self.looping = looping
 
     @property
+    def loop_end(self):
+        # type: () -> float
+        if self._loop_end is not None:
+            return self._loop_end
+        else:
+            return self._clip.loop_end
+
+    @property
     def length(self):
         # type: () -> float
         """
@@ -154,21 +162,24 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         self.length = bar_length * SongFacade.signature_numerator()
 
     @property
-    def loop_length(self):
-        # type: () -> float
-        """Return the loop length even when looping is off"""
-        if self._loop_length is not None:
-            return self._loop_length
-        else:
-            return self.length
-
-    @property
     def full_length(self):
         # type: () -> float
         if self.length == 0:
             return 0.0
         else:
             return self._clip.end_marker - self._clip.start_marker
+
+    @property
+    def full_loop_length(self):
+        # type: () -> float
+        """
+            Useful for negative start clips
+            Return the total length even when looping is off
+        """
+        if self.length == 0:
+            return 0.0
+        else:
+            return self.loop_end - self._clip.start_marker
 
     @property
     def full_bar_length(self):

@@ -9,6 +9,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
@@ -78,6 +79,7 @@ class SimpleMidiTrack(SimpleTrack):
 
         matching_clip_slots = [c for c in self.clip_slots if c.clip and c.clip.matches(clip) and c.clip is not clip]
 
+        Backend.client().show_info("Copying to %s clips" % len(matching_clip_slots))
         seq = Sequence()
         seq.add([partial(selected_cs.duplicate_clip_to, cs) for cs in matching_clip_slots])
         return seq.done()

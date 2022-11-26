@@ -20,8 +20,9 @@ class SceneLength(object):
     @property
     def length(self):
         # type: () -> float
-        clip_length = self._longest_clip.loop.loop_length if self._longest_clip else 0.0
+        clip_length = self.longest_clip.loop.full_loop_length if self.longest_clip else 0.0
         numerator = SongFacade.signature_numerator()
+
         if clip_length % numerator != 0:
             return clip_length
 
@@ -41,7 +42,7 @@ class SceneLength(object):
         return int(self.length / SongFacade.signature_numerator())
 
     @property
-    def _longest_clip(self):
+    def longest_clip(self):
         # type: () -> Optional[Clip]
         """
             We take any clip except
@@ -52,6 +53,7 @@ class SceneLength(object):
         We cannot exclude all recording clips in the case the midi clip is the longest
         and we are recording audio
         """
+
         clips = [
             clip
             for clip in self._clips
@@ -62,4 +64,4 @@ class SceneLength(object):
         if len(clips) == 0:
             return None
         else:
-            return max(clips, key=lambda c: c.length)
+            return max(clips, key=lambda c: c.loop.full_loop_length)

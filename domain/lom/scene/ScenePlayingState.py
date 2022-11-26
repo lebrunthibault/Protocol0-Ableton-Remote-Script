@@ -1,5 +1,3 @@
-from typing import Optional
-
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
@@ -42,8 +40,8 @@ class ScenePlayingState(object):
     @property
     def position(self):
         # type: () -> float
-        if self._longest_un_muted_clip:
-            return self._longest_un_muted_clip.playing_position.position
+        if self._scene_length.longest_clip:
+            return self._scene_length.longest_clip.playing_position.position
         else:
             return 0
 
@@ -63,12 +61,3 @@ class ScenePlayingState(object):
     def in_last_bar(self):
         # type: () -> bool
         return self.current_bar == self._scene_length.bar_length - 1
-
-    @property
-    def _longest_un_muted_clip(self):
-        # type: () -> Optional[Clip]
-        clips = [clip for clip in self._clips if (not clip.is_recording or float(clip.length).is_integer()) and not clip.muted]
-        if len(clips) == 0:
-            return None
-        else:
-            return max(clips, key=lambda c: c.length)
