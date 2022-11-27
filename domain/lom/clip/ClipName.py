@@ -64,7 +64,7 @@ class ClipName(SlotManager):
         if hasattr(self._live_clip, "warping") and not self._live_clip.warping:
             return ""
 
-        return get_length_legend(self._live_clip.length, SongFacade.signature_numerator(), short=short)
+        return get_length_legend(self._live_clip.loop_end - self._live_clip.start_marker, SongFacade.signature_numerator(), short=short)
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None

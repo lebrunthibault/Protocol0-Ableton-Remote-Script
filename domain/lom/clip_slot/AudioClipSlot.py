@@ -39,11 +39,16 @@ class AudioClipSlot(ClipSlot):
         Logger.info("Replacing %s with %s" % (self.clip, source_clip_slot.clip))
 
         clip_looping = self.clip.looping
+        clip_start_marker = self.clip._clip.start_marker
+        clip_end_marker = self.clip._clip.end_marker
         self.mark_as_replaceable()
 
         seq = Sequence()
         seq.add(partial(source_clip_slot.duplicate_clip_to, self))
+        seq.defer()
         seq.add(lambda: setattr(self.clip, "looping", clip_looping))
+        seq.add(lambda: setattr(self.clip._clip, "start_marker", clip_start_marker))
+        seq.add(lambda: setattr(self.clip._clip, "end_marker", clip_end_marker))
 
         return seq.done()
 
