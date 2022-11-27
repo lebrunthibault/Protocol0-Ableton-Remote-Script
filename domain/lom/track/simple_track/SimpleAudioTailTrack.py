@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, Type, cast
+from typing import List, Type, cast, Any
 
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
@@ -17,6 +17,11 @@ from protocol0.shared.observer.Observable import Observable
 class SimpleAudioTailTrack(SimpleAudioTrack):
     CLIP_SLOT_CLASS = AudioTailClipSlot  # type: Type[AudioClipSlot]
     TRACK_NAME = "t"
+
+    def __init__(self, *a, **k):
+        # type:(Any, Any) -> None
+        super(SimpleAudioTailTrack, self).__init__(*a, **k)
+        self.clip_tail.active = False
 
     @property
     def clip_slots(self):

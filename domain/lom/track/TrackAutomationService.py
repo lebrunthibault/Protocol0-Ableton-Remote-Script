@@ -61,7 +61,7 @@ class TrackAutomationService(object):
 
         # Special case if we clicked by mistake on a send parameter of any sub track
         # consider we wanted to show the automation of the dummy return track instead
-        if selected_parameter.is_mixer_parameter:  # type: ignore[unreachable]
+        if selected_parameter.is_mixer_parameter:
             (
                 selected_track,
                 selected_parameter,

@@ -13,6 +13,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent impo
 from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import (
     SimpleTrackLastClipDeletedEvent,
 )
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -61,6 +62,12 @@ class SimpleTrackClipSlots(SlotManager, Observable):
     def selected(self):
         # type: () -> ClipSlot
         return list(self._clip_slots)[SongFacade.selected_scene().index]
+
+    @property
+    def playing_clip(self):
+        # type: () -> Optional[Clip]
+        clip_slot = find_if(lambda cs: cs.is_playing, self._clip_slots)
+        return clip_slot.clip if clip_slot is not None else None
 
     def build(self):
         # type: () -> None

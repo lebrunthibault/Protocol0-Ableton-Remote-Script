@@ -3,6 +3,7 @@ from _Framework.SubjectSlot import subject_slot
 from typing import cast, List, Optional, Dict
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipTail import ClipTail
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -18,8 +19,8 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import Simp
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
@@ -54,6 +55,7 @@ class SimpleTrack(AbstractTrack):
 
         self._clip_slots = SimpleTrackClipSlots(live_track, self.CLIP_SLOT_CLASS)
         self._clip_slots.build()
+        self.clip_tail = ClipTail(self._clip_slots)
 
         self.devices = SimpleTrackDevices(live_track)
         self.devices.register_observer(self)
@@ -159,8 +161,7 @@ class SimpleTrack(AbstractTrack):
     @property
     def playing_clip(self):
         # type: () -> Optional[Clip]
-        clip_slot = find_if(lambda cs: cs.is_playing, self.clip_slots)
-        return clip_slot.clip if clip_slot is not None else None
+        return self._clip_slots.playing_clip
 
     @property
     def is_triggered(self):
@@ -171,6 +172,20 @@ class SimpleTrack(AbstractTrack):
     def is_recording(self):
         # type: () -> bool
         return any(clip for clip in self.clips if clip and clip.is_recording)
+
+    def stop(self, scene_index=None, next_scene_index=None, immediate=False):
+        # type: (Optional[int], Optional[int], bool) -> None
+        """
+        Will stop the track immediately or quantized
+        the scene_index is useful for fine tuning the stop of abstract group tracks
+        """
+        if scene_index is None:
+            return super(SimpleTrack, self).stop(scene_index, next_scene_index, immediate)
+
+        # let tail play
+        clip = self.clip_slots[scene_index].clip
+        if clip is not None and clip.is_playing:
+            Scheduler.wait_bars(clip.playing_position.bars_left, clip.stop)
 
     def delete(self):
         # type: () -> Sequence

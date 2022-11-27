@@ -85,7 +85,7 @@ class DeviceService(object):
         elif isinstance(track, (SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleDummyReturnTrack)):
             return cast(SimpleTrack, track.group_track)
 
-        return track  # type: ignore[unreachable]
+        return track
 
     def _on_device_loaded_event(self, event):
         # type: (DeviceLoadedEvent) -> None

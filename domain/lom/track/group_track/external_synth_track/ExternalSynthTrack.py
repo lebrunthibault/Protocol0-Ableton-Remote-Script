@@ -209,11 +209,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
             return False  # type: ignore[unreachable]
         if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
-            return False
+            return False  # type: ignore[unreachable]
 
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
-                return False
+                return False  # type: ignore[unreachable]
 
         return True
 

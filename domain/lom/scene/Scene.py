@@ -189,7 +189,9 @@ class Scene(SlotManager):
         if not SongFacade.is_playing():
             self._scene.fire()
         else:
-            for track in SongFacade.abstract_tracks():
+            # including usamo as we use empty clips to define the scene length sometimes
+            tracks = list(SongFacade.abstract_tracks()) + [SongFacade.usamo_track()]  # type: ignore
+            for track in tracks:
                 track.fire(self.index)
 
     def stop(self, next_scene=None, immediate=False):

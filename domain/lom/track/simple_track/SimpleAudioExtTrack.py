@@ -14,3 +14,4 @@ class SimpleAudioExtTrack(SimpleAudioTrack):
         # type:(Any, Any) -> None
         super(SimpleAudioExtTrack, self).__init__(*a, **k)
         self.abstract_group_track = None  # type: Optional[ExternalSynthTrack]
+        self.clip_tail.active = False

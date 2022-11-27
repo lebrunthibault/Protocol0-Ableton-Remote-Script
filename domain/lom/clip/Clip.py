@@ -160,6 +160,11 @@ class Clip(SlotManager, Observable):
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)
 
+    @property
+    def has_tail(self):
+        # type: () -> bool
+        return self.loop.full_length > self.length
+
     def show_loop(self):
         # type: () -> None
         self._clip.view.show_loop()
