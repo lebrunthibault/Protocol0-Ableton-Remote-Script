@@ -47,5 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(SongFacade.selected_clip().has_tail)
+        pass

@@ -163,7 +163,12 @@ class Clip(SlotManager, Observable):
     @property
     def has_tail(self):
         # type: () -> bool
-        return self.loop.full_length > self.length
+        return self._clip.end_marker > self._clip.loop_end
+
+    @property
+    def is_offset(self):
+        # type: () -> bool
+        return self._clip.start_marker < self._clip.loop_start
 
     def show_loop(self):
         # type: () -> None

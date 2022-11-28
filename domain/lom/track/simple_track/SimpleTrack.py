@@ -184,7 +184,7 @@ class SimpleTrack(AbstractTrack):
 
         # let tail play
         clip = self.clip_slots[scene_index].clip
-        if clip is not None and clip.is_playing:
+        if clip is not None and clip.is_playing and not clip.is_offset:
             Scheduler.wait_bars(clip.playing_position.bars_left, clip.stop)
 
     def delete(self):
