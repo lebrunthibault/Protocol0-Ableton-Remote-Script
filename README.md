@@ -3,16 +3,16 @@
 Protocol0 is a control surface script for Ableton Live. It is written in python 2.7 (not moving to python3/Live 11
 because a full restart is needed to recompile the script in Live 11. It's boring). It is a "selected track control" like
 script focused on working in session view with hardware synths. Especially it eases recording external synths in a way
-that feels more like recording vst. I'm triggering commands from note on / off and cc messages using a faderfox EC4.
+that feels more like recording vst. The scripts reacts to a set of midi note and cc messages. I'm currently triggering those using a faderfox EC4.
 > This script is working for me but would need to be adapted to be used by someone else as I'm relying on specific track
-> layouts and expecting to find my specific devices (like my rev2Editor / usamo etc)
+> layouts and expecting to find my specific devices (like my rev2Editor / usamo etc). It's anyway more interesting for a remote script dev.
 
 ## Features
 
 I started writing the script specifically because I thought recording my Prophet Rev2 was tedious. Later on I realized I
 would probably produce better if I was working more in session view and experiment longer instead of rushing to
-arrangement. So now it is more of a session view tool. Regarding synths my goal is to have a more of a vst like
-recording experience while working on my synths.
+arrangement. So now it is more of a session view tool. Regarding synths my goal is to reach more of a vst like
+recording experience.
 
 Specifically it aims to achieve :
 
@@ -27,7 +27,6 @@ Specifically it aims to achieve :
   most :
   Prophet Rev2, Minitaur and Serum). Mostly leveraging program change
 - A lot of little improvements in the session view including:
-- Primitives to handle multiple sets (muting / filtering actions)
 
 > - Fixed length recording
 > - Re recording audio from midi at a button's push
@@ -39,6 +38,7 @@ Specifically it aims to achieve :
 > - A tool to bounce session to arrangement
 > - Tools to split and crop whole scenes
 > - Some code to synchronize my push2 to the script (specifically the session component)
+> - Primitives to handle multiple sets (muting / filtering actions)
 > - A few other tools that can be found in the action_groups folder
 
 <br><br>
@@ -53,11 +53,10 @@ The bigger part of the script is dedicated to handling external synths.
     - a midi track (records midi ofc)
     - an audio track (records the synth)
     - an optional audio track with no device on it (records audio clip tails)
-    - any other number of audio tracks (detects them as dummy tracks, nothing done on them)
-- the record button has 2 press modes :
-    - normal press : will record midi, audio and optional audio tail on the next scene available
-    - long press : will record audio from midi on this scene
-- Midi and audio clips are linked (start / end / looping, suppression ..)
+    - any other number of audio tracks (detects them as dummy tracks)
+- the record button has 2 main modes :
+    - midi recording : will record midi, audio and optional audio tail on the next scene available
+    - audio recording : will record audio from midi on this scene
 
 ## The backend
 
