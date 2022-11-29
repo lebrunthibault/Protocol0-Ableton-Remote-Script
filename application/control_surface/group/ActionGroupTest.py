@@ -47,4 +47,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        Backend.client().search('2022-11-29 143901')
+

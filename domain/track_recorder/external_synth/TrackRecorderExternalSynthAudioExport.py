@@ -6,6 +6,7 @@ from typing import Any, Optional, List
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
     TrackRecorderExternalSynthAudio,
 )
@@ -107,8 +108,8 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
 
         message = "%s / %s clips replaced" % (clips_replaced_count, clips_count)
         if clips_count == 0:
-            Backend.client().show_warning(message)
             Backend.client().search(basename(self.atk_cs.clip.file_path))
+            Scheduler.wait_ms(200, partial(Backend.client().show_warning, message))
         elif clips_count == clips_replaced_count:
             Backend.client().show_success(message)
         else:

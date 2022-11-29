@@ -1,18 +1,14 @@
 from typing import Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 
 
-class UsamoTrack(SimpleAudioTrack):
+class UsamoTrack(SimpleMidiTrack):
     """
-    This track serves 2 purposes
-
-    1. it holds the usamo device that I enabled
+    This track holds the usamo device that I enabled
     when I'm recording audio (to have sample accurate audio)
-    2. it holds a "template dummy clip" that I'm copying
-    over when I create dummy tracks
     """
 
     TRACK_NAME = "Usamo"

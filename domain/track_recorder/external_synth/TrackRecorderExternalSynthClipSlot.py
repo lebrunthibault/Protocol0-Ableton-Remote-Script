@@ -30,6 +30,10 @@ class SourceClipSlot(object):
 
         self.clip_slot.delete_clip()
 
+    def __repr__(self):
+        # type: () -> str
+        return "%s - %s" % (self._track, self._name)
+
     @property
     def clip(self):
         # type: () -> Optional[AudioClip]
