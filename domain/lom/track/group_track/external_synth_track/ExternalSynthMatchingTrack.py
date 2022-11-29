@@ -1,5 +1,8 @@
 from functools import partial
 
+import Live
+from _Framework.CompoundElement import subject_slot_group
+from _Framework.SubjectSlot import SlotManager
 from typing import Optional, cast
 
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
@@ -17,19 +20,26 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class ExternalSynthMatchingTrack(object):
+class ExternalSynthMatchingTrack(SlotManager):
     def __init__(self, base_track, midi_track, base_dummy_group):
         # type: (SimpleAudioTrack, SimpleMidiTrack, DummyGroup) -> None
+        super(ExternalSynthMatchingTrack, self).__init__()
         self._base_track = base_track
         self._base_midi_track = midi_track
         self._base_dummy_group = base_dummy_group
 
         self._track = self._get_track()
+
+        solo_tracks = [self._base_track._track]
+        if self._track is not None:
+            solo_tracks.append(self._track._track)
+        self._solo_listener.replace_subjects(solo_tracks)
 
     @property
     def exists(self):
@@ -128,6 +138,14 @@ class ExternalSynthMatchingTrack(object):
             seq.add(first_cs.clip.show_notes)
 
         return seq.done()
+
+    @subject_slot_group("solo")
+    @defer
+    def _solo_listener(self, track):
+        # type: (Live.Track.Track) -> None
+        self._base_track.solo = track.solo
+        if self._track is not None:
+            self._track.solo = track.solo
 
     def copy_from_base_track(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
