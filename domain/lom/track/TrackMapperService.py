@@ -159,8 +159,12 @@ class TrackMapperService(SlotManager):
         else:
             sibling_tracks = list(SongFacade.abstract_tracks())
 
+        from protocol0.shared.logging.Logger import Logger
+
         index = sibling_tracks.index(track)
         previous_track = sibling_tracks[index - 1]
+        Logger.dev((previous_track, track))
+        Logger.dev(track.has_same_clips(previous_track))
 
         return track.has_same_clips(previous_track)
 

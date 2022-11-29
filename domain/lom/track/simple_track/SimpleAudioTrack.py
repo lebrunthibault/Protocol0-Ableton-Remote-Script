@@ -2,6 +2,7 @@ from typing import List, cast, Optional
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
@@ -22,3 +23,10 @@ class SimpleAudioTrack(SimpleTrack):
     def playing_clip(self):
         # type: () -> Optional[AudioClip]
         return super(SimpleAudioTrack, self).playing_clip
+
+    def has_same_clips(self, track):
+        # type: (AbstractTrack) -> bool
+        if not isinstance(track, SimpleAudioTrack):
+            return False
+
+        return all(clip.matches(other_clip) for clip, other_clip in zip(self.clips, track.clips))

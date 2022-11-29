@@ -29,7 +29,7 @@ class MidiClip(Clip):
 
     def matches(self, other):
         # type: (MidiClip) -> bool
-        return  self.hash == other.hash
+        return self.hash == other.hash
 
     @property
     def starts_at_1(self):

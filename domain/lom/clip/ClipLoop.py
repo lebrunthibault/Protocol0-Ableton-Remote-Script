@@ -173,8 +173,8 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def full_loop_length(self):
         # type: () -> float
         """
-            Useful for negative start clips
-            Return the total length even when looping is off
+        Useful for negative start clips
+        Return the total length even when looping is off
         """
         if self.length == 0:
             return 0.0
@@ -190,6 +190,15 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (ClipLoop) -> None
         self.start = loop.start
         self.end = loop.end
+
+    def matches(self, loop):
+        # type: (ClipLoop) -> bool
+        return (
+            self._clip.start_marker == loop._clip.start_marker
+            and self.start == loop.start
+            and self._clip.end_marker == loop._clip.end_marker
+            and self.end == loop.end
+        )
 
     def fix(self):
         # type: () -> None

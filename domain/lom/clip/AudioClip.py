@@ -16,6 +16,10 @@ class AudioClip(Clip):
         Scheduler.defer(self.appearance.refresh)
         DomainEventBus.emit(AudioClipCreatedEvent())
 
+    def matches(self, other):
+        # type: (AudioClip) -> bool
+        return self.loop.matches(other.loop) and self.file_path == other.file_path
+
     @property
     def warp_mode(self):
         # type: () -> Live.Clip.WarpMode
