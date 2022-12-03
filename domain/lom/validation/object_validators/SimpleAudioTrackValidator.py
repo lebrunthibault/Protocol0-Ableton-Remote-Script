@@ -21,7 +21,7 @@ class SimpleAudioTrackValidator(AggregateValidator):
         )
         validators += [
             CallbackValidator(
-                track, lambda t: t.arm_state.is_armable, None, "track should be armable"
+                track, lambda t: t.arm_state.is_armable, None, "%s should be armable" % track
             ),
             CallbackValidator(
                 track,
