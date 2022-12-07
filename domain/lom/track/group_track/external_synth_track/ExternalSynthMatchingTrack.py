@@ -3,15 +3,16 @@ from functools import partial
 import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional, cast
+from typing import Optional
 
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import \
-    ExternalSynthTrackArmState
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
+    ExternalSynthTrackArmState,
+)
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -63,9 +64,9 @@ class ExternalSynthMatchingTrack(SlotManager):
         if audio_track is not None:
             return audio_track
         midi_track = find_if(
-                lambda t: not t.is_foldable and t.name == self._base_track.name,
-                SongFacade.simple_tracks(SimpleMidiTrack),
-            )
+            lambda t: not t.is_foldable and t.name == self._base_track.name,
+            SongFacade.simple_tracks(SimpleMidiTrack),
+        )
 
         if midi_track is not None:
             Backend.client().show_warning("Matching track is a midi track. Not connecting.")
@@ -74,19 +75,24 @@ class ExternalSynthMatchingTrack(SlotManager):
 
     def _get_atk_cs(self):
         # type: () -> Optional[AudioClipSlot]
-        atk_cs = find_if(
-            lambda cs: cs.clip is not None
-            and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
-            self._base_track.sub_tracks[1].clip_slots,
-        )
-        if atk_cs is not None:
-            return cast(AudioClipSlot, atk_cs)
-        else:
-            return find_if(
+        audio_track = self._base_track.sub_tracks[1]
+
+        if len(audio_track.clips) == 0:
+            raise Protocol0Warning("Audio track has no clips")
+
+        return (
+            find_if(
+                lambda cs: cs.clip is not None
+                and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
+                audio_track.clip_slots,
+            )
+            or find_if(
                 lambda cs: cs.clip is not None
                 and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
-                self._base_track.sub_tracks[1].clip_slots,
+                audio_track.clip_slots,
             )
+            or audio_track.clips[0]
+        )
 
     def switch_monitoring(self):
         # type: () -> None

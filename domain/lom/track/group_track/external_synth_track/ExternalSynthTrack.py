@@ -459,5 +459,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def disconnect(self):
         # type: () -> None
         super(ExternalSynthTrack, self).disconnect()
+
+        self.matching_track.disconnect()
+        
         if not liveobj_valid(self._track):
             Scheduler.defer(self.matching_track.disconnect_ext_track_routing)
