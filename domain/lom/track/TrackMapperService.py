@@ -3,7 +3,7 @@ from functools import partial
 
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
@@ -18,10 +18,13 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
 from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -56,7 +59,8 @@ class TrackMapperService(SlotManager):
     @handle_error
     def tracks_listener(self):
         # type: () -> None
-        self._clean_deleted_tracks()
+        deleted_tracks = [t for t in SongFacade.all_simple_tracks() if not liveobj_valid(t._track)]
+        self._clean_tracks()
 
         previous_simple_track_count = len(list(SongFacade.all_simple_tracks()))
         has_added_tracks = 0 < previous_simple_track_count < len(list(SongFacade.live_tracks()))
@@ -72,14 +76,14 @@ class TrackMapperService(SlotManager):
         seq = Sequence()
         if has_added_tracks and SongFacade.selected_track():
             seq.add(partial(DomainEventBus.defer_emit, TrackAddedEvent()))
-            seq.add(self._on_track_added)
+            seq.add(partial(self._on_track_added, deleted_tracks))
 
         seq.add(partial(DomainEventBus.defer_emit, TracksMappedEvent()))
         seq.done()
 
         self._get_special_tracks()
 
-    def _clean_deleted_tracks(self):
+    def _clean_tracks(self):
         # type: () -> None
         existing_track_ids = [track._live_ptr for track in list(SongFacade.live_tracks())]
         deleted_ids = []
@@ -132,8 +136,8 @@ class TrackMapperService(SlotManager):
         if self._prev_instrument_bus_track is not None and self._instrument_bus_track is None:
             Backend.client().show_warning("InstrumentBusTrack removed")
 
-    def _on_track_added(self):
-        # type: () -> Optional[Sequence]
+    def _on_track_added(self, deleted_tracks):
+        # type: (List[SimpleTrack]) -> Optional[Sequence]
         if not SongFacade.selected_track().IS_ACTIVE:
             return None
         UndoFacade.begin_undo_step()  # Live crashes on undo without this
@@ -143,6 +147,11 @@ class TrackMapperService(SlotManager):
             added_track = SongFacade.current_track()
         seq.defer()
         seq.add(added_track.on_added)
+
+        # detect if track was flattened
+        matching_deleted_track = find_if(lambda t: t.index == added_track.index, deleted_tracks)
+        if isinstance(matching_deleted_track, SimpleMidiTrack) and isinstance(added_track, SimpleAudioTrack):
+            seq.add(added_track.fix_flattened_clips)
 
         if self._is_track_duplicated(added_track) and added_track.REMOVE_CLIPS_ON_ADDED:
             Backend.client().show_warning("Deleting clips ..")

@@ -30,3 +30,9 @@ class SimpleAudioTrack(SimpleTrack):
             return False
 
         return all(clip.matches(other_clip) for clip, other_clip in zip(self.clips, track.clips))
+
+    def fix_flattened_clips(self):
+        # type: () -> None
+        for clip in self.clips:
+            clip.loop.start = clip.loop.start
+            clip.crop()
