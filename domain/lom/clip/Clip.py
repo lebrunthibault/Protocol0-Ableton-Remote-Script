@@ -13,6 +13,7 @@ from protocol0.domain.lom.clip.automation.ClipAutomation import ClipAutomation
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -154,11 +155,13 @@ class Clip(SlotManager, Observable):
     def quantize(self, depth=1):
         # type: (float) -> None
         if self._clip:
+            UndoFacade.begin_undo_step()
             record_quantization_index = self._QUANTIZATION_OPTIONS.index(
                 SongFacade.midi_recording_quantization()
             )
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)
+            UndoFacade.end_undo_step()
 
     @property
     def has_tail(self):

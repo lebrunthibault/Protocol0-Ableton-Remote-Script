@@ -45,7 +45,9 @@ class DeviceEnum(AbstractEnum):
     SATURN_2 = "SATURN_2"
     SERUM = "SERUM"
     SIMPLER = "SIMPLER"
+    SOOTHE2 = "SOOTHE2"
     SSL_COMP = "SSL_COMP"
+    SURFEREQ = "SURFEREQ"
     TRACK_SPACER = "TRACK_SPACER"
     TRUE_VERB = "TRUE_VERB"
     TUNER = "TUNER"
@@ -269,6 +271,8 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.SATURN_2: 50,
                 DeviceEnum.SERUM: 147,
                 DeviceEnum.SIMPLER: 56,
+                DeviceEnum.SOOTHE2: 206,
+                DeviceEnum.SURFEREQ: 116,
                 DeviceEnum.SSL_COMP: 81,
                 DeviceEnum.TRACK_SPACER: 207,
                 DeviceEnum.TRUE_VERB: 82,
