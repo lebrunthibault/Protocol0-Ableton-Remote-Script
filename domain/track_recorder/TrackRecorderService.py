@@ -2,10 +2,13 @@ from functools import partial
 
 from typing import Optional
 
+import Live
+
 from protocol0.domain.lom.clip.ClipSampleService import ClipSampleService
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.lom.song.components.QuantizationComponent import QuantizationComponent
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -46,12 +49,13 @@ class TrackRecorderService(object):
     _DEBUG = True
 
     def __init__(
-        self, playback_component, recording_component, scene_crud_component, clip_sample_service
+        self, playback_component, recording_component, scene_crud_component, quantization_component, clip_sample_service
     ):
-        # type: (PlaybackComponent, RecordingComponent, SceneCrudComponent, ClipSampleService) -> None
+        # type: (PlaybackComponent, RecordingComponent, SceneCrudComponent, QuantizationComponent, ClipSampleService) -> None
         self._playback_component = playback_component
         self._recording_component = recording_component
         self._scene_crud_component = scene_crud_component
+        self._quantization_component = quantization_component
         self._clip_sample_service = clip_sample_service
 
         self.recording_bar_length_scroller = RecordingBarLengthScroller(
@@ -91,6 +95,9 @@ class TrackRecorderService(object):
             self.cancel_record()
             DomainEventBus.emit(TrackRecordingCancelledEvent())
             return None
+
+        if self._quantization_component.clip_trigger_quantization != Live.Song.Quantization.q_bar:
+            self._quantization_component.clip_trigger_quantization = Live.Song.Quantization.q_bar
 
         recorder_factory = self._get_track_recorder_factory(track)
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
