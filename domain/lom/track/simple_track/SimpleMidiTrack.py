@@ -1,24 +1,28 @@
 from functools import partial
 
-from typing import List, cast, Optional
+from typing import List, cast, Any
 
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
-from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.SimpleMidiMatchingTrack import SimpleMidiMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SimpleMidiTrack(SimpleTrack):
     CLIP_SLOT_CLASS = MidiClipSlot
+
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        super(SimpleMidiTrack, self).__init__(*a, **k)
+        self.matching_track = SimpleMidiMatchingTrack(self)
+        self.arm_state.register_observer(self.matching_track)
 
     @property
     def clip_slots(self):
@@ -30,36 +34,12 @@ class SimpleMidiTrack(SimpleTrack):
         # type: () -> List[MidiClip]
         return super(SimpleMidiTrack, self).clips  # noqa
 
-    def _get_matching_track(self):
-        # type: () -> Optional[SimpleAudioTrack]
-        return find_if(
-            lambda t: not t.is_foldable and t.name == self.name,
-            SongFacade.simple_tracks(SimpleAudioTrack),
-        )
-
     def on_added(self):
         # type: () -> Sequence
-        matching_track = self._get_matching_track()
+        self.matching_track.connect_main_track()
 
         seq = Sequence()
         seq.add(self.arm_state.arm)
-        if matching_track is not None:
-            seq.add(partial(self._connect_main_track, matching_track))
-
-        return seq.done()
-
-    def _connect_main_track(self, matching_audio_track):
-        # type: (SimpleAudioTrack) -> Sequence
-        # plug the external synth recording track in its main audio track
-        seq = Sequence()
-        matching_audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self.output_routing.track = matching_audio_track
-
-        # select the first midi clip
-        seq.add(ApplicationViewFacade.show_clip)
-        if len(self.clips) != 0:
-            seq.defer()
-            seq.add(self.clips[0].show_notes)
 
         return seq.done()
 
@@ -84,15 +64,11 @@ class SimpleMidiTrack(SimpleTrack):
         seq.add([partial(selected_cs.duplicate_clip_to, cs) for cs in matching_clip_slots])
         return seq.done()
 
-    def _on_disconnect_matching_track(self):
-        # type: () -> None
-        """Restore the current monitoring state of the main track"""
-        matching_track = self._get_matching_track()
-        if matching_track is not None:
-            matching_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-
     def disconnect(self):
         # type: () -> None
         super(SimpleMidiTrack, self).disconnect()
-        if not self._track:
-            Scheduler.defer(self._on_disconnect_matching_track)
+
+        self.matching_track.disconnect()
+
+        if not liveobj_valid(self._track):
+            Scheduler.defer(self.matching_track.disconnect_base_track_routing)

@@ -1,113 +1,28 @@
 from functools import partial
 
-import Live
-from _Framework.CompoundElement import subject_slot_group
-from _Framework.SubjectSlot import SlotManager
 from typing import Optional
 
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
-from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
-    ExternalSynthTrackArmState,
-)
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class ExternalSynthMatchingTrack(SlotManager):
+class ExternalSynthMatchingTrack(AbstractMatchingTrack):
     def __init__(self, base_track, midi_track, base_dummy_group):
         # type: (SimpleAudioTrack, SimpleMidiTrack, DummyGroup) -> None
-        super(ExternalSynthMatchingTrack, self).__init__()
-        self._base_track = base_track
+        super(ExternalSynthMatchingTrack, self).__init__(base_track)
         self._base_midi_track = midi_track
         self._base_dummy_group = base_dummy_group
-
-        self._track = self._get_track()
-
-        solo_tracks = [self._base_track._track]
-        if self._track is not None:
-            solo_tracks.append(self._track._track)
-        self._solo_listener.replace_subjects(solo_tracks)
-
-    @property
-    def exists(self):
-        # type: () -> bool
-        return self._track is not None
-
-    def update(self, observable):
-        # type: (Observable) -> None
-        if isinstance(observable, ExternalSynthTrackArmState) and self._track is not None:
-            if observable.is_armed:
-                self.connect_ext_track_routing()
-            else:
-                self.disconnect_ext_track_routing()
-
-    def _get_track(self):
-        # type: () -> Optional[SimpleAudioTrack]
-        audio_track = find_if(
-            lambda t: not t.is_foldable and t.name == self._base_track.name,
-            SongFacade.simple_tracks(SimpleAudioTrack),
-        )
-        if audio_track is not None:
-            return audio_track
-        midi_track = find_if(
-            lambda t: not t.is_foldable and t.name == self._base_track.name,
-            SongFacade.simple_tracks(SimpleMidiTrack),
-        )
-
-        if midi_track is not None:
-            Backend.client().show_warning("Matching track is a midi track. Not connecting.")
-
-        return None
-
-    def _get_atk_cs(self):
-        # type: () -> Optional[AudioClipSlot]
-        audio_track = self._base_track.sub_tracks[1]
-
-        if len(audio_track.clips) == 0:
-            raise Protocol0Warning("Audio track has no clips")
-
-        return (
-            find_if(
-                lambda cs: cs.clip is not None
-                and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
-                audio_track.clip_slots,
-            )
-            or find_if(
-                lambda cs: cs.clip is not None
-                and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
-                audio_track.clip_slots,
-            )
-            or audio_track.clips[0]
-        )
-
-    def switch_monitoring(self):
-        # type: () -> None
-        self._track.monitoring_state.switch()
-
-    def connect_ext_track_routing(self):
-        # type: () -> None
-        self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self._base_track.output_routing.track = self._track  # type: ignore[assignment]
-
-    def disconnect_ext_track_routing(self):
-        # type: () -> None
-        """Restore the current monitoring state of the track"""
-        if self._track is not None:
-            self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
     def connect_main_track(self):
         # type: () -> None
@@ -115,7 +30,7 @@ class ExternalSynthMatchingTrack(SlotManager):
         if self._track is None and self._base_midi_track.instrument is not None:
             self._base_midi_track.instrument.force_show = True
 
-        Scheduler.defer(self._connect_main_track)
+        super(ExternalSynthMatchingTrack, self).connect_main_track()
 
     def _connect_main_track(self, show_midi_clip=True):
         # type: (bool) -> Optional[Sequence]
@@ -123,11 +38,10 @@ class ExternalSynthMatchingTrack(SlotManager):
         if self._track is None:
             return None
 
-        seq = Sequence()
-        self.connect_ext_track_routing()
-
         if not show_midi_clip:
             return None
+
+        seq = Sequence()
 
         # select the first midi clip
         first_cs = next((cs for cs in self._base_midi_track.clip_slots if cs.clip), None)
@@ -144,14 +58,6 @@ class ExternalSynthMatchingTrack(SlotManager):
             seq.add(first_cs.clip.show_notes)
 
         return seq.done()
-
-    @subject_slot_group("solo")
-    @defer
-    def _solo_listener(self, track):
-        # type: (Live.Track.Track) -> None
-        self._base_track.solo = track.solo
-        if self._track is not None:
-            self._track.solo = track.solo
 
     def copy_from_base_track(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence

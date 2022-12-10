@@ -147,13 +147,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 raise Protocol0Warning("Tail clip index mismatch for %s" % self)
             clip_to_fire.fire()
 
-    def _get_matching_track(self):
-        # type: () -> Optional[SimpleAudioTrack]
-        return find_if(
-            lambda t: not t.is_foldable and t.name == self.name,
-            SongFacade.simple_tracks(SimpleAudioTrack),
-        )
-
     @property
     def _should_loop_audio(self):
         # type: () -> bool
@@ -207,7 +200,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             return False
 
         if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
-            return False  # type: ignore[unreachable]
+            return False
         if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
             return False  # type: ignore[unreachable]
 
@@ -463,4 +456,4 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.matching_track.disconnect()
 
         if not liveobj_valid(self._track):
-            Scheduler.defer(self.matching_track.disconnect_ext_track_routing)
+            Scheduler.defer(self.matching_track.disconnect_base_track_routing)

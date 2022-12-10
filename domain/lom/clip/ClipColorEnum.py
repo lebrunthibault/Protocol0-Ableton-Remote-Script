@@ -3,7 +3,7 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class ClipColorEnum(ColorEnumInterface, AbstractEnum):
-    AUDIO_UN_QUANTIZED = 13
+    AUDIO_UN_QUANTIZED = 14
 
     @property
     def color_int_value(self):

@@ -34,5 +34,5 @@ class SimpleAudioTrack(SimpleTrack):
     def fix_flattened_clips(self):
         # type: () -> None
         for clip in self.clips:
-            clip.loop.start = clip.loop.start
+            clip.loop.start = clip.loop._clip.start_marker
             clip.crop()
