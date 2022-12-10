@@ -37,6 +37,7 @@ class DeviceEnum(AbstractEnum):
     LIMITER = "LIMITER"
     MASTERING_RACK = "MASTERING_RACK"
     PITCH = "PITCH"
+    PLAY = "PLAY"
     PRO_Q_3 = "PRO_Q_3"
     REVERB = "REVERB"
     REV2_EDITOR = "REV2_EDITOR"
@@ -70,6 +71,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.KONTAKT: "Kontakt 7",
                     DeviceEnum.LFO_TOOL: "LFOTool_x64",
                     DeviceEnum.PRO_Q_3: "Pro-Q 3",
+                    DeviceEnum.PLAY: "play_VST_x64",
                     DeviceEnum.REV2_EDITOR: "REV2Editor",
                     DeviceEnum.SATURN_2: "Saturn 2",
                     DeviceEnum.SERUM: "Serum_x64",
@@ -224,8 +226,9 @@ class DeviceEnum(AbstractEnum):
                 cls.AUTO_PAN,
             ],
             [
+                cls.DRUM_RACK,
                 cls.KONTAKT,
-                cls.DRUM_RACK
+                cls.PLAY,
             ],
         ]
 
@@ -264,6 +267,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.LFO_TOOL: 180,
                 DeviceEnum.LIMITER: 5,
                 DeviceEnum.PITCH: 2,
+                DeviceEnum.PLAY: 214,
                 DeviceEnum.PRO_Q_3: 53,
                 DeviceEnum.REVERB: 9,
                 DeviceEnum.REV2_EDITOR: 80,

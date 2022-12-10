@@ -9,7 +9,6 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
@@ -25,6 +24,16 @@ class AbstractMatchingTrack(SlotManager):
         super(AbstractMatchingTrack, self).__init__()
         self._base_track = base_track
 
+        self._track = None  # type: Optional[SimpleAudioTrack]
+        # let tracks be mapped
+        Scheduler.defer(self._init)
+
+    def __repr__(self):
+        # type: () -> str
+        return "%s of %s" % (self.__class__.__name__, self._track)
+
+    def _init(self):
+        # type: () -> None
         self._track = self._get_track()
 
         solo_tracks = [self._base_track._track]
@@ -47,21 +56,13 @@ class AbstractMatchingTrack(SlotManager):
 
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
-        audio_track = find_if(
-            lambda t: not t.is_foldable and t.name == self._base_track.name,
-            SongFacade.simple_tracks(SimpleAudioTrack),
-        )
-        if audio_track is not None:
-            return audio_track
-        from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-
-        midi_track = find_if(
-            lambda t: not t.is_foldable and t.name == self._base_track.name,
-            SongFacade.simple_tracks(SimpleMidiTrack),
+        matching_track = find_if(
+            lambda t:  t != self._base_track and not t.is_foldable and t.name == self._base_track.name,
+            SongFacade.simple_tracks(),
         )
 
-        if midi_track is not None:
-            Backend.client().show_warning("Matching track is a midi track. Not connecting.")
+        if isinstance(matching_track, SimpleAudioTrack):
+            return matching_track
 
         return None
 
