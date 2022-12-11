@@ -47,6 +47,7 @@ class DeviceEnum(AbstractEnum):
     SERUM = "SERUM"
     SIMPLER = "SIMPLER"
     SOOTHE2 = "SOOTHE2"
+    SOUNDID_REFERENCE = "SOUNDID_REFERENCE"
     SSL_COMP = "SSL_COMP"
     SURFEREQ = "SURFEREQ"
     TRACK_SPACER = "TRACK_SPACER"
@@ -76,6 +77,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.SATURN_2: "Saturn 2",
                     DeviceEnum.SERUM: "Serum_x64",
                     DeviceEnum.SSL_COMP: "SSLComp Stereo",
+                    DeviceEnum.SOUNDID_REFERENCE: "SoundID Reference Plugin",
                     DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
                     DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
                     DeviceEnum.USAMO: "usamo_x64",

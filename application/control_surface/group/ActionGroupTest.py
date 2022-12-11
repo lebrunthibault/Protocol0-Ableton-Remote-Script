@@ -47,4 +47,6 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(SongFacade.selected_device().is_enabled)
+        Logger.dev(SongFacade.selected_device().is_active)
