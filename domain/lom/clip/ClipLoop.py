@@ -10,6 +10,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -149,7 +150,10 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @length.setter
     def length(self, length):
         # type: (float) -> None
-        self.end = self.start + length
+        try:
+            self.end = self.start + length
+        except IndexError as e:
+            Logger.warning("clip loop length error: %s" % e)
 
     @property
     def bar_length(self):

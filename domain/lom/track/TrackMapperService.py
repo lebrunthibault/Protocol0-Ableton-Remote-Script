@@ -163,6 +163,9 @@ class TrackMapperService(SlotManager):
 
     def _is_track_duplicated(self, track):
         # type: (AbstractTrack) -> bool
+        if not isinstance(track, ExternalSynthTrack):
+            return False
+
         if track.group_track is not None:
             sibling_tracks = track.group_track.sub_tracks
         else:

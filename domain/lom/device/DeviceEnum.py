@@ -36,6 +36,7 @@ class DeviceEnum(AbstractEnum):
     LFO_TOOL = "LFO_TOOL"
     LIMITER = "LIMITER"
     MASTERING_RACK = "MASTERING_RACK"
+    OPUS = "OPUS"
     PITCH = "PITCH"
     PLAY = "PLAY"
     PRO_Q_3 = "PRO_Q_3"
@@ -231,6 +232,7 @@ class DeviceEnum(AbstractEnum):
                 cls.DRUM_RACK,
                 cls.KONTAKT,
                 cls.PLAY,
+                cls.OPUS,
             ],
         ]
 

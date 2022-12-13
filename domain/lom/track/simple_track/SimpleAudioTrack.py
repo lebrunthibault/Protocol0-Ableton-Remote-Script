@@ -35,4 +35,3 @@ class SimpleAudioTrack(SimpleTrack):
         # type: () -> None
         for clip in self.clips:
             clip.loop.start = clip.loop._clip.start_marker
-            clip.crop()
