@@ -57,6 +57,9 @@ class DevicesStats(object):
         self.count = len(devices)
         self.total_load_time = sum(stat.total_load_time for stat in device_stats_dict.values())
         self.device_stats = devices_stats
+        self.play_instances = len([d for d in devices if d.name == DeviceEnum.PLAY.device_name])
+        self.opus_instances = len([d for d in devices if d.name == DeviceEnum.OPUS.device_name])
+        self.kontakt_instances = len([d for d in devices if d.name == DeviceEnum.KONTAKT.device_name])
 
     def _get_devices(self):
         # type: () -> Iterator[Device]
@@ -76,5 +79,8 @@ class DevicesStats(object):
         output["count"] = self.count
         output["total load time"] = "%.2fs" % (float(self.total_load_time) / 1000)
         output["devices stats"] = [str(stat) for stat in self.device_stats]
+        output["play instances"] = self.play_instances
+        output["opus instances"] = self.opus_instances
+        output["kontakt instances"] = self.kontakt_instances
 
         return output

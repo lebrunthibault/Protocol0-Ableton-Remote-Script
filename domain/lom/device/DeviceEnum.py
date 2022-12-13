@@ -48,7 +48,7 @@ class DeviceEnum(AbstractEnum):
     SERUM = "SERUM"
     SIMPLER = "SIMPLER"
     SOOTHE2 = "SOOTHE2"
-    SOUNDID_REFERENCE = "SOUNDID_REFERENCE"
+    SOUNDID_REFERENCE_PLUGIN = "SOUNDID_REFERENCE_PLUGIN"
     SSL_COMP = "SSL_COMP"
     SURFEREQ = "SURFEREQ"
     TRACK_SPACER = "TRACK_SPACER"
@@ -78,7 +78,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.SATURN_2: "Saturn 2",
                     DeviceEnum.SERUM: "Serum_x64",
                     DeviceEnum.SSL_COMP: "SSLComp Stereo",
-                    DeviceEnum.SOUNDID_REFERENCE: "SoundID Reference Plugin",
+                    DeviceEnum.SOUNDID_REFERENCE_PLUGIN: "SoundID Reference Plugin",
                     DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
                     DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
                     DeviceEnum.USAMO: "usamo_x64",
@@ -249,47 +249,51 @@ class DeviceEnum(AbstractEnum):
         measured by loading multiple device instances (20) in an empty set and timing multiple times the set load
         very rough approximation of the performance impact of a device on the whole set
         """
-        return self.get_value_from_mapping(
-            {
-                DeviceEnum.ADDICTIVE_KEYS: 1263,
-                DeviceEnum.API_2500: 95,
-                DeviceEnum.AUDIO_EFFECT_RACK: 8,
-                DeviceEnum.AUTO_FILTER: 7,
-                DeviceEnum.BEAT_REPEAT: 7,
-                DeviceEnum.COMPRESSOR: 11,
-                DeviceEnum.DELAY: 10,
-                DeviceEnum.EFFECTRIX: 133,
-                DeviceEnum.EQ_EIGHT: 31,
-                DeviceEnum.EQ_ROOM: 31,
-                DeviceEnum.EXTERNAL_AUDIO_EFFECT: 5,
-                DeviceEnum.EXTERNAL_INSTRUMENT: 20,
-                DeviceEnum.FREE_CLIP: 40,
-                DeviceEnum.KONTAKT: 1000,
-                DeviceEnum.GATE: 7,
-                DeviceEnum.GLUE_COMPRESSOR: 6,
-                DeviceEnum.INSTRUMENT_RACK: 10,
-                DeviceEnum.LFO_TOOL: 180,
-                DeviceEnum.LIMITER: 5,
-                DeviceEnum.PITCH: 2,
-                DeviceEnum.PLAY: 214,
-                DeviceEnum.PRO_Q_3: 53,
-                DeviceEnum.REVERB: 9,
-                DeviceEnum.REV2_EDITOR: 80,
-                DeviceEnum.SATURATOR: 8,
-                DeviceEnum.SATURN_2: 50,
-                DeviceEnum.SERUM: 147,
-                DeviceEnum.SIMPLER: 56,
-                DeviceEnum.SOOTHE2: 206,
-                DeviceEnum.SURFEREQ: 116,
-                DeviceEnum.SSL_COMP: 81,
-                DeviceEnum.TRACK_SPACER: 207,
-                DeviceEnum.TRUE_VERB: 82,
-                DeviceEnum.TUNER: 0,
-                DeviceEnum.USAMO: 78,
-                DeviceEnum.UTILITY: 4,
-                DeviceEnum.VALHALLA_VINTAGE_VERB: 71,
-            }
-        )
+        try:
+            return self.get_value_from_mapping(
+                {
+                    DeviceEnum.ADDICTIVE_KEYS: 1263,
+                    DeviceEnum.API_2500: 95,
+                    DeviceEnum.AUDIO_EFFECT_RACK: 8,
+                    DeviceEnum.AUTO_FILTER: 7,
+                    DeviceEnum.BEAT_REPEAT: 7,
+                    DeviceEnum.COMPRESSOR: 11,
+                    DeviceEnum.DELAY: 10,
+                    DeviceEnum.EFFECTRIX: 133,
+                    DeviceEnum.EQ_EIGHT: 31,
+                    DeviceEnum.EQ_ROOM: 31,
+                    DeviceEnum.EXTERNAL_AUDIO_EFFECT: 5,
+                    DeviceEnum.EXTERNAL_INSTRUMENT: 20,
+                    DeviceEnum.FREE_CLIP: 40,
+                    DeviceEnum.KONTAKT: 1000,
+                    DeviceEnum.GATE: 7,
+                    DeviceEnum.GLUE_COMPRESSOR: 6,
+                    DeviceEnum.INSTRUMENT_RACK: 10,
+                    DeviceEnum.LFO_TOOL: 180,
+                    DeviceEnum.LIMITER: 5,
+                    DeviceEnum.PITCH: 2,
+                    DeviceEnum.PLAY: 214,
+                    DeviceEnum.PRO_Q_3: 53,
+                    DeviceEnum.REVERB: 9,
+                    DeviceEnum.REV2_EDITOR: 80,
+                    DeviceEnum.SATURATOR: 8,
+                    DeviceEnum.SATURN_2: 50,
+                    DeviceEnum.SERUM: 147,
+                    DeviceEnum.SIMPLER: 56,
+                    DeviceEnum.SOOTHE2: 206,
+                    DeviceEnum.SURFEREQ: 116,
+                    DeviceEnum.SSL_COMP: 81,
+                    DeviceEnum.SOUNDID_REFERENCE_PLUGIN: 0,
+                    DeviceEnum.TRACK_SPACER: 207,
+                    DeviceEnum.TRUE_VERB: 82,
+                    DeviceEnum.TUNER: 0,
+                    DeviceEnum.USAMO: 78,
+                    DeviceEnum.UTILITY: 4,
+                    DeviceEnum.VALHALLA_VINTAGE_VERB: 71,
+                }
+            )
+        except Protocol0Error:
+            return 0
 
     @property
     def is_instrument(self):

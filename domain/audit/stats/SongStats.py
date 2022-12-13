@@ -17,8 +17,8 @@ class SongStats(object):
             SceneStats(),
             TrackStats(),
             ClipStats(),
-            DevicesStats(),
             SampleStats(),
+            DevicesStats(),
         ]  # type: List[Stats]
 
     def to_dict(self):

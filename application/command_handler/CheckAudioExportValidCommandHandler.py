@@ -8,6 +8,6 @@ from protocol0.shared.SongFacade import SongFacade
 class CheckAudioExportValidCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (CheckAudioExportValidCommand) -> None
-        sound_id_device = SongFacade.master_track().devices.get_one_from_enum(DeviceEnum.SOUNDID_REFERENCE)
+        sound_id_device = SongFacade.master_track().devices.get_one_from_enum(DeviceEnum.SOUNDID_REFERENCE_PLUGIN)
         if sound_id_device is not None and sound_id_device.is_enabled:
             Backend.client().show_warning("The SoundID Reference plugin is enabled", centered=True)
