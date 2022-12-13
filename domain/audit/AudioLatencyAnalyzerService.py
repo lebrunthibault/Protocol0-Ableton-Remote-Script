@@ -18,7 +18,6 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
@@ -42,9 +41,6 @@ class AudioLatencyAnalyzerService(object):
 
     def test_audio_latency(self, track):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
-        if SongFacade.usamo_track() is None:
-            raise Protocol0Warning("Missing usamo track")
-
         tempo = SongFacade.tempo()
         self._tempo_component.tempo = 120  # easier to see jitter
 

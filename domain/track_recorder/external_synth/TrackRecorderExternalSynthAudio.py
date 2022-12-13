@@ -13,7 +13,6 @@ from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingS
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthMixin import (
     TrackRecorderExternalSynthMixin,
 )
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -29,7 +28,6 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
         if midi_clip.loop.start != 0:
             Backend.client().show_warning("Cropping midi clip")
             midi_clip.crop()
-        SongFacade.usamo_track().activate()
         DomainEventBus.emit(ExternalSynthAudioRecordingStartedEvent(self.track))
 
     def record(self, bar_length):

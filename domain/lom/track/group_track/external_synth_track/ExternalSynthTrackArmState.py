@@ -1,16 +1,20 @@
+from functools import partial
+
 from typing import Optional
 
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmedEvent import \
+    ExternalSynthTrackArmedEvent
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
+from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ExternalSynthTrackArmState(AbstractTrackArmState):
     def __init__(self, base_track, midi_track):
-        # type: (SimpleTrack, SimpleMidiTrack) -> None
+        # type: (SimpleAudioTrack, SimpleMidiTrack) -> None
         super(ExternalSynthTrackArmState, self).__init__(base_track._track)
         self._base_track = base_track
         self._sub_tracks = base_track.sub_tracks
@@ -43,10 +47,6 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
         self._base_track.is_folded = False
         self._base_track.muted = False
 
-        if SongFacade.usamo_track():
-            SongFacade.usamo_track().input_routing.track = self._midi_track
-            SongFacade.usamo_track().activate()  # this is the default: overridden by prophet
-
         if self._midi_track.input_routing.type == InputRoutingTypeEnum.NO_INPUT:
             self._midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
 
@@ -58,13 +58,12 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
             ]
         )
         seq.add(self.notify_observers)
+        seq.add(partial(DomainEventBus.emit, ExternalSynthTrackArmedEvent(self._base_track)))
         return seq.done()
 
     def unarm(self):
         # type: () -> None
         self.is_armed = False
-        if SongFacade.usamo_track():
-            SongFacade.usamo_track().input_routing.track = self._midi_track
-            SongFacade.usamo_track().inactivate()
 
+        DomainEventBus.emit(ExternalSynthTrackArmedEvent(self._base_track, arm=False))
         self.notify_observers()

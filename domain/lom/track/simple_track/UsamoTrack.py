@@ -1,8 +1,19 @@
 from typing import Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmedEvent import (
+    ExternalSynthTrackArmedEvent,
+)
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingEndedEvent import (
+    ExternalSynthAudioRecordingEndedEvent,
+)
+from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import (
+    ExternalSynthAudioRecordingStartedEvent,
+)
 
 
 class UsamoTrack(SimpleMidiTrack):
@@ -20,6 +31,19 @@ class UsamoTrack(SimpleMidiTrack):
         if self._usamo_device is None:
             raise Protocol0Error("Cannot find usamo device on usamo track")
 
+        DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
+        DomainEventBus.subscribe(
+            ExternalSynthTrackArmedEvent, self._on_external_synth_track_armed_event
+        )
+        DomainEventBus.subscribe(
+            ExternalSynthAudioRecordingStartedEvent,
+            self._on_external_synth_audio_recording_started_event,
+        )
+        DomainEventBus.subscribe(
+            ExternalSynthAudioRecordingEndedEvent,
+            self._on_external_synth_audio_recording_ended_event,
+        )
+
     def activate(self):
         # type: () -> None
         self._usamo_device.is_enabled = True
@@ -27,3 +51,24 @@ class UsamoTrack(SimpleMidiTrack):
     def inactivate(self):
         # type: () -> None
         self._usamo_device.is_enabled = False
+
+    def _on_simple_track_armed_event(self, _):
+        # type: (SimpleTrackArmedEvent) -> None
+        self.inactivate()
+
+    def _on_external_synth_track_armed_event(self, event):
+        # type: (ExternalSynthTrackArmedEvent) -> None
+        if event.arm:
+            # noinspection PyUnresolvedReferences
+            self.input_routing.track = event.track.abstract_track.midi_track
+            self.activate()  # this is the default: overridden by prophet
+        else:
+            self.inactivate()
+
+    def _on_external_synth_audio_recording_started_event(self, _):
+        # type: (ExternalSynthAudioRecordingStartedEvent) -> None
+        self.activate()
+
+    def _on_external_synth_audio_recording_ended_event(self, event):
+        # type: (ExternalSynthAudioRecordingEndedEvent) -> None
+        self.inactivate()

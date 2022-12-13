@@ -33,7 +33,6 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
     from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
     from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
-    from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
     from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip
@@ -228,11 +227,6 @@ class SongFacade(object):
     def partially_armed_tracks(cls):
         # type: () -> Iterator[AbstractTrack]
         return (track for track in cls.abstract_tracks() if track.arm_state.is_partially_armed)
-
-    @classmethod
-    def usamo_track(cls):
-        # type: () -> Optional[UsamoTrack]
-        return cls._INSTANCE._track_mapper_service._usamo_track
 
     @classmethod
     def drums_track(cls):
