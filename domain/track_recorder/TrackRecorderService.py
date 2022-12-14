@@ -139,6 +139,7 @@ class TrackRecorderService(object):
         seq.add(count_in.launch)
         seq.add(partial(DomainEventBus.subscribe, SongStoppedEvent, self._on_song_stopped_event))
         seq.add(partial(recorder.record, bar_length))
+        seq.add("recording done")
         seq.add(recorder.post_audio_record)
         seq.add(partial(recorder.post_record, bar_length))
         # seq.add(recorder.recording_scene.fire)

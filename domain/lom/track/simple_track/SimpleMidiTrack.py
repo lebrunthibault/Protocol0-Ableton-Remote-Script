@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, cast, Any
+from typing import List, cast, Any, Optional
 
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
@@ -35,13 +35,13 @@ class SimpleMidiTrack(SimpleTrack):
         return super(SimpleMidiTrack, self).clips  # noqa
 
     def on_added(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
         self.matching_track.connect_main_track()
 
-        seq = Sequence()
-        seq.add(self.arm_state.arm)
-
-        return seq.done()
+        if not SongFacade.is_track_recording():
+            return self.arm_state.arm()
+        else:
+            return None
 
     def has_same_clips(self, track):
         # type: (AbstractTrack) -> bool

@@ -106,7 +106,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def on_added(self):
         # type: () -> Optional[Sequence]
         self.matching_track.connect_main_track()
-        return self.arm_state.arm_track()
+        if not SongFacade.is_track_recording():
+            return self.arm_state.arm_track()
+        else:
+            return None
 
     def on_tracks_change(self):
         # type: () -> None

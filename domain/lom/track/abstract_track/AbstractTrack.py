@@ -71,7 +71,6 @@ class AbstractTrack(SlotManager):
 
     def on_added(self):
         # type: () -> Optional[Sequence]
-
         if self.group_track is not None:
             if self.group_track.color != self.color:
                 self.color = self.group_track.color

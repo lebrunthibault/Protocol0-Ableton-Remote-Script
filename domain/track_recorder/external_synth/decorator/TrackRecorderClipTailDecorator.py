@@ -5,7 +5,6 @@ from typing import Optional
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
-from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
@@ -75,12 +74,11 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
             audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
 
         self.track.midi_track.stop()
-        self.track.midi_track.input_routing.type = InputRoutingTypeEnum.COMPUTER_KEYBOARD
+        # self.track.midi_track.input_routing.type = InputRoutingTypeEnum.COMPUTER_KEYBOARD
 
         DomainEventBus.subscribe(Last32thPassedEvent, self._on_last_32th_passed_event)
         seq = Sequence()
         seq.wait_for_event(AudioClipSilentEvent, continue_on_song_stop=True)
-        seq.log("clip silent !")
         seq.add(partial(audio_clip.stop, immediate=True))  # don't catch end bar glitch
         if audio_tail_clip is not None:
             seq.add(partial(audio_tail_clip.stop, immediate=True))  # idem
