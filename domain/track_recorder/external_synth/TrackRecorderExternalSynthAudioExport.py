@@ -65,8 +65,8 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
     def record(self, bar_length):
         # type: (float) -> Sequence
         if (
-            self.track.audio_tail_track is None
-            or not self.track.audio_tail_track.arm_state.is_armed
+                self.track.audio_tail_track is None
+                or not self.track.audio_tail_track.arm_state.is_armed
         ):
             return super(TrackRecorderExternalSynthAudioExport, self).record(bar_length)
 
@@ -79,6 +79,10 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         seq.add(partial(super(TrackRecorderExternalSynthAudioExport, self).record, bar_length))
 
         return seq.done()
+
+    def _focus_main_clip(self):
+        # type: () -> Optional[Sequence]
+        return None
 
     def post_record(self, bar_length):
         # type: (int) -> Optional[Sequence]

@@ -1,6 +1,8 @@
 from typing import Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmedEvent import (
     ExternalSynthTrackArmedEvent,
 )
@@ -14,6 +16,7 @@ from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingE
 from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import (
     ExternalSynthAudioRecordingStartedEvent,
 )
+from protocol0.shared.SongFacade import SongFacade
 
 
 class UsamoTrack(SimpleMidiTrack):
@@ -52,8 +55,12 @@ class UsamoTrack(SimpleMidiTrack):
         # type: () -> None
         self._usamo_device.is_enabled = False
 
-    def _on_simple_track_armed_event(self, _):
+    def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> None
+        track = SongFacade.simple_track_from_live_track(event.live_track)
+        if isinstance(track.abstract_track, ExternalSynthTrack):
+            return None
+
         self.inactivate()
 
     def _on_external_synth_track_armed_event(self, event):
@@ -69,6 +76,6 @@ class UsamoTrack(SimpleMidiTrack):
         # type: (ExternalSynthAudioRecordingStartedEvent) -> None
         self.activate()
 
-    def _on_external_synth_audio_recording_ended_event(self, event):
+    def _on_external_synth_audio_recording_ended_event(self, _):
         # type: (ExternalSynthAudioRecordingEndedEvent) -> None
         self.inactivate()

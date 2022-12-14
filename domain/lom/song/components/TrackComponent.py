@@ -11,7 +11,6 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import
     AbstractTrackSelectedEvent,
 )
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -49,7 +48,8 @@ class TrackComponent(SlotManager):
 
     def _on_simple_track_armed_event(self, _):
         # type: (SimpleTrackArmedEvent) -> None
-        self.un_focus_all_tracks()
+        if not SongFacade.is_track_recording():
+            self.un_focus_all_tracks()
 
     @property
     def abstract_tracks(self):

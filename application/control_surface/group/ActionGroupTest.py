@@ -47,6 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(SongFacade.selected_device().is_enabled)
-        Logger.dev(SongFacade.selected_device().is_active)
+        list(SongFacade.abstract_tracks())[-1].sub_tracks[-1].arm_state.arm()
