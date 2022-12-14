@@ -57,7 +57,9 @@ class AbstractMatchingTrack(SlotManager):
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
         matching_track = find_if(
-            lambda t:  t != self._base_track and not t.is_foldable and t.name == self._base_track.name,
+            lambda t: t != self._base_track
+            and not t.is_foldable
+            and t.name == self._base_track.name,
             SongFacade.simple_tracks(),
         )
 
@@ -84,7 +86,10 @@ class AbstractMatchingTrack(SlotManager):
                 and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
                 audio_track.clip_slots,
             )
-            or audio_track.clips[0]
+            or find_if(
+                lambda cs: cs.clip is not None,
+                audio_track.clip_slots,
+            )
         )
 
     def switch_monitoring(self):

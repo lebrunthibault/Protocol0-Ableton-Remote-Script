@@ -114,11 +114,10 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
     def _copy_clips_from_base_track(self):
         # type: () -> None
         atk_cs = self._get_atk_cs()
-        assert atk_cs, "No atk cs"
-        
-        if atk_cs.clip is None:
-            return
 
+        if atk_cs is None:
+            return None
+        
         atk_cs.clip.muted = False
         atk_cs.clip.looping = True
 
