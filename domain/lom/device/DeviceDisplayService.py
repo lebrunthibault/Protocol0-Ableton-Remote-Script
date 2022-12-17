@@ -32,6 +32,7 @@ class DeviceDisplayService(object):
         parent_rack = self._find_parent_rack(track, device)
         seq = Sequence()
         seq.add(ApplicationViewFacade.show_device)
+        seq.defer()
 
         if not parent_rack:
             seq.add(partial(self._make_top_device_window_showable, track, device))
