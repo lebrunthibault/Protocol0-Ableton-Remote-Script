@@ -2,16 +2,14 @@ from functools import partial
 
 from typing import Optional
 
+from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivatedEvent
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device.DeviceService import DeviceService
-from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
-from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
-    InstrumentPresetScrollerService,
-)
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
@@ -114,17 +112,10 @@ class ActionGroupMain(ActionGroupInterface):
             on_scroll=self._container.get(DeviceService).scroll_selected_parameter,
         )
 
-        # INSTrument encoder
+        # INIT song encoder
+        # when something (e.g. scene mapping goes haywire, rebuild mappings)
         self.add_encoder(
             identifier=16,
-            name="instrument",
-            filter_active_tracks=True,
-            on_press=lambda: partial(
-                self._container.get(InstrumentDisplayService).show_instrument,
-                SongFacade.current_track(),
-            ),
-            on_scroll=lambda: partial(
-                self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples,
-                SongFacade.current_track(),
-            ),
+            name="(re) initialize the script",
+            on_press=partial(DomainEventBus.emit, ScriptResetActivatedEvent()),
         )
