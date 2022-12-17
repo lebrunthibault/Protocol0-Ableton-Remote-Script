@@ -53,13 +53,3 @@ class ActionGroupCut(ActionGroupInterface):
                 self._container.get(SceneCrudComponent).crop_scene, SongFacade.selected_scene()
             ),
         )
-
-        # COPY track devices encoder
-        self.add_encoder(
-            identifier=14,
-            name="copy track devices",
-            on_press=lambda: partial(
-                SongFacade.current_external_synth_track().matching_track.copy_from_base_track,
-                self._container.get(TrackCrudComponent),
-            ),
-        )
