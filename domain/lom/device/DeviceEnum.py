@@ -300,7 +300,9 @@ class DeviceEnum(AbstractEnum):
         # type: () -> bool
         return self in [
             DeviceEnum.REV2_EDITOR,
-            DeviceEnum.KONTAKT
+            DeviceEnum.KONTAKT,
+            DeviceEnum.OPUS,
+            DeviceEnum.PLAY,
         ]
 
     @classmethod

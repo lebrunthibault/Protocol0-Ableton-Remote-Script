@@ -10,6 +10,7 @@ from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import Abst
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
@@ -151,7 +152,7 @@ class AbstractMatchingTrack(SlotManager):
     def disconnect(self):
         # type: () -> None
         super(AbstractMatchingTrack, self).disconnect()
-        if self._track is None:
+        if self._track is None or not liveobj_valid(self._track._track):
             return
 
         Scheduler.defer(self._disconnect_base_track_routing)

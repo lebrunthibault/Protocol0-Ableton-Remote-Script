@@ -6,13 +6,11 @@ from typing import Optional, cast
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DeviceLoadedEvent import DeviceLoadedEvent
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
-from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.ValueScroller import ValueScroller
@@ -25,13 +23,12 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 class DeviceService(object):
     def __init__(
-        self, track_crud_component, device_component, browser_service, instrument_display_service
+        self, track_crud_component, device_component, browser_service
     ):
-        # type: (TrackCrudComponent, DeviceComponent, BrowserServiceInterface, InstrumentDisplayService) -> None
+        # type: (TrackCrudComponent, DeviceComponent, BrowserServiceInterface) -> None
         self._track_crud_component = track_crud_component
         self._device_component = device_component
         self._browser_service = browser_service
-        self._instrument_display_service = instrument_display_service
         DomainEventBus.subscribe(DeviceLoadedEvent, self._on_device_loaded_event)
 
     def load_device(self, device_name):
@@ -43,16 +40,11 @@ class DeviceService(object):
 
         seq = Sequence()
         seq.add(track.select)
-        if device_enum.is_instrument and not isinstance(track, SimpleMidiTrack):
+        if device_enum.is_instrument:
             seq.add(self._track_crud_component.create_midi_track)
             seq.add(lambda: setattr(SongFacade.selected_track(), "name", device_enum.device_name))
-        if device_enum.is_instrument and track.instrument:
-            seq.add(partial(track.devices.delete, track.instrument.device))
 
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
-
-        if device_enum == DeviceEnum.REV2_EDITOR:
-            seq.add(partial(self._instrument_display_service.activate_plugin_window, track))
 
         return seq.done()
 
@@ -62,7 +54,7 @@ class DeviceService(object):
         track = self._track_to_select(device_enum)
 
         devices = track.devices.get_from_enum(device_enum)
-        if len(devices) == 0 or device_enum == DeviceEnum.REV2_EDITOR:
+        if len(devices) == 0 or device_enum.is_instrument:
             return self.load_device(device_name)
 
         if track.devices.selected in devices and SongFacade.selected_track() != track:
