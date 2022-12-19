@@ -7,7 +7,6 @@ from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
-from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.LiveObject import liveobj_valid
@@ -102,9 +101,6 @@ class AbstractMatchingTrack(SlotManager):
 
     def connect_main_track(self):
         # type: () -> Optional[Sequence]
-        from protocol0.shared.logging.Logger import Logger
-
-        Logger.dev(self)
         Scheduler.defer(self._connect_main_track)
         return None
 
@@ -119,13 +115,16 @@ class AbstractMatchingTrack(SlotManager):
 
     def connect_base_track_routing(self):
         # type: () -> None
-        self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN
+        # self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN
         self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._base_track.output_routing.track = self._track  # type: ignore[assignment]
 
     def _disconnect_base_track_routing(self):
         # type: () -> None
         """Restore the current monitoring state of the track"""
+        if not liveobj_valid(self._base_track._track):
+            return
+
         self._base_track.output_routing.track = self._base_track.group_track or SongFacade.master_track()  # type: ignore[assignment]
 
         if (

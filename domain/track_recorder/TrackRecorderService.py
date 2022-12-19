@@ -156,7 +156,10 @@ class TrackRecorderService(object):
         # type: (bool) -> None
         DomainEventBus.emit(TrackRecordingCancelledEvent())
         Scheduler.restart()
-        self._recorder.cancel_record()
+
+        if self._recorder is not None:
+            self._recorder.cancel_record()
+
         self._recorder = None
         if show_notification:
             Backend.client().show_warning("Recording cancelled")
