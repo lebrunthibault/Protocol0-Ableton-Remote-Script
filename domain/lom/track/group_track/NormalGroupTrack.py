@@ -29,6 +29,8 @@ class NormalGroupTrack(AbstractGroupTrack):
         # type: () -> None
         super(NormalGroupTrack, self).on_added()
         self.name = self.computed_name
+        if len(set(t.color for t in self.sub_tracks)) == 1:
+            self.color = self.sub_tracks[0].color
 
     @subject_slot("solo")
     @defer

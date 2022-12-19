@@ -36,6 +36,7 @@ class SimpleMidiTrack(SimpleTrack):
 
     def on_added(self):
         # type: () -> Optional[Sequence]
+        super(SimpleMidiTrack, self).on_added()
         self.matching_track.connect_main_track()
 
         if not SongFacade.is_track_recording():
