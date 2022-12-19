@@ -7,6 +7,7 @@ from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -36,10 +37,12 @@ class AbstractMatchingTrack(SlotManager):
         # type: () -> None
         self._track = self._get_track()
 
-        solo_tracks = [self._base_track._track]
-        if self._track is not None:
-            solo_tracks.append(self._track._track)
-        self._solo_listener.replace_subjects(solo_tracks)
+        if self._track is None:
+            return
+
+        tracks = [self._base_track._track, self._track._track]
+        self._solo_listener.replace_subjects(tracks)
+        self._name_listener.replace_subjects(tracks)
 
     @property
     def exists(self):
@@ -52,7 +55,7 @@ class AbstractMatchingTrack(SlotManager):
             if observable.is_armed:
                 self.connect_base_track_routing()
             else:
-                self.disconnect_base_track_routing()
+                self._disconnect_base_track_routing()
 
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
@@ -96,30 +99,39 @@ class AbstractMatchingTrack(SlotManager):
         # type: () -> None
         self._track.monitoring_state.switch()
 
-    def connect_base_track_routing(self):
-        # type: () -> None
-        self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self._base_track.output_routing.track = self._track  # type: ignore[assignment]
-
-    def disconnect_base_track_routing(self):
-        # type: () -> None
-        """Restore the current monitoring state of the track"""
-        if self._track is not None:
-            self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-
     def connect_main_track(self):
         # type: () -> Optional[Sequence]
+        from protocol0.shared.logging.Logger import Logger
+
+        Logger.dev(self)
         Scheduler.defer(self._connect_main_track)
         return None
 
-    def _connect_main_track(self, _=True):
-        # type: (bool) -> Optional[Sequence]
+    def _connect_main_track(self):
+        # type: () -> Optional[Sequence]
         # plug the matching track in its main audio track
         if self._track is None:
             return None
 
         self.connect_base_track_routing()
         return None
+
+    def connect_base_track_routing(self):
+        # type: () -> None
+        self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN
+        self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+        self._base_track.output_routing.track = self._track  # type: ignore[assignment]
+
+    def _disconnect_base_track_routing(self):
+        # type: () -> None
+        """Restore the current monitoring state of the track"""
+        self._base_track.output_routing.track = self._base_track.group_track or SongFacade.master_track()  # type: ignore[assignment]
+
+        if (
+            len([t for t in SongFacade.simple_tracks() if t.output_routing.track == self._track])
+            == 0
+        ):
+            self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
     @subject_slot_group("solo")
     @defer
@@ -128,3 +140,18 @@ class AbstractMatchingTrack(SlotManager):
         self._base_track.solo = track.solo
         if self._track is not None:
             self._track.solo = track.solo
+
+    @subject_slot_group("name")
+    @defer
+    def _name_listener(self, _):
+        # type: (Live.Track.Track) -> None
+        """on any name change, cut the link"""
+        self.disconnect()
+
+    def disconnect(self):
+        # type: () -> None
+        super(AbstractMatchingTrack, self).disconnect()
+        if self._track is None:
+            return
+
+        Scheduler.defer(self._disconnect_base_track_routing)

@@ -1,11 +1,14 @@
 import Live
-from typing import Type, Any, Optional
+from typing import Type, Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.track.P0TrackInterface import P0TrackInterface
 from protocol0.domain.lom.track.routing.TrackRoutingInterface import TrackRoutingInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class RoutingTrackDescriptor(object):
@@ -19,7 +22,7 @@ class RoutingTrackDescriptor(object):
         return "RoutingTrack.%s" % self.routing_attribute_name
 
     def __get__(self, track_routing, _):
-        # type: (TrackRoutingInterface, Type) -> Optional[Any]
+        # type: (TrackRoutingInterface, Type) -> Optional[SimpleTrack]
         track = getattr(track_routing.live_track, self.routing_attribute_name).attached_object
         if track:
             return SongFacade.simple_track_from_live_track(track)

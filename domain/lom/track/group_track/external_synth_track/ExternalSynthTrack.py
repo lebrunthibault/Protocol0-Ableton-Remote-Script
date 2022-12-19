@@ -458,5 +458,3 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.matching_track.disconnect()
 
-        if not liveobj_valid(self._track):
-            Scheduler.defer(self.matching_track.disconnect_base_track_routing)
