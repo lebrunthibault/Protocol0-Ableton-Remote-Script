@@ -17,6 +17,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -92,8 +93,7 @@ class TrackRecorderService(object):
         self._clip_sample_service.reset_clips_to_replace()
 
         if self._recorder is not None:
-            self.cancel_record()
-            DomainEventBus.emit(TrackRecordingCancelledEvent())
+            self._cancel_record()
             return None
 
         if self._quantization_component.clip_trigger_quantization != Live.Song.Quantization.q_bar:
@@ -134,6 +134,7 @@ class TrackRecorderService(object):
         DomainEventBus.emit(TrackRecordingStartedEvent(recorder.recording_scene_index))
         # this will stop the previous playing scene on playback stop
         PlayingSceneFacade.set(recorder.recording_scene)
+        DomainEventBus.once(ErrorRaisedEvent, self._on_error_raised_event)
         seq = Sequence()
         seq.add(recorder.pre_record)
         seq.add(count_in.launch)
@@ -142,15 +143,23 @@ class TrackRecorderService(object):
         seq.add(recorder.post_audio_record)
         seq.add(partial(recorder.post_record, bar_length))
         seq.add(partial(setattr, self, "_recorder", None))
+        seq.add(partial(DomainEventBus.un_subscribe, ErrorRaisedEvent, self._on_error_raised_event))
 
         return seq.done()
 
-    def cancel_record(self):
-        # type: () -> None
+    def _on_error_raised_event(self, _):
+        # type: (ErrorRaisedEvent) -> None
+        """Cancel the recording on any exception"""
+        self._cancel_record(show_notification=False)
+
+    def _cancel_record(self, show_notification=True):
+        # type: (bool) -> None
+        DomainEventBus.emit(TrackRecordingCancelledEvent())
         Scheduler.restart()
         self._recorder.cancel_record()
         self._recorder = None
-        Backend.client().show_warning("Recording cancelled")
+        if show_notification:
+            Backend.client().show_warning("Recording cancelled")
 
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
