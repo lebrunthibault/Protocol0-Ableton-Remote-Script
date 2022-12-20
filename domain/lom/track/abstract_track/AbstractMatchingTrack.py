@@ -9,6 +9,7 @@ from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.LiveObject import liveobj_valid
@@ -117,8 +118,8 @@ class AbstractMatchingTrack(SlotManager):
 
     def connect_base_track_routing(self):
         # type: () -> None
-        # self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN
         self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+        self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
         self._base_track.output_routing.track = self._track  # type: ignore[assignment]
 
     def _activate_base_track(self):

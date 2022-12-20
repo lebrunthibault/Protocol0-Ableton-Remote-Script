@@ -1,8 +1,8 @@
 import Live
 from typing import Optional
 
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -51,8 +51,7 @@ class AbstractTrackArmState(Observable):
 
     def arm_track(self):
         # type: () -> Optional[Sequence]
-        Logger.warning("Tried arming un-armable %s" % self)
-        return None
+        raise Protocol0Warning("Tried arming un-armable track")
 
     def unarm(self):
         # type: () -> None

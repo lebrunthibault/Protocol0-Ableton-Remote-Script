@@ -68,7 +68,7 @@ class SourceClipSlot(object):
 
     def replace_clips(self):
         # type: () -> Tuple[int, int]
-        if self.clip_slot.clip is None:
+        if self.clip_slot is None or self.clip_slot.clip is None:
             return 0, 0
 
         clips_replaced_count = 0
