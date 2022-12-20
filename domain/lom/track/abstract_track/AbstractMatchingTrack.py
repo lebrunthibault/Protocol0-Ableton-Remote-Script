@@ -1,3 +1,5 @@
+from argparse import ArgumentError
+
 import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import SlotManager
@@ -55,7 +57,7 @@ class AbstractMatchingTrack(SlotManager):
             if observable.is_armed:
                 self.connect_base_track_routing()
             else:
-                self._disconnect_base_track_routing()
+                self._activate_base_track()
 
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
@@ -119,19 +121,13 @@ class AbstractMatchingTrack(SlotManager):
         self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._base_track.output_routing.track = self._track  # type: ignore[assignment]
 
-    def _disconnect_base_track_routing(self):
+    def _activate_base_track(self):
         # type: () -> None
         """Restore the current monitoring state of the track"""
-        if not liveobj_valid(self._base_track._track):
-            return
-
-        self._base_track.output_routing.track = self._base_track.group_track or SongFacade.master_track()  # type: ignore[assignment]
-
-        if (
-            len([t for t in SongFacade.simple_tracks() if t.output_routing.track == self._track])
-            == 0
-        ):
+        try:
             self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
+        except ArgumentError:
+            pass
 
     @subject_slot_group("solo")
     @defer
@@ -148,10 +144,21 @@ class AbstractMatchingTrack(SlotManager):
         """on any name change, cut the link"""
         self.disconnect()
 
+    @defer
     def disconnect(self):
         # type: () -> None
         super(AbstractMatchingTrack, self).disconnect()
-        if self._track is None or not liveobj_valid(self._track._track):
+        if (
+            self._track is None
+            or not liveobj_valid(self._track._track)
+            or not liveobj_valid(self._base_track._track)
+        ):
             return
 
-        Scheduler.defer(self._disconnect_base_track_routing)
+        self._base_track.output_routing.track = self._base_track.group_track or SongFacade.master_track()  # type: ignore[assignment]
+
+        if (
+            len([t for t in SongFacade.simple_tracks() if t.output_routing.track == self._track])
+            == 0
+        ):
+            self._activate_base_track()

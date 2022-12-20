@@ -54,7 +54,7 @@ class ActionGroupMain(ActionGroupInterface):
             on_press=lambda: self._container.get(
                 TrackAutomationService
             ).select_or_sync_automation,
-            on_long_press=lambda: self._container.get(TrackAutomationService).show_automation(go_next=True),
+            on_long_press=partial(self._container.get(TrackAutomationService).show_automation, go_next=True),
             on_scroll=lambda: partial(
                 SongFacade.selected_clip().automation.scroll_envelopes,
                 SongFacade.selected_track().devices.parameters,
