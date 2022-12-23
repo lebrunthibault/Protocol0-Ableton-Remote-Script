@@ -223,7 +223,7 @@ class TrackMapperService(SlotManager):
                 abstract_group_track, NormalGroupTrack
             ):
                 Backend.client().show_warning(
-                    "An ExternalSynthTrack (%s) is changed into a NormalGroupTrack (%s)"
+                    "%s changed into %s"
                     % (previous_abstract_group_track, abstract_group_track)
                 )
 

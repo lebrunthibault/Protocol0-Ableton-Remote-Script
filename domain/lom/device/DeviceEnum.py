@@ -50,6 +50,7 @@ class DeviceEnum(AbstractEnum):
     SOOTHE2 = "SOOTHE2"
     SOUNDID_REFERENCE_PLUGIN = "SOUNDID_REFERENCE_PLUGIN"
     SSL_COMP = "SSL_COMP"
+    SUPER_TAP = "SUPER_TAP"
     SURFEREQ = "SURFEREQ"
     TRACK_SPACER = "TRACK_SPACER"
     TRUE_VERB = "TRUE_VERB"
@@ -79,6 +80,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.SERUM: "Serum_x64",
                     DeviceEnum.SSL_COMP: "SSLComp Stereo",
                     DeviceEnum.SOUNDID_REFERENCE_PLUGIN: "SoundID Reference Plugin",
+                    DeviceEnum.SUPER_TAP: "SuperTap 2-Taps Stereo",
                     DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
                     DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
                     DeviceEnum.USAMO: "usamo_x64",
@@ -224,9 +226,9 @@ class DeviceEnum(AbstractEnum):
             ],
             [
                 cls.SATURATOR,
-                cls.SATURN_2,
                 cls.LFO_TOOL,
                 cls.AUTO_PAN,
+                cls.SUPER_TAP,
             ],
             [
                 cls.DRUM_RACK,
@@ -281,6 +283,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.SERUM: 147,
                     DeviceEnum.SIMPLER: 56,
                     DeviceEnum.SOOTHE2: 206,
+                    DeviceEnum.SUPER_TAP: 45,
                     DeviceEnum.SURFEREQ: 116,
                     DeviceEnum.SSL_COMP: 81,
                     DeviceEnum.SOUNDID_REFERENCE_PLUGIN: 0,
