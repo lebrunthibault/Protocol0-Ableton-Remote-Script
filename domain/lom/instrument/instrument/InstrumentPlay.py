@@ -3,7 +3,7 @@ from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorE
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 
 
-class InstrumentKontakt(InstrumentInterface):  # noqa
-    NAME = "Kontakt"
-    DEVICE_NAME = DeviceEnum.KONTAKT.device_name
-    TRACK_COLOR = InstrumentColorEnum.KONTAKT
+class InstrumentPlay(InstrumentInterface):  # noqa
+    NAME = "Play"
+    DEVICE_NAME = DeviceEnum.PLAY.device_name
+    TRACK_COLOR = InstrumentColorEnum.PLAY

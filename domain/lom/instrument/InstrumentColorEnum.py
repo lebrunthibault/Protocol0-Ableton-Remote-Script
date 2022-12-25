@@ -7,7 +7,9 @@ class InstrumentColorEnum(ColorEnumInterface, AbstractEnum):
     SIMPLER = 2
     SERUM = 18
     PROPHET = 23
-    ADDICTIVE_KEYS = 26
+    OPUS = 23
+    PLAY = 23
+    KONTAKT = 26
     MINITAUR = 69
 
     @property

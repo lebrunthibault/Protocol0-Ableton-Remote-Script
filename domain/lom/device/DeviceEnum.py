@@ -38,7 +38,7 @@ class DeviceEnum(AbstractEnum):
     MASTERING_RACK = "MASTERING_RACK"
     OPUS = "OPUS"
     PITCH = "PITCH"
-    PLAY = "PLAY"
+    PLAY = "PLAY_VST_X64"
     PRO_Q_3 = "PRO_Q_3"
     REVERB = "REVERB"
     REV2_EDITOR = "REV2_EDITOR"
@@ -108,6 +108,14 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.INSERT_DELAY,
             DeviceEnum.INSERT_DRY_WET,
             DeviceEnum.INSERT_REVERB,
+        ]
+
+    @property
+    def can_be_saved(self):
+        # type: () -> bool
+        return self not in [
+            DeviceEnum.REV2_EDITOR,
+            DeviceEnum.PLAY,
         ]
 
     @property
