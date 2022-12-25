@@ -8,6 +8,7 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumPad import DrumPad
 from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
+from protocol0.domain.lom.device.Sample.SampleNotFoundError import SampleNotFoundError
 from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
 from protocol0.domain.lom.sample.SampleCategory import SampleCategory
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -110,12 +111,19 @@ class DrumRackService(object):
         sample_name = device.drum_pads[pitch].name
 
         if track.instrument.device.is_top:
-            self._browser_service.load_sample("%s.wav" % sample_name)
+            try:
+                self._browser_service.load_sample("%s.wav" % sample_name)
+                return
+            except SampleNotFoundError:
+                Backend.client().show_warning(
+                    "Cannot load sample. Process manually.", centered=True
+                )
         else:  # instrument is in a rack
-            Backend.client().search(sample_name)
             Backend.client().show_warning(
                 "Cannot load simpler in rack. Process manually.", centered=True
             )
+
+        Backend.client().search(sample_name)
 
     def _from_drum_rack_to_simpler_notes(self):
         # type: () -> None

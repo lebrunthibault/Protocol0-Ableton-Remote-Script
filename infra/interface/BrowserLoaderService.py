@@ -1,6 +1,7 @@
 import Live
 from typing import Dict
 
+from protocol0.domain.lom.device.Sample.SampleNotFoundError import SampleNotFoundError
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.logging.Logger import Logger
@@ -107,6 +108,13 @@ class BrowserLoaderService(object):
         """Loads items from the user library category"""
         self._do_load_item(self._get_item_for_category("user_library", name), "from User Library")
 
+    def get_sample(self, sample_name):
+        # type: (str) -> Live.Browser.BrowserItem
+        self._cache_category("samples")
+        return self._cached_browser_items["samples"].get(
+            str(sample_name.decode("utf-8")), None
+        )
+
     def _do_load_item(self, item, header="Device"):
         # type: (Live.Browser.BrowserItem, str) -> None
         """Handles loading an item and displaying load info in status bar."""
@@ -127,7 +135,7 @@ class BrowserLoaderService(object):
         self._cache_category(category)
         item = self._cached_browser_items[category].get(name, None)
         if item is None:
-            raise Protocol0Error("Cannot find browser item in the live library: %s (%s)\n" % (name, category))
+            raise SampleNotFoundError(name)
 
         return item
 

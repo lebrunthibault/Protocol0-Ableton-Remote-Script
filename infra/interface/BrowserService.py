@@ -60,15 +60,9 @@ class BrowserService(BrowserServiceInterface):
 
     def _on_sample_selected_event(self, event):
         # type: (SampleSelectedEvent) -> None
-        item = self._get_sample(sample_name=event.sample_name)
+        item = self._browser_loader_service.get_sample(sample_name=event.sample_name)
 
         if item is not None and item.is_loadable:
             # noinspection PyArgumentList
             self._browser.load_item(item)  # or _browser.preview_item
 
-    def _get_sample(self, sample_name):
-        # type: (str) -> Live.Browser.BrowserItem
-        self._browser_loader_service._cache_category("samples")
-        return self._browser_loader_service._cached_browser_items["samples"].get(
-            str(sample_name.decode("utf-8")), None
-        )
