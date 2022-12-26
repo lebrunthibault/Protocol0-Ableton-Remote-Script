@@ -28,7 +28,7 @@ class InstrumentDisplayService(object):
         if track.instrument is None or not track.instrument.CAN_BE_SHOWN:
             raise Protocol0Warning("Instrument cannot be shown")
 
-        return self.activate_plugin_window(track.instrument_track, force_activate=True)
+        return self.activate_plugin_window(track.instrument_track, force_activate=True, slow=False)
 
     def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> Optional[Sequence]
@@ -47,17 +47,17 @@ class InstrumentDisplayService(object):
         seq.add(
             partial(self.activate_plugin_window, track, force_activate=track.instrument.force_show)
         )
-        if not track.instrument.force_show:
-            seq.add(Backend.client().hide_plugins)
-        track.instrument.force_show = False
+        # if not track.instrument.force_show:
+        #     seq.add(Backend.client().hide_plugins)
+        # track.instrument.force_show = False
         return seq.done()
 
     def _on_instrument_selected_event(self, _):
         # type: (InstrumentSelectedEvent) -> Optional[Sequence]
         return self.show_instrument(SongFacade.current_track())
 
-    def activate_plugin_window(self, track, force_activate=False):
-        # type: (SimpleTrack, bool) -> Optional[Sequence]
+    def activate_plugin_window(self, track, force_activate=False, slow=True):
+        # type: (SimpleTrack, bool, bool) -> Optional[Sequence]
         seq = Sequence()
         instrument = track.instrument
         if instrument is None:
@@ -70,6 +70,7 @@ class InstrumentDisplayService(object):
                 self._device_display_service.make_plugin_window_showable,
                 track,
                 instrument.device,
+                slow=slow
             )
         )
 

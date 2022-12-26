@@ -26,8 +26,8 @@ class DeviceDisplayService(object):
         # type: (BrowserServiceInterface) -> None
         self._browser_service = browser_service
 
-    def make_plugin_window_showable(self, track, device):
-        # type: (SimpleTrack, Device) -> Sequence
+    def make_plugin_window_showable(self, track, device, slow):
+        # type: (SimpleTrack, Device, bool) -> Sequence
         """handles only one level of grouping in racks. Should be enough for now"""
         parent_rack = self._find_parent_rack(track, device)
         seq = Sequence()
@@ -35,25 +35,28 @@ class DeviceDisplayService(object):
         seq.defer()
 
         if not parent_rack:
-            seq.add(partial(self._make_top_device_window_showable, track, device))
+            seq.add(partial(self._make_top_device_window_showable, track, device, slow))
         else:
             seq.add(partial(self._make_nested_device_window_showable, track, device, parent_rack))
 
         return seq.done()
 
-    def _make_top_device_window_showable(self, track, device):
-        # type: (SimpleTrack, Device) -> Sequence
+    def _make_top_device_window_showable(self, track, device, slow):
+        # type: (SimpleTrack, Device, bool) -> Sequence
         devices_to_collapse = [d for d in track.devices if not d.is_collapsed]
         for d in devices_to_collapse:
             d.is_collapsed = True
 
         (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
-
         seq = Sequence()
+        seq.defer()
         seq.add(
             lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
         )
-        seq.wait(30)
+        if slow:
+            seq.wait(60)
+        else:
+            seq.wait(30)
         seq.add(partial(self._un_collapse_devices, devices_to_collapse))
 
         return seq.done()
@@ -102,10 +105,10 @@ class DeviceDisplayService(object):
         """one grouping level only : expects all devices to be folded and macro controls hidden"""
         device_enum = DeviceEnum.from_value(device.name.upper())  # type: DeviceEnum
 
-        if not device_enum.can_be_saved:
-            y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
-        else:
+        if device_enum.can_be_saved:
             y = self.SHOW_HIDE_SAVABLE_PLUGIN_BUTTON_PIXEL_HEIGHT
+        else:
+            y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
 
         if not rack_device:
             device_position = list(track.devices).index(device) + 1

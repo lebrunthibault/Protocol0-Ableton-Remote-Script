@@ -25,6 +25,8 @@ class InstrumentProphet(InstrumentInterface):
         # type: (Any, Any) -> None
         super(InstrumentProphet, self).__init__(*a, **k)
 
+        self.force_show = True
+
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
         DomainEventBus.subscribe(
             ExternalSynthAudioRecordingStartedEvent, self._on_audio_recording_started_event
