@@ -47,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        list(SongFacade.abstract_tracks())[-1].sub_tracks[-1].arm_state.arm()
+        SongFacade.current_track().select()

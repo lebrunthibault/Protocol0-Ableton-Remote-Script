@@ -47,4 +47,3 @@ class LoggerService(LoggerServiceInterface):
         for line in message.splitlines():
             line = "P0 - %s" % line.decode("utf-8").encode("ascii", "replace")
             logging.info(line)
-            # Backend.client().log(line)
