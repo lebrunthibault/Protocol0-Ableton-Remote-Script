@@ -34,7 +34,6 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMid
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -67,9 +66,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
         self.dummy_group = ExternalSynthTrackDummyGroup(self)  # type: ExternalSynthTrackDummyGroup
-        self.matching_track = ExternalSynthMatchingTrack(
-            self.base_track, self.midi_track, self.dummy_group
-        )
+        self.matching_track = ExternalSynthMatchingTrack(self.base_track, self.midi_track)
 
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:
@@ -457,4 +454,3 @@ class ExternalSynthTrack(AbstractGroupTrack):
         super(ExternalSynthTrack, self).disconnect()
 
         self.matching_track.disconnect()
-

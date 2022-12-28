@@ -10,7 +10,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
 class InstrumentMinitaur(InstrumentInterface):
     NAME = "Minitaur"
-    DEVICE_NAME = "minitaur editor(x64)"
     PRESET_EXTENSION = ".syx"
     TRACK_COLOR = InstrumentColorEnum.MINITAUR
     CAN_BE_SHOWN = False

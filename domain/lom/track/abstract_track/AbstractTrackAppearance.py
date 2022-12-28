@@ -18,7 +18,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
         # type: (Live.Track.Track, Optional[TrackColorEnum]) -> None
         super(AbstractTrackAppearance, self).__init__()
         self._live_track = live_track
-        self._default_color = default_color.color_int_value if default_color else self.color
+        self._default_color = default_color.int_value if default_color else self.color
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._name_listener.subject = live_track
         self._name_cached = self.name
@@ -54,7 +54,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
         if self._live_track:
             return self._live_track.color_index
         else:
-            return TrackColorEnum.DISABLED.color_int_value
+            return TrackColorEnum.DISABLED.int_value
 
     @color.setter
     def color(self, color_index):

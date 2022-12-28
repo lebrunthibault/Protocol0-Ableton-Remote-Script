@@ -2,6 +2,7 @@ from _Framework.SubjectSlot import SlotManager
 from typing import Optional, Type
 
 from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
@@ -27,7 +28,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 class InstrumentInterface(SlotManager):
     NAME = ""
-    DEVICE_NAME = ""
+    DEVICE = None  # type: Optional[DeviceEnum]
     TRACK_COLOR = InstrumentColorEnum.UNKNOWN
     CAN_BE_SHOWN = True
     PRESETS_PATH = ""

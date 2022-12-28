@@ -3,92 +3,60 @@ from typing import List, Optional
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.utils.string import to_pascal_case
 from protocol0.shared.AbstractEnum import AbstractEnum
 from protocol0.shared.Config import Config
 
 
 class DeviceEnum(AbstractEnum):
-    ADDICTIVE_KEYS = "ADDICTIVE_KEYS"
-    API_2500 = "API_2500"
-    AUDIO_EFFECT_RACK = "AUDIO_EFFECT_RACK"
-    AUTO_FILTER = "AUTO_FILTER"
-    AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
-    AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
-    AUTO_PAN = "AUTO_PAN"
-    BEAT_REPEAT = "BEAT_REPEAT"
-    COMPRESSOR = "COMPRESSOR"
-    DELAY = "DELAY"
-    DRUM_RACK = "DRUM_RACK"
-    EFFECTRIX = "EFFECTRIX"
-    EQ_EIGHT = "EQ_EIGHT"
-    EQ_ROOM = "EQ_ROOM"
-    EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
-    EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
-    FREE_CLIP = "FREE_CLIP"
-    GATE = "GATE"
-    GLUE_COMPRESSOR = "GLUE_COMPRESSOR"
-    KONTAKT = "KONTAKT"
-    INSERT_DELAY = "INSERT_DELAY"
-    INSERT_DRY_WET = "INSERT_DRY_WET"
-    INSERT_REVERB = "INSERT_REVERB"
-    INSTRUMENT_RACK = "INSTRUMENT_RACK"
-    LFO_TOOL = "LFO_TOOL"
-    LIMITER = "LIMITER"
-    MASTERING_RACK = "MASTERING_RACK"
-    OPUS = "OPUS"
-    PITCH = "PITCH"
-    PLAY = "PLAY_VST_X64"
-    PRO_Q_3 = "PRO_Q_3"
-    REVERB = "REVERB"
-    REV2_EDITOR = "REV2EDITOR"
-    SAMPLE_PITCH_RACK = "SAMPLE_PITCH_RACK"
-    SATURATOR = "SATURATOR"
-    SATURN_2 = "SATURN_2"
-    SERUM = "SERUM"
-    SIMPLER = "SIMPLER"
-    SOOTHE2 = "SOOTHE2"
-    SOUNDID_REFERENCE_PLUGIN = "SOUNDID_REFERENCE_PLUGIN"
-    SSL_COMP = "SSL_COMP"
-    SUPER_TAP = "SUPER_TAP"
-    SURFEREQ = "SURFEREQ"
-    TRACK_SPACER = "TRACK_SPACER"
-    TRUE_VERB = "TRUE_VERB"
-    TUNER = "TUNER"
-    USAMO = "USAMO"
-    UTILITY = "UTILITY"
-    VALHALLA_VINTAGE_VERB = "VALHALLA_VINTAGE_VERB"
-
-    @property
-    def device_name(self):
-        # type: () -> str
-        try:
-            return self.get_value_from_mapping(
-                {
-                    DeviceEnum.API_2500: "API-2500 Stereo",
-                    DeviceEnum.EQ_EIGHT: "EQ Eight",
-                    DeviceEnum.EQ_ROOM: "EQ Room",
-                    DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
-                    DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
-                    DeviceEnum.FREE_CLIP: "FreeClip",
-                    DeviceEnum.KONTAKT: "Kontakt 7",
-                    DeviceEnum.LFO_TOOL: "LFOTool_x64",
-                    DeviceEnum.PRO_Q_3: "Pro-Q 3",
-                    DeviceEnum.PLAY: "play_VST_x64",
-                    DeviceEnum.REV2_EDITOR: "REV2Editor",
-                    DeviceEnum.SATURN_2: "Saturn 2",
-                    DeviceEnum.SERUM: "Serum_x64",
-                    DeviceEnum.SSL_COMP: "SSLComp Stereo",
-                    DeviceEnum.SOUNDID_REFERENCE_PLUGIN: "SoundID Reference Plugin",
-                    DeviceEnum.SUPER_TAP: "SuperTap 2-Taps Stereo",
-                    DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
-                    DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
-                    DeviceEnum.USAMO: "usamo_x64",
-                    DeviceEnum.VALHALLA_VINTAGE_VERB: "ValhallaVintageVerb",
-                }
-            )
-        except Protocol0Error:
-            return to_pascal_case(self.name)
+    ADDICTIVE_KEYS = "Addictive Keys"
+    API_2500 = "API-2500 Stereo"
+    AUDIO_EFFECT_RACK = "Audio Effect Rack"
+    AUTO_FILTER = "Auto Filter"
+    AUTO_FILTER_HIGH_PASS = "Auto Filter High Pass"
+    AUTO_FILTER_LOW_PASS = "Auto Filter Low Pass"
+    AUTO_PAN = "Auto Pan"
+    BEAT_REPEAT = "Beat Repeat"
+    COMPRESSOR = "Compressor"
+    DELAY = "Delay"
+    DRUM_RACK = "Drum Rack"
+    EFFECTRIX = "Effectrix"
+    EQ_EIGHT = "EQ Eight"
+    EQ_ROOM = "EQ Room"
+    EXTERNAL_AUDIO_EFFECT = "Ext. Audio Effect"
+    EXTERNAL_INSTRUMENT = "Ext. Instrument"
+    FREE_CLIP = "FreeClip"
+    GATE = "Gate"
+    GLUE_COMPRESSOR = "Glue Compressor"
+    KONTAKT = "Kontakt 7"
+    INSERT_DELAY = "Insert Delay"
+    INSERT_DRY_WET = "Insert Dry Wet"
+    INSERT_REVERB = "Insert Reverb"
+    INSTRUMENT_RACK = "Instrument Rack"
+    LFO_TOOL = "LFOTool_x64"
+    LIMITER = "Limiter"
+    MASTERING_RACK = "Mastering Rack"
+    OPUS = "Opus"
+    PITCH = "Pitch"
+    PLAY = "play_VST_x64"
+    PRO_Q_3 = "Pro-Q 3"
+    REVERB = "Reverb"
+    REV2_EDITOR = "REV2Editor"
+    SAMPLE_PITCH_RACK = "Sample Pitch Rack"
+    SATURATOR = "Saturator"
+    SATURN_2 = "Saturn 2"
+    SERUM = "Serum_x64"
+    SIMPLER = "Simpler"
+    SOOTHE2 = "soothe2"
+    SOUNDID_REFERENCE_PLUGIN = "SoundID Reference Plugin"
+    SSL_COMP = "SSLComp Stereo"
+    SUPER_TAP = "SuperTap 2-Taps Stereo"
+    SURFEREQ = "SurferEQ"
+    TRACK_SPACER = "Trackspacer 2.5"
+    TRUE_VERB = "TrueVerb Stereo"
+    TUNER = "Tuner"
+    USAMO = "usamo_x64"
+    UTILITY = "Utility"
+    VALHALLA_VINTAGE_VERB = "ValhallaVintageVerb"
 
     @property
     def is_device_preset(self):
@@ -119,6 +87,14 @@ class DeviceEnum(AbstractEnum):
         ]
 
     @property
+    def should_be_bounced(self):
+        # type: () -> bool
+        """Heavy devices that should be bounced when flattening to audio"""
+        return self in [
+            DeviceEnum.SOOTHE2,
+        ]
+
+    @property
     def browser_name(self):
         # type: () -> str
         try:
@@ -130,11 +106,11 @@ class DeviceEnum(AbstractEnum):
             )
         except Protocol0Error:
             if self.is_device_preset:
-                return "%s.adv" % self.device_name
+                return "%s.adv" % self.value
             elif self.is_rack_preset:
-                return "%s.adg" % self.device_name
+                return "%s.adg" % self.value
             else:
-                return self.device_name
+                return self.value
 
     @property
     def class_name(self):
@@ -152,7 +128,7 @@ class DeviceEnum(AbstractEnum):
                 }
             )
         except Protocol0Error:
-            return self.device_name
+            return self.value
 
     @property
     def main_parameters_default(self):
@@ -314,10 +290,11 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.KONTAKT,
             DeviceEnum.OPUS,
             DeviceEnum.PLAY,
+            DeviceEnum.DRUM_RACK,
         ]
 
     @classmethod
     def missing_plugin_names(cls):
         # type: () -> List[str]
         """Plugins that I've used, but I don't currently have (formerly cracks)"""
-        return ["Vocal Rider Stereo", "API-2500 Stereo", DeviceEnum.SATURN_2.device_name]
+        return ["Vocal Rider Stereo", "API-2500 Stereo", DeviceEnum.SATURN_2.value]

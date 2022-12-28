@@ -46,8 +46,9 @@ class ErrorService(object):
         UndoFacade.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
         assert exc_type and exc_value and tb
-        if issubclass(exc_type, Protocol0Warning):
-            Backend.client().show_warning(str(exc_value or exc_type))
+        if issubclass(exc_type, Protocol0Warning) or issubclass(exc_type, AssertionError):
+            error_message = str(exc_value or exc_type).strip()
+            Backend.client().show_warning(error_message or "Unknown Error")
         else:
             self._handle_exception(exc_type, exc_value, tb, event.context)
 

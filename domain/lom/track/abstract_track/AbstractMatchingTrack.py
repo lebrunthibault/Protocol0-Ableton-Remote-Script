@@ -12,7 +12,9 @@ from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import Abst
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.LiveObject import liveobj_valid
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
@@ -98,21 +100,41 @@ class AbstractMatchingTrack(SlotManager):
             )
         )
 
+    def _copy_params_from_base_track(self):
+        # type: () -> None
+        self._track = self._get_track()
+        assert self._track, "no matching track"
+
+        self._track.volume = self._base_track.volume
+        self._base_track.volume = 0
+
+        self._base_track.devices.mixer_device.copy_to(self._track.devices.mixer_device)
+        self._base_track.devices.mixer_device.reset()
+
+        devices = self._base_track.devices.all
+
+        if len(devices) == 0:
+            Backend.client().show_success("Track copied ! (no devices)")
+            return
+
+        self._base_track.select()
+        ApplicationViewFacade.show_device()
+        message = "Please copy %s devices" % len(devices)
+
+        Backend.client().show_info(message)
+
     def switch_monitoring(self):
         # type: () -> None
         self._track.monitoring_state.switch()
 
+    @defer
     def connect_main_track(self):
-        # type: () -> Optional[Sequence]
-        Scheduler.defer(self._connect_main_track)
-        return None
-
-    def _connect_main_track(self):
         # type: () -> Optional[Sequence]
         # plug the matching track in its main audio track
         if self._track is None:
             return None
 
+        self._base_track.color = self._track.color
         self.connect_base_track_routing()
         return None
 

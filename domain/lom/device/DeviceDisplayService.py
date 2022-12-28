@@ -3,7 +3,6 @@ from functools import partial
 from typing import Optional, Tuple, List
 
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -103,9 +102,7 @@ class DeviceDisplayService(object):
     def _get_device_show_button_click_coordinates(self, track, device, rack_device=None):
         # type: (SimpleTrack, Device, RackDevice) -> Tuple[int, int]
         """one grouping level only : expects all devices to be folded and macro controls hidden"""
-        device_enum = DeviceEnum.from_value(device.name.upper())  # type: DeviceEnum
-
-        if device_enum.can_be_saved:
+        if device.enum.can_be_saved:
             y = self.SHOW_HIDE_SAVABLE_PLUGIN_BUTTON_PIXEL_HEIGHT
         else:
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT

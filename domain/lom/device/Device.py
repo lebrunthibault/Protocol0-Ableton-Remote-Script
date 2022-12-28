@@ -2,6 +2,7 @@ import Live
 from _Framework.SubjectSlot import SlotManager, subject_slot
 from typing import List, Any, Type, Optional, Union
 
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.shared.utils.list import find_if
@@ -18,6 +19,7 @@ class Device(SlotManager):
         self._parameters_listener()
         self.can_have_drum_pads = self._device.can_have_drum_pads  # type: bool
         self.can_have_chains = self._device.can_have_chains  # type: bool
+
 
     def __repr__(self):
         # type: () -> str
@@ -49,6 +51,11 @@ class Device(SlotManager):
     def make(cls, device):
         # type: (Live.Device.Device) -> Device
         return Device._get_class(device)(device=device)
+
+    @property
+    def enum(self):
+        # type: () -> DeviceEnum
+        return DeviceEnum.from_value(self.name)
 
     @subject_slot("parameters")
     def _parameters_listener(self):

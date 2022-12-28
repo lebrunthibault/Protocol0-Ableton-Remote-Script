@@ -5,5 +5,5 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 
 class InstrumentPlay(InstrumentInterface):  # noqa
     NAME = "Play"
-    DEVICE_NAME = DeviceEnum.PLAY.device_name
+    DEVICE = DeviceEnum.PLAY
     TRACK_COLOR = InstrumentColorEnum.PLAY

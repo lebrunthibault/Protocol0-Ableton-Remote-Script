@@ -69,7 +69,6 @@ class SceneName(SlotManager):
             length_legend = get_length_legend(
                 self._scene_length.length,
                 SongFacade.signature_numerator(),
-                short=base_name is not None,
             )
 
         if self._scene_playing_state.is_playing:

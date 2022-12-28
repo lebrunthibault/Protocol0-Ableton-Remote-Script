@@ -5,5 +5,5 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 
 class InstrumentKontakt(InstrumentInterface):  # noqa
     NAME = "Kontakt"
-    DEVICE_NAME = DeviceEnum.KONTAKT.device_name
+    DEVICE = DeviceEnum.KONTAKT
     TRACK_COLOR = InstrumentColorEnum.KONTAKT

@@ -280,6 +280,11 @@ class AbstractTrack(SlotManager):
             ApplicationViewFacade.focus_current_track()
         return Sequence().wait(2).done()
 
+    def focus(self):
+        # type: () -> None
+        self.select()
+        self.color = TrackColorEnum.FOCUSED.int_value
+
     def bars_left(self, scene_index):
         # type: (int) -> int
         """Returns the truncated number of bars left before the track stops on this particular scene"""

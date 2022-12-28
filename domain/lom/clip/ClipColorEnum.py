@@ -6,6 +6,6 @@ class ClipColorEnum(ColorEnumInterface, AbstractEnum):
     AUDIO_UN_QUANTIZED = 14
 
     @property
-    def color_int_value(self):
+    def int_value(self):
         # type: () -> int
         return self.value

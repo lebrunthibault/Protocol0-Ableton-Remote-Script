@@ -9,4 +9,4 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 class ProcessBackendResponseCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (ProcessBackendResponseCommand) -> None
-        DomainEventBus.emit(BackendResponseEvent(command.res))
+        DomainEventBus.emit(BackendResponseEvent(command.res, command.res_type))

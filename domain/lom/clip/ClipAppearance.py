@@ -39,5 +39,5 @@ class ClipAppearance(object):
     def refresh(self):
         # type: () -> None
         self._clip_name._name_listener(force=True)
-        if self.color != ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value:
+        if self.color != ClipColorEnum.AUDIO_UN_QUANTIZED.int_value:
             self.color = self._color

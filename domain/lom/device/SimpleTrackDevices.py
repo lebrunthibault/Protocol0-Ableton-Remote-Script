@@ -10,6 +10,7 @@ from protocol0.domain.lom.device.MixerDevice import MixerDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.LiveObjectMapping import LiveObjectMapping
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.observer.Observable import Observable
@@ -84,11 +85,19 @@ class SimpleTrackDevices(SlotManager, Observable):
 
     def get_one_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Optional[Device]
-        return find_if(lambda d: d.name == device_enum.device_name, self._all_devices)
+        return find_if(lambda d: d.enum == device_enum, self._all_devices)
 
     def get_from_enum(self, device_enum):
         # type: (DeviceEnum) -> List[Device]
-        return list(filter(lambda d: d.name == device_enum.device_name, self._all_devices))
+        devices = []
+        for d in self._all_devices:
+            try:
+                if d.enum == device_enum:
+                    devices.append(d)
+            except Protocol0Error:
+                continue
+
+        return devices
 
     def _find_all_devices(self, devices, only_visible=False):
         # type: (Optional[List[Device]], bool) -> List[Device]

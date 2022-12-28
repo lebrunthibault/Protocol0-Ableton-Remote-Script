@@ -45,7 +45,12 @@ class ClipName(SlotManager):
         # type: (bool) -> None
         base_name = self._get_base_name()
         # base_name != "" is for renaming empty clips
-        if not force and base_name == self.base_name and base_name != "" and self._live_clip.name != base_name:
+        if (
+            not force
+            and base_name == self.base_name
+            and base_name != ""
+            and self._live_clip.name != base_name
+        ):
             return
         self.base_name = base_name
         Scheduler.defer(self.update)
@@ -57,14 +62,22 @@ class ClipName(SlotManager):
             return ""
         match = re.match("^(?P<base_name>[^(]*)", clip_name)
 
-        return match.group("base_name").strip() if match else ""
+        base_name = match.group("base_name").strip() if match else ""
 
-    def _get_length_legend(self, short=False):
-        # type: (bool) -> str
+        if base_name.isdigit():
+            return ""
+        else:
+            return base_name
+
+    def _get_length_legend(self):
+        # type: () -> str
         if hasattr(self._live_clip, "warping") and not self._live_clip.warping:
             return ""
 
-        return get_length_legend(self._live_clip.loop_end - self._live_clip.start_marker, SongFacade.signature_numerator(), short=short)
+        return get_length_legend(
+            self._live_clip.loop_end - self._live_clip.start_marker,
+            SongFacade.signature_numerator(),
+        )
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None
@@ -74,11 +87,13 @@ class ClipName(SlotManager):
             return None
         if self._DEBUG:
             Logger.info("%s <-> %s <-> %s" % (base_name, self.base_name, self._live_clip.name))
+
         if base_name is not None:
             self.base_name = base_name
 
+        length_legend = self._get_length_legend()
+
         if self.base_name:
-            length_legend = self._get_length_legend(short=True)
             if length_legend:
                 clip_name = "%s (%s)" % (self.base_name, length_legend)
             else:

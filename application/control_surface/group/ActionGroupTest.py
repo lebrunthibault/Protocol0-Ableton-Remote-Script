@@ -1,8 +1,12 @@
 from functools import partial
 
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.BounceTrackToAudioCommand import BounceTrackToAudioCommand
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
+from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
+from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -47,4 +51,7 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.current_track().select()
+        CommandBus.dispatch(BounceTrackToAudioCommand())
+        # SongFacade.selected_track(SimpleMidiTrack).matching_track.bounce(self._container.get(TrackCrudComponent))
+        # SongFacade.selected_track().focus()
+        # Backend.client().save_track_to_sub_tracks()

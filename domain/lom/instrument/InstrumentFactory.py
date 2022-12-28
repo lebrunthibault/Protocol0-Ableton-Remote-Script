@@ -59,7 +59,7 @@ class InstrumentFactory(object):
 
         if isinstance(device, PluginDevice):
             for _class in cls._get_instrument_classes():
-                if _class.DEVICE_NAME.lower() == device.name.lower():
+                if _class.DEVICE == device.enum:
                     return _class
         elif isinstance(device, SimplerDevice):
             from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import (

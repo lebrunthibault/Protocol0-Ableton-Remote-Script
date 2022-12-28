@@ -6,6 +6,6 @@ class ColorEnum(ColorEnumInterface, AbstractEnum):
     WARNING = 12
 
     @property
-    def color_int_value(self):
+    def int_value(self):
         # type: () -> int
         return self.value

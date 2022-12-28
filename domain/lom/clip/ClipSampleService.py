@@ -32,7 +32,7 @@ class ClipToReplace(object):
 
     def mark(self):
         # type: () -> None
-        self._clip.appearance.color = ColorEnum.WARNING.color_int_value
+        self._clip.appearance.color = ColorEnum.WARNING.int_value
 
     def prepare_for_replacement(self):
         # type: () -> None

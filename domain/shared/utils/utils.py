@@ -28,16 +28,12 @@ def compare_values(value, expected_value):
     return value == expected_value
 
 
-def get_length_legend(beat_length, signature_numerator, short=False):
-    # type: (float, int, bool) -> str
+def get_length_legend(beat_length, signature_numerator):
+    # type: (float, int) -> str
     if int(beat_length) % signature_numerator != 0:
         return "%d beat%s" % (beat_length, "s" if beat_length > 1 else "")
     else:
-        bar_length = int(beat_length / signature_numerator)
-        if short:
-            return str(bar_length)
-        else:
-            return "%d" % bar_length
+        return str(int(beat_length / signature_numerator))
 
 
 def get_minutes_legend(seconds):

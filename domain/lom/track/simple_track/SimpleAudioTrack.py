@@ -31,7 +31,10 @@ class SimpleAudioTrack(SimpleTrack):
 
         return all(clip.matches(other_clip) for clip, other_clip in zip(self.clips, track.clips))
 
-    def fix_flattened_clips(self):
-        # type: () -> None
+    def post_flatten(self, track_color):
+        # type: (int) -> None
+        self.color = track_color
+
         for clip in self.clips:
-            clip.loop.start = clip.loop._clip.start_marker
+            clip.looping = True
+            clip.color = track_color

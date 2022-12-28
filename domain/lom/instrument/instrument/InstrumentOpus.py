@@ -9,7 +9,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 class InstrumentOpus(InstrumentInterface):  # noqa
     NAME = "Opus"
-    DEVICE_NAME = DeviceEnum.OPUS.device_name
+    DEVICE = DeviceEnum.OPUS
     TRACK_COLOR = InstrumentColorEnum.OPUS
 
     def post_activate(self):

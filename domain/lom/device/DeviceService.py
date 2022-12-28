@@ -31,9 +31,9 @@ class DeviceService(object):
         self._browser_service = browser_service
         DomainEventBus.subscribe(DeviceLoadedEvent, self._on_device_loaded_event)
 
-    def load_device(self, device_name):
+    def load_device(self, enum_name):
         # type: (str) -> Sequence
-        device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
+        device_enum = DeviceEnum[enum_name]
         track = self._track_to_select(device_enum)
 
         track.device_insert_mode = Live.Track.DeviceInsertMode.selected_right
@@ -42,20 +42,23 @@ class DeviceService(object):
         seq.add(track.select)
         if device_enum.is_instrument:
             seq.add(self._track_crud_component.create_midi_track)
-            seq.add(lambda: setattr(SongFacade.selected_track(), "name", device_enum.device_name))
+            seq.add(lambda: setattr(SongFacade.selected_track(), "name", device_enum.value))
 
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
 
         return seq.done()
 
-    def select_or_load_device(self, device_name):
+    def select_or_load_device(self, enum_name):
         # type: (str) -> Optional[Sequence]
-        device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
+        device_enum = DeviceEnum[enum_name]
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(enum_name)
+        Logger.dev(device_enum)
         track = self._track_to_select(device_enum)
 
         devices = track.devices.get_from_enum(device_enum)
         if len(devices) == 0 or device_enum.is_instrument:
-            return self.load_device(device_name)
+            return self.load_device(enum_name)
 
         if track.devices.selected in devices and SongFacade.selected_track() != track:
             next_device = track.devices.selected

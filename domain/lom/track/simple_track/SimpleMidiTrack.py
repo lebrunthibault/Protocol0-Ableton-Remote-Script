@@ -5,6 +5,7 @@ from typing import List, cast, Any, Optional
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiMatchingTrack import SimpleMidiMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
@@ -61,6 +62,25 @@ class SimpleMidiTrack(SimpleTrack):
         Backend.client().show_info("Copying to %s clips" % len(matching_clip_slots))
         seq = Sequence()
         seq.add([partial(selected_cs.duplicate_clip_to, cs) for cs in matching_clip_slots])
+        return seq.done()
+
+    def flatten(self):
+        # type: () -> Sequence
+        assert all(clip.looping for clip in self.clips), "Some clips are not looping"
+
+        # this is needed to have flattened clip of the right length
+        for clip in self.clips:
+            clip.looping = False
+
+        track_color = self.color
+        self.focus()  # we'll recolor the track on load
+
+        seq = Sequence()
+        seq.defer()
+        seq.add(partial(Backend.client().flatten_focused_track, self.name))
+        seq.wait_for_backend_response(res_type="flatten")
+        seq.defer()
+        seq.add(lambda: SongFacade.selected_track(SimpleAudioTrack).post_flatten(track_color))
         return seq.done()
 
     def disconnect(self):

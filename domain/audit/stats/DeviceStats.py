@@ -15,7 +15,7 @@ class DeviceStats(object):
         # type: (str) -> None
         self.count = 0
         self.device_enum = find_if(lambda enums: enums.class_name == name, list(DeviceEnum))
-        self.name = self.device_enum.device_name if self.device_enum else name
+        self.name = self.device_enum.value if self.device_enum else name
 
     def __repr__(self):
         # type: () -> str
@@ -34,8 +34,8 @@ class DeviceStats(object):
 
 class DevicesStats(object):
     _EXCLUDED_DEVICE_NAMES = [
-        DeviceEnum.USAMO.device_name,
-        DeviceEnum.EXTERNAL_AUDIO_EFFECT.device_name,
+        DeviceEnum.USAMO.value,
+        DeviceEnum.EXTERNAL_AUDIO_EFFECT.value,
         "Instrument Rack"
     ]
 
@@ -57,9 +57,9 @@ class DevicesStats(object):
         self.count = len(devices)
         self.total_load_time = sum(stat.total_load_time for stat in device_stats_dict.values())
         self.device_stats = devices_stats
-        self.play_instances = len([d for d in devices if d.name == DeviceEnum.PLAY.device_name])
-        self.opus_instances = len([d for d in devices if d.name == DeviceEnum.OPUS.device_name])
-        self.kontakt_instances = len([d for d in devices if d.name == DeviceEnum.KONTAKT.device_name])
+        self.play_instances = len([d for d in devices if d.enum == DeviceEnum.PLAY])
+        self.opus_instances = len([d for d in devices if d.enum == DeviceEnum.OPUS])
+        self.kontakt_instances = len([d for d in devices if d.enum == DeviceEnum.KONTAKT])
 
     def _get_devices(self):
         # type: () -> Iterator[Device]

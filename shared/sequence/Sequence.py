@@ -283,13 +283,17 @@ class Sequence(Observable):
         )
         self.wait_for_backend_response()
 
-    def wait_for_backend_response(self, on_response=None):
-        # type: (Optional[Callable]) -> None
+    def wait_for_backend_response(self, on_response=None, res_type=None):
+        # type: (Optional[Callable], str) -> None
         self.add(nop, notify_terminated=False)
 
         def on_event(event):
             # type: (BackendResponseEvent) -> None
+            if res_type is not None and res_type != event.type:
+                return
+
             DomainEventBus.un_subscribe(BackendResponseEvent, on_event)
+
             if self.state.started:
                 self.res = event.res
                 if on_response:

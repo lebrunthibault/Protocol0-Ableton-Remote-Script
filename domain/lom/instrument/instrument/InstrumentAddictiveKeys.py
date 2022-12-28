@@ -8,6 +8,6 @@ from protocol0.domain.lom.instrument.preset.preset_changer.InstrumentRackPresetC
 
 class InstrumentAddictiveKeys(InstrumentInterface):  # noqa
     NAME = "Addictive Keys Piano"
-    DEVICE_NAME = DeviceEnum.ADDICTIVE_KEYS.device_name
+    DEVICE = DeviceEnum.ADDICTIVE_KEYS
     TRACK_COLOR = InstrumentColorEnum.KONTAKT
     PRESET_CHANGER = InstrumentRackPresetChanger

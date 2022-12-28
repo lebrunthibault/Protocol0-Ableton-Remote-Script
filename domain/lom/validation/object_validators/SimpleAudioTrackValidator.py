@@ -17,7 +17,7 @@ class SimpleAudioTrackValidator(AggregateValidator):
 
         valid_clip_colors = (
             track.appearance.computed_color,
-            ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value,
+            ClipColorEnum.AUDIO_UN_QUANTIZED.int_value,
         )
         validators += [
             CallbackValidator(

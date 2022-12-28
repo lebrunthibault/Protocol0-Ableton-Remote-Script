@@ -5,12 +5,10 @@ from typing import Optional
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
-from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.LiveObject import liveobj_valid
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
@@ -18,11 +16,10 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ExternalSynthMatchingTrack(AbstractMatchingTrack):
-    def __init__(self, base_track, midi_track, base_dummy_group):
-        # type: (SimpleAudioTrack, SimpleMidiTrack, DummyGroup) -> None
+    def __init__(self, base_track, midi_track):
+        # type: (SimpleAudioTrack, SimpleMidiTrack) -> None
         super(ExternalSynthMatchingTrack, self).__init__(base_track)
         self._base_midi_track = midi_track
-        self._base_dummy_group = base_dummy_group
 
     def connect_main_track(self):
         # type: () -> None
@@ -59,7 +56,7 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
 
         return seq.done()
 
-    def copy_from_base_track(self, track_crud_component):
+    def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
         if self._get_atk_cs() is None:
             raise Protocol0Warning("No atk clip, please record first")
@@ -81,35 +78,6 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
         seq.defer()
         seq.add(partial(self._connect_main_track, False))
         return seq.done()
-
-    def _copy_params_from_base_track(self):
-        # type: () -> None
-        self._track = self._get_track()
-        assert self._track, "no matching track"
-
-        self._track.volume = self._base_track.volume
-        self._base_track.volume = 0
-
-        self._base_track.devices.mixer_device.copy_to(self._track.devices.mixer_device)
-        self._base_track.devices.mixer_device.reset()
-
-        devices = self._base_track.devices.all + list(self._base_dummy_group.devices)
-
-        if len(devices) == 0:
-            Backend.client().show_success("Track copied ! (no devices)")
-            return
-
-        self._base_track.select()
-        ApplicationViewFacade.show_device()
-        message = "Please copy %s devices" % len(devices)
-
-        scenes_with_automation = [
-            i for i in range(len(SongFacade.scenes())) if self._base_dummy_group.has_automation(i)
-        ]
-        if len(scenes_with_automation):
-            message += "\nAutomation present on scenes %s" % scenes_with_automation
-
-        Backend.client().show_info(message)
 
     def _copy_clips_from_base_track(self):
         # type: () -> None

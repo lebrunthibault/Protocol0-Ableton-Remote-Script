@@ -1,5 +1,6 @@
 from typing import Optional, Any
 
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
@@ -17,7 +18,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 class InstrumentProphet(InstrumentInterface):
     NAME = "Prophet"
-    DEVICE_NAME = "rev2editor"
+    DEVICE = DeviceEnum.REV2_EDITOR
     TRACK_COLOR = InstrumentColorEnum.PROPHET
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
