@@ -56,8 +56,6 @@ class SimpleMidiTrack(SimpleTrack):
 
     def flatten(self):
         # type: () -> Sequence
-        assert all(clip.looping for clip in self.clips), "Some clips are not looping"
-
         # this is needed to have flattened clip of the right length
         for clip in self.clips:
             clip.looping = False
