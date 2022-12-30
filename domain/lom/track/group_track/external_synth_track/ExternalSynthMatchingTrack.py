@@ -9,6 +9,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.LiveObject import liveobj_valid
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
@@ -75,17 +76,25 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
 
             seq.add(self._copy_params_from_base_track)
             seq.add(self._copy_clips_from_base_track)
+
+        else:
+            seq.add(self._base_track.save)
+            seq.add(self._base_track.delete)
+
+        seq.add(partial(Backend.client().show_success, "Track bounced"))
+
         return seq.done()
 
     def _copy_clips_from_base_track(self):
         # type: () -> None
-        recorded_cs = self._get_recorded_cs()
+        """Copy audio clips from ext track to audio matching track"""
+        atk_cs = self._get_recorded_cs()
 
-        if recorded_cs is None:
+        if atk_cs is None:
             return None
         
-        recorded_cs.clip.muted = False
-        recorded_cs.clip.looping = True
+        atk_cs.clip.muted = False
+        atk_cs.clip.looping = True
 
         loop_cs = None
         if len(self._base_track.sub_tracks) > 2:
@@ -101,14 +110,14 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
 
         midi_clip_slots = self._base_midi_track.clip_slots
         for mcs in midi_clip_slots:
-            main_cs = self._track.clip_slots[mcs.index]
-            if mcs.clip is not None and main_cs.clip is None:
+            destination_cs = self._track.clip_slots[mcs.index]
+            if mcs.clip is not None and destination_cs.clip is None:
                 is_loop_clip = (
                     loop_cs is not None
                     and mcs.index != 0
                     and midi_clip_slots[mcs.index - 1].clip is not None
                 )
-                audio_cs = loop_cs if is_loop_clip else recorded_cs
+                audio_cs = loop_cs if is_loop_clip else atk_cs
                 assert audio_cs.clip.looping, "audio cs not looped"
 
-                audio_cs.duplicate_clip_to(main_cs)
+                audio_cs.duplicate_clip_to(destination_cs)

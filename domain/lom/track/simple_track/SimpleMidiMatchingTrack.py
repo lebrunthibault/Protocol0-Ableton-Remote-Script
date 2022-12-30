@@ -49,9 +49,12 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
             seq.add(self._base_track.save)
             seq.add(self._base_track.delete)
         else:
-            assert all(d.enum.should_be_bounced for d in self._base_track.devices), "Move unbouncable devices"
+            assert all(
+                d.enum.should_be_bounced for d in self._base_track.devices
+            ), "Move unbouncable devices"
             seq.add(self._base_track.save)
             seq.add(self._base_track.flatten)
+            # seq.add(self._post_flatten)
 
         seq.add(partial(Backend.client().show_success, "Track bounced"))
 
@@ -91,5 +94,18 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         for index, device in enumerate(devices):
             device.copy_to(list(SongFacade.selected_track().devices)[index])
 
-
-
+    # def _post_flatten(self):
+    #     # type: () -> None
+    #     flattened_track = list(SongFacade.simple_tracks())[
+    #         self._base_track.index
+    #     ]  # type: SimpleAudioTrack
+    #     if len(flattened_track.clips) != 1:
+    #         return None
+    #
+    #     src_clip = flattened_track.clips[0]
+    #
+    #     if len(set(c.file_path for c in self._track.clips)) != 1:
+    #         return None
+    #
+    #     for clip in self._track.clips:
+    #         clip.file_path = src_clip.file_path
