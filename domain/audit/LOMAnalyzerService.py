@@ -21,7 +21,7 @@ class LOMAnalyzerService(object):
             # 2nd layer checks
             abstract_group_track = simple_track.abstract_group_track
             if simple_track.is_foldable:
-                assert len(abstract_group_track.sub_tracks) == len(simple_track.sub_tracks)
+                assert len(abstract_group_track.sub_tracks) == len(simple_track.sub_tracks), "sub tracks inconsistency"
                 for sub_track in abstract_group_track.sub_tracks:
                     if isinstance(sub_track, AbstractGroupTrack):
                         assert sub_track.group_track == abstract_group_track, (

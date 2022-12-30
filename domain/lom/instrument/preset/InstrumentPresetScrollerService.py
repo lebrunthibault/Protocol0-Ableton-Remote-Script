@@ -17,7 +17,7 @@ class InstrumentPresetScrollerService(object):
     @lock
     def scroll_presets_or_samples(self, track, go_next):
         # type: (AbstractTrack, bool) -> Sequence
-        assert track.instrument
+        assert track.instrument, "track has not instrument"
         ApplicationViewFacade.show_device()
 
         seq = Sequence()
@@ -30,7 +30,7 @@ class InstrumentPresetScrollerService(object):
 
     def scroll_preset_categories(self, track, go_next):
         # type: (AbstractTrack, bool) -> None
-        assert track.instrument
+        assert track.instrument, "track has not instrument"
         instrument = track.instrument
 
         if not len(instrument.preset_list.categories):

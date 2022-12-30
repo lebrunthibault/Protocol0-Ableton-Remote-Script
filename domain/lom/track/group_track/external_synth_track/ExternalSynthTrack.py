@@ -100,14 +100,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
     is_armed = cast(bool, ForwardTo("arm_state", "is_armed"))
     is_partially_armed = cast(bool, ForwardTo("arm_state", "is_partially_armed"))
 
-    def on_added(self):
-        # type: () -> Optional[Sequence]
-        self.matching_track.connect_main_track()
-        if not SongFacade.is_track_recording():
-            return self.arm_state.arm_track()
-        else:
-            return None
-
     def on_tracks_change(self):
         # type: () -> None
         self._map_optional_audio_tail_track()

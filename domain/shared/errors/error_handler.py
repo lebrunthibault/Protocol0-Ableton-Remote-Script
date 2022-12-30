@@ -18,6 +18,5 @@ def handle_error(func):
             from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 
             DomainEventBus.emit(ErrorRaisedEvent())
-            # raise e
 
     return decorate

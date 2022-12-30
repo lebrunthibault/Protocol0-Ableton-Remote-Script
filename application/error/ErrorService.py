@@ -45,10 +45,12 @@ class ErrorService(object):
         # type: (ErrorRaisedEvent) -> None
         UndoFacade.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
-        assert exc_type and exc_value and tb
+        assert exc_type and exc_value and tb, "cannot determine exception type and value"
         if issubclass(exc_type, Protocol0Warning) or issubclass(exc_type, AssertionError):
             error_message = str(exc_value or exc_type).strip()
-            Backend.client().show_warning(error_message or "Unknown Error")
+            if issubclass(exc_type, AssertionError) and not error_message:
+                error_message = "Unknown assertion error"
+            Backend.client().show_warning(error_message)
         else:
             self._handle_exception(exc_type, exc_value, tb, event.context)
 

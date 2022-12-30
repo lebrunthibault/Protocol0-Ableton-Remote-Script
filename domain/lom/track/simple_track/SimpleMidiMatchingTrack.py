@@ -22,9 +22,12 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
 
         self._base_track = cast(SimpleMidiTrack, self._base_track)
 
-    def connect_main_track(self):
+    def connect_base_track(self):
         # type: () -> Optional[Sequence]
-        super(SimpleMidiMatchingTrack, self).connect_main_track()
+        if self._track is None:
+            return None
+
+        super(SimpleMidiMatchingTrack, self).connect_base_track()
         seq = Sequence()
 
         # select the first midi clip
@@ -41,11 +44,14 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         if self._track is None or not liveobj_valid(self._track._track):
             seq.add(partial(track_crud_component.duplicate_track, self._base_track))
             seq.add(self._post_create_matching_track)
+            seq.add(self._base_track.save)
+            seq.add(self._base_track.delete)
         else:
-            self._copy_params_from_base_track()
+            assert all(d.enum.should_be_bounced for d in self._base_track.devices), "Move unbouncable devices"
+            seq.add(self._base_track.save)
+            seq.add(self._base_track.flatten)
 
-        seq.add(self._base_track.focus)
-        seq.add(Backend.client().save_track_to_sub_tracks)
+        seq.add(partial(Backend.client().show_success, "Track bounced"))
 
         return seq.done()
 
@@ -55,7 +61,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
 
         duplicated_track = SongFacade.selected_track(SimpleMidiTrack)
         for device in duplicated_track.devices:
-            if not (device.enum.is_instrument or device.enum.should_be_bounced):
+            if not device.enum.should_be_bounced:
                 duplicated_track.devices.delete(device)
 
         seq = Sequence()
@@ -67,7 +73,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         # type: () -> Sequence
         seq = Sequence()
 
-        devices = [d for d in self._base_track.devices if not (d.enum.is_instrument or d.enum.should_be_bounced)]
+        devices = [d for d in self._base_track.devices if not d.enum.should_be_bounced]
         for device in devices:
             seq.add(partial(CommandBus.dispatch, LoadDeviceCommand(device.enum.name)))
 

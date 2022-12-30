@@ -21,20 +21,20 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
         super(ExternalSynthMatchingTrack, self).__init__(base_track)
         self._base_midi_track = midi_track
 
-    def connect_main_track(self):
+    def connect_base_track(self):
         # type: () -> None
         # keep editor on only on a new track
         if self._track is None and self._base_midi_track.instrument is not None:
             self._base_midi_track.instrument.force_show = True
 
-        super(ExternalSynthMatchingTrack, self).connect_main_track()
+        if self._track is None:
+            return
+
+        super(ExternalSynthMatchingTrack, self).connect_base_track()
+        self._connect_main_track()
 
     def _connect_main_track(self, show_midi_clip=True):
         # type: (bool) -> Optional[Sequence]
-        # plug the external synth recording track in its main audio track
-        if self._track is None:
-            return None
-
         if not show_midi_clip:
             return None
 
@@ -75,8 +75,6 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
 
         seq.add(self._copy_params_from_base_track)
         seq.add(self._copy_clips_from_base_track)
-        seq.defer()
-        seq.add(partial(self._connect_main_track, False))
         return seq.done()
 
     def _copy_clips_from_base_track(self):
@@ -111,6 +109,6 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
                     and midi_clip_slots[mcs.index - 1].clip is not None
                 )
                 audio_cs = loop_cs if is_loop_clip else atk_cs
-                assert audio_cs.clip.looping
+                assert audio_cs.clip.looping, "audio cs not looped"
 
                 audio_cs.duplicate_clip_to(main_cs)

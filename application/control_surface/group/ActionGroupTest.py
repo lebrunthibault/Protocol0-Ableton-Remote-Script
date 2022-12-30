@@ -10,6 +10,7 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTr
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupInterface):
@@ -51,7 +52,7 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        CommandBus.dispatch(BounceTrackToAudioCommand())
-        # SongFacade.selected_track(SimpleMidiTrack).matching_track.bounce(self._container.get(TrackCrudComponent))
-        # SongFacade.selected_track().focus()
-        # Backend.client().save_track_to_sub_tracks()
+        seq = Sequence()
+        seq.prompt("Disable protected mode ?")
+        seq.log("ok")
+        seq.done()

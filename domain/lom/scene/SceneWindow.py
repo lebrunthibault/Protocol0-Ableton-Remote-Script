@@ -80,7 +80,7 @@ class SceneWindow(object):
     def _validate_scene(cls, scene_length, split_bar_length):
         # type: (float, int) -> None
         bar_length = scene_length * SongFacade.signature_numerator()
-        assert float(split_bar_length).is_integer()
+        assert float(split_bar_length).is_integer(), "split_bar_length is not an integer"
         if bar_length < 2:
             raise Protocol0Warning("Scene should be at least 2 bars for splitting")
         if bar_length % 2 != 0:

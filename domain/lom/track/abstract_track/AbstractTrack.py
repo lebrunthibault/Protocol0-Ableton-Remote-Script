@@ -12,6 +12,7 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 from protocol0.domain.lom.track.MonitoringStateInterface import MonitoringStateInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
+from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
     AbstractTrackAppearance,
 )
@@ -20,9 +21,11 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import
 )
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
-from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import \
-    SimpleTrackMonitoringState
+from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
+    SimpleTrackMonitoringState,
+)
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
@@ -75,6 +78,14 @@ class AbstractTrack(SlotManager):
             if self.group_track.color != self.color:
                 self.color = self.group_track.color
 
+        if hasattr(self, "matching_track") and issubclass(
+            self.matching_track.__class__, AbstractMatchingTrack
+        ):
+            Scheduler.defer(self.matching_track.connect_base_track)
+
+            if not SongFacade.is_track_recording():
+                return self.arm_state.arm()
+
         return None
 
     def on_tracks_change(self):
@@ -122,7 +133,7 @@ class AbstractTrack(SlotManager):
     @property
     def instrument_track(self):
         # type: () -> SimpleTrack
-        assert self.instrument
+        assert self.instrument, "track has not instrument"
         return self.base_track
 
     def get_view_track(self, scene_index):
@@ -147,7 +158,7 @@ class AbstractTrack(SlotManager):
 
     def select_clip_slot(self, clip_slot):
         # type: (Live.ClipSlot.ClipSlot) -> None
-        assert clip_slot in [cs._clip_slot for cs in self.clip_slots]
+        assert clip_slot in [cs._clip_slot for cs in self.clip_slots], "clip slot inconsistency"
         self.is_folded = False
         DomainEventBus.emit(ClipSlotSelectedEvent(clip_slot))
 
@@ -285,6 +296,18 @@ class AbstractTrack(SlotManager):
         self.select()
         self.color = TrackColorEnum.FOCUSED.int_value
 
+    def save(self):
+        # type: () -> Sequence
+        track_color = self.color
+        seq = Sequence()
+        seq.add(self.focus)
+        seq.add(Backend.client().save_track_to_sub_tracks)
+        seq.wait_for_backend_event("track_focused")
+        seq.add(partial(setattr, self, "color", track_color))
+        seq.wait_for_backend_event("track_saved")
+
+        return seq.done()
+
     def bars_left(self, scene_index):
         # type: (int) -> int
         """Returns the truncated number of bars left before the track stops on this particular scene"""
@@ -361,7 +384,7 @@ class AbstractTrack(SlotManager):
 
     def scroll_presets(self, go_next):
         # type: (bool) -> Sequence
-        assert self.instrument
+        assert self.instrument, "track has not instrument"
         seq = Sequence()
         seq.add(self.arm_state.arm)
         seq.add(partial(self.instrument.preset_list.scroll, go_next))

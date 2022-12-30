@@ -21,11 +21,11 @@ class ExternalSynthTrackDummyGroup(DummyGroup):
         main_tracks_length = 3 if self._track.audio_tail_track else 2
 
         if len(self._track.sub_tracks) == main_tracks_length + 2:
-            assert isinstance(self._track.sub_tracks[-2], SimpleAudioTrack)
-            assert isinstance(self._track.sub_tracks[-1], SimpleAudioTrack)
+            assert isinstance(self._track.sub_tracks[-2], SimpleAudioTrack), "dummy track should be audio"
+            assert isinstance(self._track.sub_tracks[-1], SimpleAudioTrack), "dummy track should be audio"
             return self._track.sub_tracks[-2], self._track.sub_tracks[-1]  # noqa
         if len(self._track.sub_tracks) >= main_tracks_length + 1:
-            assert isinstance(self._track.sub_tracks[-1], SimpleAudioTrack)
+            assert isinstance(self._track.sub_tracks[-1], SimpleAudioTrack), "dummy track should be audio"
             dummy_track = self._track.sub_tracks[-1]
             # is it the dummy return track ?
             if self._track.sub_tracks[-1].output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY:

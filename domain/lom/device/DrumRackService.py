@@ -69,9 +69,9 @@ class DrumRackService(object):
     def _populate_drum_rack(self, drum_category):
         # type: (SampleCategory) -> Sequence
         device = cast(DrumRackDevice, SongFacade.selected_track().devices.selected)
-        assert isinstance(device, DrumRackDevice)
-        assert device == list(SongFacade.selected_track().devices)[0]
-        assert len(device.filled_drum_pads) == 0
+        assert isinstance(device, DrumRackDevice), "device is not a drum rack"
+        assert device == list(SongFacade.selected_track().devices)[0], "device is not the first device"
+        assert len(device.filled_drum_pads) == 0, "device has drum pads"
         presets = drum_category.presets
         drum_pads = [d for d in device.drum_pads if d.note >= DrumPad.INITIAL_NOTE][: len(presets)]
 

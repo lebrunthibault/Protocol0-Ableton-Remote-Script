@@ -3,15 +3,13 @@ from argparse import ArgumentError
 import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
@@ -22,6 +20,11 @@ from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
+
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class AbstractMatchingTrack(SlotManager):
@@ -64,17 +67,14 @@ class AbstractMatchingTrack(SlotManager):
 
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
-        matching_track = find_if(
+        from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+
+        return find_if(
             lambda t: t != self._base_track
             and not t.is_foldable
             and t.name == self._base_track.name,
-            SongFacade.simple_tracks(),
+            SongFacade.simple_tracks(SimpleAudioTrack),
         )
-
-        if isinstance(matching_track, SimpleAudioTrack):
-            return matching_track
-
-        return None
 
     def _get_atk_cs(self):
         # type: () -> Optional[AudioClipSlot]
@@ -127,8 +127,7 @@ class AbstractMatchingTrack(SlotManager):
         # type: () -> None
         self._track.monitoring_state.switch()
 
-    @defer
-    def connect_main_track(self):
+    def connect_base_track(self):
         # type: () -> Optional[Sequence]
         # plug the matching track in its main audio track
         if self._track is None:

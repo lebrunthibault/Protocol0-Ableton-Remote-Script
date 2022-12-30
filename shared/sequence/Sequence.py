@@ -6,7 +6,7 @@ from typing import Deque, Iterable, Union, Any, Optional, List, Type, Callable, 
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
+from protocol0.domain.shared.backend.BackendEvent import BackendEvent
 from protocol0.domain.shared.backend.NotificationColorEnum import NotificationColorEnum
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.event.HasEmitter import HasEmitter
@@ -230,6 +230,24 @@ class Sequence(Observable):
 
         return self._add_timeout_step(subscribe, "wait_for_event %s" % event_class)
 
+    def wait_for_backend_event(self, event_type):
+        # type: (str) -> None
+        """event types are hardcoded in the script and backend"""
+        self.add(nop, notify_terminated=False)
+
+        def on_event(backend_event):
+            # type: (BackendEvent) -> None
+            if event_type != backend_event.event:
+                return
+
+            DomainEventBus.un_subscribe(BackendEvent, on_event)
+
+            if self.state.started:
+                self.res = backend_event.data
+                self._execute_next_step()
+
+        DomainEventBus.subscribe(BackendEvent, on_event)
+
     def _add_timeout_step(self, func, legend):
         # type: (Callable, str) -> Sequence
         seconds = self._STEP_TIMEOUT
@@ -255,9 +273,9 @@ class Sequence(Observable):
         else:
             options = ["No", "Yes"]
 
-        def on_response(res):
-            # type: (str) -> None
-            if res == "Yes":
+        def on_response():
+            # type: () -> None
+            if self.res == "Yes":
                 self._execute_next_step()
             else:
                 self._cancel()
@@ -271,7 +289,8 @@ class Sequence(Observable):
                 color=color.value,
             )
         )
-        self.wait_for_backend_response(on_response)
+        self.wait_for_backend_event("option_selected")
+        self.add(on_response)
 
     def select(self, question, options, vertical=True, color=NotificationColorEnum.INFO):
         # type: (str, List, bool, NotificationColorEnum) -> None
@@ -281,27 +300,7 @@ class Sequence(Observable):
                 Backend.client().select, question, options, vertical=vertical, color=color.value
             )
         )
-        self.wait_for_backend_response()
-
-    def wait_for_backend_response(self, on_response=None, res_type=None):
-        # type: (Optional[Callable], str) -> None
-        self.add(nop, notify_terminated=False)
-
-        def on_event(event):
-            # type: (BackendResponseEvent) -> None
-            if res_type is not None and res_type != event.type:
-                return
-
-            DomainEventBus.un_subscribe(BackendResponseEvent, on_event)
-
-            if self.state.started:
-                self.res = event.res
-                if on_response:
-                    on_response(self.res)
-                else:
-                    self._execute_next_step()
-
-        DomainEventBus.subscribe(BackendResponseEvent, on_event)
+        self.wait_for_backend_event("option_selected")
 
     def disconnect(self):
         # type: () -> None

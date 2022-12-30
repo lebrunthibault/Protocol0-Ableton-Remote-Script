@@ -77,3 +77,5 @@ _._check_for_out_of_sync_scenes  # unused method (domain\lom\scene\ScenePlayback
 ActionGroupClip  # unused class (application\control_surface\group\ActionGroupClip.py:6)
 _.bounce  # unused method (domain\lom\track\group_track\external_synth_track\ExternalSynthMatchingTrack.py:62)
 _.is_browser_visible  # unused method (domain\shared\ApplicationViewFacade.py:90)
+_.load_matching_track  # unused method (domain\lom\track\simple_track\SimpleAudioTrack.py:46)
+BounceTrackToAudioCommand  # unused import (application\control_surface\group\ActionGroupTest.py:4)

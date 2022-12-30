@@ -11,7 +11,7 @@ class BounceTrackToAudioCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (BounceTrackToAudioCommand) -> None
         current_track = SongFacade.current_track()
-        assert isinstance(current_track, (ExternalSynthTrack, SimpleMidiTrack))
+        assert isinstance(current_track, (ExternalSynthTrack, SimpleMidiTrack)), "Can only bounce midi and ext tracks"
 
         current_track.matching_track.bounce(
             self._container.get(TrackCrudComponent)

@@ -55,7 +55,7 @@ def get_class_name_from_method(func):
 
 def get_callable_repr(func):
     # type: (Any) -> str
-    assert not isinstance(func, str)
+    assert not isinstance(func, str), "func argument invalid"
     from protocol0.shared.sequence.Sequence import Sequence
     from protocol0.shared.sequence.SequenceStep import SequenceStep
 

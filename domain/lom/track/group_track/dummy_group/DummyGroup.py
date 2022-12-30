@@ -241,7 +241,7 @@ class DummyGroup(object):
             lambda p: p.is_mixer_parameter and p.name == selected_parameter.name,
             self._dummy_return_track.devices.parameters,
         )
-        assert new_selected_parameter is not None
+        assert new_selected_parameter is not None, "Cannot find selected mixer parameter"
 
         return selected_track, new_selected_parameter
 

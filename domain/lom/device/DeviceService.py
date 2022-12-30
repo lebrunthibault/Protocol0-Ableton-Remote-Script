@@ -51,9 +51,6 @@ class DeviceService(object):
     def select_or_load_device(self, enum_name):
         # type: (str) -> Optional[Sequence]
         device_enum = DeviceEnum[enum_name]
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(enum_name)
-        Logger.dev(device_enum)
         track = self._track_to_select(device_enum)
 
         devices = track.devices.get_from_enum(device_enum)

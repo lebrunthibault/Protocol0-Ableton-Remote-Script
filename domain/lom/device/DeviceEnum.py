@@ -90,7 +90,7 @@ class DeviceEnum(AbstractEnum):
     def should_be_bounced(self):
         # type: () -> bool
         """Heavy devices that should be bounced when flattening to audio"""
-        return self in [
+        return self.is_instrument or self in [
             DeviceEnum.SOOTHE2,
         ]
 

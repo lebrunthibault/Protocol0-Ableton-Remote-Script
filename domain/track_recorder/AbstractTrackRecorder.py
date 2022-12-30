@@ -40,7 +40,7 @@ class AbstractTrackRecorder(object):
     @property
     def recording_scene_index(self):
         # type: () -> int
-        assert self._recording_scene_index is not None
+        assert self._recording_scene_index is not None, "recording scene index is None"
         return self._recording_scene_index
 
     @property

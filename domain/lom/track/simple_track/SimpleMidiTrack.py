@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, cast, Any, Optional
+from typing import List, cast, Any
 
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
@@ -32,16 +32,6 @@ class SimpleMidiTrack(SimpleTrack):
     def clips(self):
         # type: () -> List[MidiClip]
         return super(SimpleMidiTrack, self).clips  # noqa
-
-    def on_added(self):
-        # type: () -> Optional[Sequence]
-        super(SimpleMidiTrack, self).on_added()
-        self.matching_track.connect_main_track()
-
-        if not SongFacade.is_track_recording():
-            return self.arm_state.arm()
-        else:
-            return None
 
     def has_same_clips(self, track):
         # type: (AbstractTrack) -> bool
@@ -77,10 +67,11 @@ class SimpleMidiTrack(SimpleTrack):
 
         seq = Sequence()
         seq.defer()
-        seq.add(partial(Backend.client().flatten_focused_track, self.name))
-        seq.wait_for_backend_response(res_type="flatten")
-        seq.defer()
-        seq.add(lambda: SongFacade.selected_track(SimpleAudioTrack).post_flatten(track_color))
+        seq.add(Backend.client().flatten_focused_track)
+        seq.wait_for_backend_event("track_focused")
+        seq.add(partial(setattr, self, "color", track_color))
+        seq.wait_for_backend_event("track_flattened")
+        seq.add(lambda: SongFacade.selected_track(SimpleAudioTrack).post_flatten())
         return seq.done()
 
     def disconnect(self):

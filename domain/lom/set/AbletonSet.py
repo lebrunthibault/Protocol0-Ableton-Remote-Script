@@ -75,7 +75,6 @@ class AbletonSet(object):
             "title": self._title,
             "muted": muted,
             "current_track_name": SongFacade.current_track().name,
-            "current_track_type": SongFacade.current_track().__class__.__name__,
             "current_track_is_grouped": SongFacade.current_track().group_track is not None,
             "drum_rack_visible": isinstance(
                 SongFacade.selected_track().instrument, InstrumentDrumRack
@@ -91,7 +90,7 @@ class AbletonSet(object):
             seq.add(partial(Backend.client().notify_set_state, data))
 
             if self._title is None:
-                seq.wait_for_backend_response()
+                seq.wait_for_backend_event("set_updated")
                 seq.add(lambda: self._set_from_server_response(seq.res))  # type: ignore[arg-type]
 
             seq.done()
