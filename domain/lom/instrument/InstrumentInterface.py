@@ -1,5 +1,7 @@
+from functools import partial
+
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional, Type
+from typing import Optional, Type, TYPE_CHECKING
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
@@ -22,8 +24,46 @@ from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializer
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import (
     PresetInitializerInterface,
 )
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
+
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+
+
+def _get_insert_instrument_track(instrument_cls):
+    # type: (Type["InstrumentInterface"]) -> AbstractTrack
+    """Current track or last instrument track or last track"""
+    target_color = instrument_cls.TRACK_COLOR.value
+
+    if SongFacade.current_track().color == target_color:
+        return SongFacade.current_track()
+
+    instrument_tracks = [
+        t
+        for t in SongFacade.simple_tracks()
+        if t.group_track is None and t.color == target_color
+    ]
+
+    last_track = list(SongFacade.simple_tracks())[-1]
+
+    return next(reversed(instrument_tracks), last_track)
+
+
+def load_instrument_track(instrument_cls):
+    # type: (Type["InstrumentInterface"]) -> Sequence
+    insert_track = _get_insert_instrument_track(instrument_cls)
+    track_color = insert_track.color
+
+    insert_track.focus()
+    seq = Sequence()
+    seq.add(partial(Backend.client().load_instrument_track, instrument_cls.INSTRUMENT_TRACK_NAME))
+    seq.wait_for_backend_event("instrument_loaded")
+    seq.add(partial(setattr, insert_track, "color", track_color))
+    return seq.done()
 
 
 class InstrumentInterface(SlotManager):
@@ -39,6 +79,7 @@ class InstrumentInterface(SlotManager):
     PRESET_OFFSET = 0  # if we store presets not at the beginning of the list
     PRESET_CHANGER = ProgramChangePresetChanger  # type: Type[PresetChangerInterface]
     PRESET_INITIALIZER = PresetInitializerDevicePresetName  # type: Type[PresetInitializerInterface]
+    INSTRUMENT_TRACK_NAME = ""
 
     def __init__(self, device, track_name):
         # type: (Optional[Device], str) -> None

@@ -1,11 +1,8 @@
-from functools import partial
-
 from typing import Optional, Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -23,6 +20,7 @@ class InstrumentRev2(InstrumentInterface):
     NAME = "Rev2"
     DEVICE = DeviceEnum.REV2_EDITOR
     TRACK_COLOR = InstrumentColorEnum.REV2
+    INSTRUMENT_TRACK_NAME = "Synth"
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentRev2]
 
     def __init__(self, *a, **k):
@@ -38,21 +36,6 @@ class InstrumentRev2(InstrumentInterface):
         DomainEventBus.subscribe(
             ExternalSynthAudioRecordingEndedEvent, self._on_audio_recording_ended_event
         )
-
-    @classmethod
-    def load_instrument_track(cls):
-        # type: () -> Sequence
-        minitaur_track = next(SongFacade.external_synth_tracks(InstrumentMinitaur), None)
-
-        track_to_focus = minitaur_track or list(SongFacade.simple_tracks())[-1]
-        track_color = track_to_focus.color
-
-        track_to_focus.focus()
-        seq = Sequence()
-        seq.add(Backend.client().load_instrument_track)
-        seq.wait_for_backend_event("instrument_loaded")
-        seq.add(partial(setattr, track_to_focus, "color", track_color))
-        return seq.done()
 
     @property
     def needs_exclusive_activation(self):
