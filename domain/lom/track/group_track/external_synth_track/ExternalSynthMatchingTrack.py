@@ -58,7 +58,7 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
 
     def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
-        if self._get_atk_cs() is None:
+        if self._get_recorded_cs() is None:
             raise Protocol0Warning("No atk clip, please record first")
 
         seq = Sequence()
@@ -73,19 +73,19 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
             seq.add(lambda: setattr(SongFacade.selected_track(), "name", self._base_track.name))
             seq.add(lambda: setattr(SongFacade.selected_track(), "color", self._base_track.color))
 
-        seq.add(self._copy_params_from_base_track)
-        seq.add(self._copy_clips_from_base_track)
+            seq.add(self._copy_params_from_base_track)
+            seq.add(self._copy_clips_from_base_track)
         return seq.done()
 
     def _copy_clips_from_base_track(self):
         # type: () -> None
-        atk_cs = self._get_atk_cs()
+        recorded_cs = self._get_recorded_cs()
 
-        if atk_cs is None:
+        if recorded_cs is None:
             return None
         
-        atk_cs.clip.muted = False
-        atk_cs.clip.looping = True
+        recorded_cs.clip.muted = False
+        recorded_cs.clip.looping = True
 
         loop_cs = None
         if len(self._base_track.sub_tracks) > 2:
@@ -108,7 +108,7 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
                     and mcs.index != 0
                     and midi_clip_slots[mcs.index - 1].clip is not None
                 )
-                audio_cs = loop_cs if is_loop_clip else atk_cs
+                audio_cs = loop_cs if is_loop_clip else recorded_cs
                 assert audio_cs.clip.looping, "audio cs not looped"
 
                 audio_cs.duplicate_clip_to(main_cs)

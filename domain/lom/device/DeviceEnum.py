@@ -26,6 +26,7 @@ class DeviceEnum(AbstractEnum):
     EXTERNAL_INSTRUMENT = "Ext. Instrument"
     FREE_CLIP = "FreeClip"
     GATE = "Gate"
+    GATEKEEPER = "Gatekeeper"
     GLUE_COMPRESSOR = "Glue Compressor"
     KONTAKT = "Kontakt 7"
     INSERT_DELAY = "Insert Delay"
@@ -33,6 +34,7 @@ class DeviceEnum(AbstractEnum):
     INSERT_REVERB = "Insert Reverb"
     INSTRUMENT_RACK = "Instrument Rack"
     LFO_TOOL = "LFOTool_x64"
+    L1_LIMITER = "L1 limiter Stereo"
     LIMITER = "Limiter"
     MASTERING_RACK = "Mastering Rack"
     OPUS = "Opus"
@@ -49,7 +51,8 @@ class DeviceEnum(AbstractEnum):
     SOOTHE2 = "soothe2"
     SOUNDID_REFERENCE_PLUGIN = "SoundID Reference Plugin"
     SSL_COMP = "SSLComp Stereo"
-    SUPER_TAP = "SuperTap 2-Taps Stereo"
+    SUPER_TAP_2 = "SuperTap 2-Taps Stereo"
+    SUPER_TAP_6 = "SuperTap 6-Taps Stereo"
     SURFEREQ = "SurferEQ"
     TRACK_SPACER = "Trackspacer 2.5"
     TRUE_VERB = "TrueVerb Stereo"
@@ -212,7 +215,7 @@ class DeviceEnum(AbstractEnum):
                 cls.SATURATOR,
                 cls.LFO_TOOL,
                 cls.AUTO_PAN,
-                cls.SUPER_TAP,
+                cls.SUPER_TAP_2,
             ],
             [
                 cls.DRUM_RACK,
@@ -253,9 +256,11 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.FREE_CLIP: 40,
                     DeviceEnum.KONTAKT: 1000,
                     DeviceEnum.GATE: 7,
+                    DeviceEnum.GATEKEEPER: 130,
                     DeviceEnum.GLUE_COMPRESSOR: 6,
                     DeviceEnum.INSTRUMENT_RACK: 10,
                     DeviceEnum.LFO_TOOL: 180,
+                    DeviceEnum.L1_LIMITER: 64,
                     DeviceEnum.LIMITER: 5,
                     DeviceEnum.PITCH: 2,
                     DeviceEnum.PLAY: 214,
@@ -267,7 +272,8 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.SERUM: 147,
                     DeviceEnum.SIMPLER: 56,
                     DeviceEnum.SOOTHE2: 206,
-                    DeviceEnum.SUPER_TAP: 45,
+                    DeviceEnum.SUPER_TAP_2: 45,
+                    DeviceEnum.SUPER_TAP_6: 45,
                     DeviceEnum.SURFEREQ: 116,
                     DeviceEnum.SSL_COMP: 81,
                     DeviceEnum.SOUNDID_REFERENCE_PLUGIN: 0,

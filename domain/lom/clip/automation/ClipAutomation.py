@@ -23,7 +23,7 @@ class ClipAutomation(object):
         # type: (List[DeviceParameter]) -> List[DeviceParameter]
         automated_parameters = []
         for parameter in device_parameters:
-            # ignore prophet b layer (we edit only A)
+            # ignore rev2 b layer (we edit only A)
             if parameter.name.startswith("B-"):
                 continue
             if self.get_envelope(parameter) is None:

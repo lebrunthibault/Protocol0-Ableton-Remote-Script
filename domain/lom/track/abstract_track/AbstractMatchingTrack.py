@@ -76,7 +76,7 @@ class AbstractMatchingTrack(SlotManager):
             SongFacade.simple_tracks(SimpleAudioTrack),
         )
 
-    def _get_atk_cs(self):
+    def _get_recorded_cs(self):
         # type: () -> Optional[AudioClipSlot]
         audio_track = self._base_track.sub_tracks[1]
 

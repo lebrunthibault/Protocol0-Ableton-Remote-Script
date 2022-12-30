@@ -106,7 +106,7 @@ class TrackAutomationService(object):
     def select_or_sync_automation(self):
         # type: () -> None
         """
-        Either we have a midi clip focused and we sync the automation (prophet) layers
+        Either we have a midi clip focused and we sync the automation (rev2) layers
         Or we create a new automation lane for the selected parameter
         """
         current_track = SongFacade.current_track()

@@ -38,7 +38,9 @@ class SimpleMidiTrack(SimpleTrack):
         if not isinstance(track, SimpleMidiTrack):
             return False
 
-        return all(clip.matches(other_clip) for clip, other_clip in zip(self.clips, track.clips))
+        return len(self.clips) == len(track.clips) and all(
+            clip.matches(other_clip) for clip, other_clip in zip(self.clips, track.clips)
+        )
 
     def duplicate_selected_clip(self):
         # type: () -> Sequence
@@ -47,7 +49,9 @@ class SimpleMidiTrack(SimpleTrack):
         if clip is None:
             raise Protocol0Warning("No selected clip")
 
-        matching_clip_slots = [c for c in self.clip_slots if c.clip and c.clip.matches(clip) and c.clip is not clip]
+        matching_clip_slots = [
+            c for c in self.clip_slots if c.clip and c.clip.matches(clip) and c.clip is not clip
+        ]
 
         Backend.client().show_info("Copying to %s clips" % len(matching_clip_slots))
         seq = Sequence()

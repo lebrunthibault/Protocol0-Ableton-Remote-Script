@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
     from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+    from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
     from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 
 
@@ -198,14 +199,17 @@ class SongFacade(object):
                 yield track
 
     @classmethod
-    def external_synth_tracks(cls):
-        # type: () -> Iterator[ExternalSynthTrack]
+    def external_synth_tracks(cls, instrument_cls=None):
+        # type: (Type[InstrumentInterface]) -> Iterator[ExternalSynthTrack]
         from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (  # noqa
             ExternalSynthTrack,
         )
 
         for track in cls.abstract_tracks():
             if isinstance(track, ExternalSynthTrack):
+                if instrument_cls is not None and not isinstance(track.instrument, instrument_cls):
+                    continue
+
                 yield track
 
     @classmethod

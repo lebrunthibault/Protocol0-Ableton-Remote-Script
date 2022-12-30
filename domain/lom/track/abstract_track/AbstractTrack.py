@@ -195,6 +195,10 @@ class AbstractTrack(SlotManager):
     def color(self, color_index):
         # type: (int) -> None
         self.appearance.color = color_index
+        for track in self.sub_tracks:
+            track.color = color_index
+        for clip in self.clips:
+            clip.color = color_index
 
     @property
     def is_foldable(self):

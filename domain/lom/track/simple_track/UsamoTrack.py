@@ -68,7 +68,7 @@ class UsamoTrack(SimpleMidiTrack):
         if event.arm:
             # noinspection PyUnresolvedReferences
             self.input_routing.track = event.track.abstract_track.midi_track
-            self.activate()  # this is the default: overridden by prophet
+            self.activate()  # this is the default: overridden by rev2
         else:
             self.inactivate()
 

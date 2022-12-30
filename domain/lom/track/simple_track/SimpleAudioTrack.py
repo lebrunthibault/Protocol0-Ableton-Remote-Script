@@ -45,6 +45,7 @@ class SimpleAudioTrack(SimpleTrack):
 
     def load_matching_track(self):
         # type: () -> Sequence
+        assert isinstance(SongFacade.current_track(), SimpleAudioTrack), "Track already loaded"
         matching_track = find_if(
             lambda t: t != self and t.name == self.name, SongFacade.simple_tracks()
         )

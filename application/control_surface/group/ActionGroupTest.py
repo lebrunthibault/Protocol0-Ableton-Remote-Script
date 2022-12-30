@@ -1,16 +1,11 @@
 from functools import partial
 
-from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.BounceTrackToAudioCommand import BounceTrackToAudioCommand
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
-from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupInterface):
@@ -52,7 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        seq = Sequence()
-        seq.prompt("Disable protected mode ?")
-        seq.log("ok")
-        seq.done()
+        list(SongFacade.external_synth_tracks())[-1].select()
