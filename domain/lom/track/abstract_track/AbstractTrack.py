@@ -298,13 +298,15 @@ class AbstractTrack(SlotManager):
     def focus(self):
         # type: () -> Sequence
         # track can disappear out of view if this is done later
-        ApplicationViewFacade.show_browser()
         self.color = TrackColorEnum.FOCUSED.int_value
         seq = Sequence()
-        seq.defer()
 
-        if SongFacade.selected_track() == self.base_track:
-            seq.add(next(SongFacade.simple_tracks()).select)
+        if not ApplicationViewFacade.is_browser_visible():
+            ApplicationViewFacade.show_browser()
+            seq.defer()
+
+            if SongFacade.selected_track() == self.base_track:
+                seq.add(next(SongFacade.simple_tracks()).select)
 
         seq.add(self.select)
         return seq.done()

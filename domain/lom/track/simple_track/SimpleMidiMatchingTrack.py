@@ -40,7 +40,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
 
     def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
-        assert all(clip.looping for clip in self._base_track.clips), "Some clips are not looping"
+        assert all(clip.looping for clip in self._base_track.clips), "Some clips are not looped"
 
         seq = Sequence()
         if self._track is None or not liveobj_valid(self._track._track):
