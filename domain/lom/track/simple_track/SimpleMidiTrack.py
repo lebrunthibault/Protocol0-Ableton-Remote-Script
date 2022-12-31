@@ -65,11 +65,11 @@ class SimpleMidiTrack(SimpleTrack):
             clip.looping = False
 
         track_color = self.color
-        self.focus()  # we'll recolor the track on load
 
         seq = Sequence()
+        seq.add(self.focus)
         seq.defer()
-        seq.add(Backend.client().flatten_focused_track)
+        seq.add(Backend.client().flatten_track)
         seq.wait_for_backend_event("track_focused")
         seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("track_flattened")

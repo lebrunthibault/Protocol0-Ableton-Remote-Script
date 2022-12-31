@@ -145,5 +145,5 @@ class P0Push2(Push2):
         scene_index += self._session_ring.scene_offset
         if scene_index >= len(track.clip_slots):
             return None
-        track.select_clip_slot(track.clip_slots[scene_index]._clip_slot)
+        track.select_clip_slot(track.clip_slots[scene_index])
         SongFacade.selected_clip().show_loop()

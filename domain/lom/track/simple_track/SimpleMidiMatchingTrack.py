@@ -47,6 +47,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
             seq.add(partial(track_crud_component.duplicate_track, self._base_track))
             seq.add(self._post_create_matching_track)
             seq.add(self._base_track.save)
+            seq.wait_ms(200)
             seq.add(self._base_track.delete)
         else:
             assert all(

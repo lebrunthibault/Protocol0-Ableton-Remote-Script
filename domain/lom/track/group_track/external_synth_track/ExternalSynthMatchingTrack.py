@@ -44,7 +44,7 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
         # select the first midi clip
         first_cs = next((cs for cs in self._base_midi_track.clip_slots if cs.clip), None)
         if first_cs is not None:
-            self._base_midi_track.select_clip_slot(first_cs._clip_slot)
+            self._base_midi_track.select_clip_slot(first_cs)
 
         instrument = self._base_midi_track.instrument
         if instrument is not None and instrument.needs_exclusive_activation:

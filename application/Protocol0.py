@@ -17,6 +17,7 @@ class Protocol0(ControlSurface):
     def __init__(self, c_instance=None):
         # type: (Any) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
+
         self._initialize()
 
     def _initialize(self, reset=False):

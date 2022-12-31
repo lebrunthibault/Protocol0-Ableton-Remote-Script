@@ -58,8 +58,9 @@ def load_instrument_track(instrument_cls):
     insert_track = _get_insert_instrument_track(instrument_cls)
     track_color = insert_track.color
 
-    insert_track.focus()
+
     seq = Sequence()
+    seq.add(insert_track.focus)
     seq.add(partial(Backend.client().load_instrument_track, instrument_cls.INSTRUMENT_TRACK_NAME))
     seq.wait_for_backend_event("instrument_loaded")
     seq.add(partial(setattr, insert_track, "color", track_color))

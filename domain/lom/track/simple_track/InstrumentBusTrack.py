@@ -49,6 +49,6 @@ class InstrumentBusTrack(SimpleAudioTrack):
 
     def _load_dummy_clip(self):
         # type: () -> None
-        self.select_clip_slot(self.clip_slots[0]._clip_slot)
+        self.select_clip_slot(self.clip_slots[0])
         DomainEventBus.emit(SampleSelectedEvent("dummy clip.wav"))
         Backend.client().show_info("Loaded dummy clip")

@@ -66,7 +66,7 @@ class EmptyModule(object):
         return iter([("", "")])
 
 
-# allows accessing lint from this module from outside the Live python environment, e.g. Jupyter tests
+# allows accessing lint from this module from outside the Live python environment
 if not live_environment_loaded:
     sys.modules["Live"] = EmptyModule("Live")
     sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")

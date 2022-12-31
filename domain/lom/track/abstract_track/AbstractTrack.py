@@ -157,10 +157,10 @@ class AbstractTrack(SlotManager):
         return self.clip_slots[SongFacade.selected_scene().index]
 
     def select_clip_slot(self, clip_slot):
-        # type: (Live.ClipSlot.ClipSlot) -> None
-        assert clip_slot in [cs._clip_slot for cs in self.clip_slots], "clip slot inconsistency"
+        # type: (ClipSlot) -> None
+        assert clip_slot in [cs for cs in self.clip_slots], "clip slot inconsistency"
         self.is_folded = False
-        DomainEventBus.emit(ClipSlotSelectedEvent(clip_slot))
+        DomainEventBus.emit(ClipSlotSelectedEvent(clip_slot._clip_slot))
 
     @property
     def clips(self):
@@ -296,9 +296,18 @@ class AbstractTrack(SlotManager):
         return Sequence().wait(2).done()
 
     def focus(self):
-        # type: () -> None
-        self.select()
+        # type: () -> Sequence
+        # track can disappear out of view if this is done later
+        ApplicationViewFacade.show_browser()
         self.color = TrackColorEnum.FOCUSED.int_value
+        seq = Sequence()
+        seq.defer()
+
+        if SongFacade.selected_track() == self.base_track:
+            seq.add(next(SongFacade.simple_tracks()).select)
+
+        seq.add(self.select)
+        return seq.done()
 
     def save(self):
         # type: () -> Sequence

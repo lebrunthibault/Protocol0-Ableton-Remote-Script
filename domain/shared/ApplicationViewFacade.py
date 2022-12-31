@@ -44,6 +44,11 @@ class ApplicationViewFacade(object):
         cls._INSTANCE._recording_component.back_to_arranger = False
 
     @classmethod
+    def show_browser(cls):
+        # type: () -> None
+        cls._INSTANCE._application_view.show_view("Browser")
+
+    @classmethod
     def focus_detail(cls):
         # type: () -> None
         cls._focus_view("Detail")

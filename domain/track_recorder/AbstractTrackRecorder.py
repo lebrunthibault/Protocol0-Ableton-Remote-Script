@@ -138,7 +138,7 @@ class AbstractTrackRecorder(object):
         main_clip_slot = self._main_recording_track.clip_slots[self.recording_scene_index]
         if not main_clip_slot.clip:
             seq.wait_for_event(ClipCreatedOrDeletedEvent, main_clip_slot._clip_slot)
-        seq.add(lambda: self._main_recording_track.select_clip_slot(main_clip_slot._clip_slot))
+        seq.add(lambda: self._main_recording_track.select_clip_slot(main_clip_slot))
         return seq.done()
 
     def post_audio_record(self):

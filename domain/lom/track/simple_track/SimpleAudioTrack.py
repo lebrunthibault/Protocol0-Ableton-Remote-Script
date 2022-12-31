@@ -54,8 +54,8 @@ class SimpleAudioTrack(SimpleTrack):
             raise Protocol0Warning("Track already loaded")
 
         track_color = self.color
-        self.focus()
         seq = Sequence()
+        seq.add(self.focus)
         seq.add(Backend.client().drag_matching_track)
         seq.wait_for_backend_event("track_focused")
         seq.add(partial(setattr, self, "color", track_color))

@@ -1,13 +1,8 @@
-from typing import Optional
-
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ResetPlaybackCommand import ResetPlaybackCommand
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
-from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -21,26 +16,9 @@ class SongInitService(object):
         # the song usually starts playing after this method is executed
         CommandBus.dispatch(ResetPlaybackCommand())
 
-        startup_track = self._get_startup_track()
         DomainEventBus.emit(SongInitializedEvent())
         seq = Sequence()
-        if startup_track:
-            seq.wait(2)
-            seq.add(startup_track.select)
-            seq.add(ApplicationViewFacade.focus_current_track)
-
         seq.wait(10)
         seq.add(self._playback_component.reset)
 
         return seq.done()
-
-    def _get_startup_track(self):
-        # type: () -> Optional[AbstractTrack]
-        armed_tracks = list(SongFacade.armed_tracks())
-        if len(armed_tracks):
-            return armed_tracks[0]
-
-        if SongFacade.selected_track() == SongFacade.master_track():
-            return next(iter(SongFacade.abstract_tracks()))
-
-        return None
