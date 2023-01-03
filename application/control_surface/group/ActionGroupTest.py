@@ -47,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Backend.client().flatten_track()
+        pass

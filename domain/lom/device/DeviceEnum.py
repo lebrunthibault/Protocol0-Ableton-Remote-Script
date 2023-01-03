@@ -35,9 +35,11 @@ class DeviceEnum(AbstractEnum):
     INSTRUMENT_RACK = "Instrument Rack"
     LFO_TOOL = "LFOTool_x64"
     L1_LIMITER = "L1 limiter Stereo"
+    L1_ULTRAMAXIMIZER = "L1+ Ultramaximizer Stereo"
     LIMITER = "Limiter"
     MASTERING_RACK = "Mastering Rack"
     OPUS = "Opus"
+    OZONE = "Ozone 9"
     PITCH = "Pitch"
     PLAY = "play_VST_x64"
     PRO_Q_3 = "Pro-Q 3"
@@ -60,6 +62,12 @@ class DeviceEnum(AbstractEnum):
     USAMO = "usamo_x64"
     UTILITY = "Utility"
     VALHALLA_VINTAGE_VERB = "ValhallaVintageVerb"
+    YOULEAN = "" \
+              "" \
+              "" \
+              "" \
+              "" \
+              "Youlean Loudness Meter 2"
 
     @property
     def is_device_preset(self):
@@ -261,6 +269,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.INSTRUMENT_RACK: 10,
                     DeviceEnum.LFO_TOOL: 180,
                     DeviceEnum.L1_LIMITER: 64,
+                    DeviceEnum.L1_ULTRAMAXIMIZER: 64,
                     DeviceEnum.LIMITER: 5,
                     DeviceEnum.PITCH: 2,
                     DeviceEnum.PLAY: 214,

@@ -61,6 +61,7 @@ class SimpleMidiTrack(SimpleTrack):
     def flatten(self):
         # type: () -> Sequence
         # this is needed to have flattened clip of the right length
+        SongFacade._live_song().stop_playing()
         for clip in self.clips:
             clip.looping = False
 

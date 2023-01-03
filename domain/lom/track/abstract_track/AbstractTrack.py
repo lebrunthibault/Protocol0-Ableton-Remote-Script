@@ -295,13 +295,13 @@ class AbstractTrack(SlotManager):
             ApplicationViewFacade.focus_current_track()
         return Sequence().wait(2).done()
 
-    def focus(self):
-        # type: () -> Sequence
+    def focus(self, show_browser=False):
+        # type: (bool) -> Sequence
         # track can disappear out of view if this is done later
         self.color = TrackColorEnum.FOCUSED.int_value
         seq = Sequence()
 
-        if not ApplicationViewFacade.is_browser_visible():
+        if show_browser and not ApplicationViewFacade.is_browser_visible():
             ApplicationViewFacade.show_browser()
             seq.defer()
 
@@ -315,7 +315,7 @@ class AbstractTrack(SlotManager):
         # type: () -> Sequence
         track_color = self.color
         seq = Sequence()
-        seq.add(self.focus)
+        seq.add(partial(self.focus, show_browser=True))
         seq.add(Backend.client().save_track_to_sub_tracks)
         seq.wait_for_backend_event("track_focused")
         seq.add(partial(setattr, self, "color", track_color))

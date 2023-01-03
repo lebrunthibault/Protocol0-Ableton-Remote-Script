@@ -79,3 +79,5 @@ _.bounce  # unused method (domain\lom\track\group_track\external_synth_track\Ext
 _.is_browser_visible  # unused method (domain\shared\ApplicationViewFacade.py:90)
 _.load_matching_track  # unused method (domain\lom\track\simple_track\SimpleAudioTrack.py:46)
 BounceTrackToAudioCommand  # unused import (application\control_surface\group\ActionGroupTest.py:4)
+OZONE  # unused variable (domain\lom\device\DeviceEnum.py:42)
+YOULEAN  # unused variable (domain\lom\device\DeviceEnum.py:65)

@@ -1,3 +1,5 @@
+from functools import partial
+
 import Live
 from _Framework.SubjectSlot import subject_slot
 from typing import cast, List, Optional, Dict
@@ -91,6 +93,8 @@ class SimpleTrack(AbstractTrack):
 
         self.group_track = SongFacade.simple_track_from_live_track(self._track.group_track)
         self.group_track.add_or_replace_sub_track(self)
+        if self.group_track.color != self.color:
+            Scheduler.defer(partial(setattr, self, "color", self.group_track.color))
 
     @property
     def clip_slots(self):

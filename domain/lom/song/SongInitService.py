@@ -1,8 +1,11 @@
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ResetPlaybackCommand import ResetPlaybackCommand
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -19,6 +22,16 @@ class SongInitService(object):
         DomainEventBus.emit(SongInitializedEvent())
         seq = Sequence()
         seq.wait(10)
+        seq.add(self._check_sound_id_device)
         seq.add(self._playback_component.reset)
 
         return seq.done()
+
+
+    def _check_sound_id_device(self):
+        # type: () -> None
+        sound_id_device = SongFacade.master_track().devices.get_one_from_enum(DeviceEnum.SOUNDID_REFERENCE_PLUGIN)
+
+        if sound_id_device is None or not sound_id_device.is_enabled:
+            Backend.client().show_warning("The SoundID Reference plugin is disabled", centered=True)
+
