@@ -1,6 +1,7 @@
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
+from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
@@ -8,9 +9,10 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class LogService(object):
-    def __init__(self, ableton_set):
-        # type: (AbletonSet) -> None
+    def __init__(self, ableton_set, track_mapper_service):
+        # type: (AbletonSet, TrackMapperService) -> None
         self._ableton_set = ableton_set
+        self._track_mapper_service = track_mapper_service
 
     def focus_window(self):
         # type: () -> None
@@ -157,15 +159,13 @@ class LogService(object):
         )
         Logger.info()
         Logger.info("********* SONG TRACKS *************")
+        Logger.info("live_tracks : %s" % list(self._track_mapper_service._live_track_id_to_simple_track.values()))
+        Logger.info()
         Logger.info("simple_tracks : %s" % list(SongFacade.simple_tracks()))
         Logger.info()
         Logger.info("abstract_tracks : %s" % list(SongFacade.abstract_tracks()))
         Logger.info()
         Logger.info("drums_track : %s" % SongFacade.drums_track())
-        # Logger.info()
-        # Logger.info("visible_tracks : %s" % list(SongFacade.visible_tracks()))
-        # Logger.info()
-        # Logger.info("scrollable_tracks : %s" % list(SongFacade.scrollable_tracks()))
         Logger.info()
         Logger.info("********* SONG SCENES *************")
         Logger.info("scenes : %s" % list(SongFacade.scenes()))

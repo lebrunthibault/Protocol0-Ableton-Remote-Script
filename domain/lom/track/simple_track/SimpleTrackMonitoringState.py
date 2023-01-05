@@ -15,9 +15,13 @@ class SimpleTrackMonitoringState(MonitoringStateInterface):
 
     def switch(self):
         # type: () -> None
+        from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+
         if self._track.current_monitoring_state == CurrentMonitoringStateEnum.AUTO:
-            self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN
+            if isinstance(self._track, SimpleAudioTrack):
+                self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN
             self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         else:
-            self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
+            if isinstance(self._track, SimpleAudioTrack):
+                self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
             self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO

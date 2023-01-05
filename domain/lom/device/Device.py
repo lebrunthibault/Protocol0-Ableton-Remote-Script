@@ -5,6 +5,7 @@ from typing import List, Any, Type, Optional, Union
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils.list import find_if
 
 
@@ -54,8 +55,11 @@ class Device(SlotManager):
 
     @property
     def enum(self):
-        # type: () -> DeviceEnum
-        return DeviceEnum.from_value(self.name)
+        # type: () -> Optional[DeviceEnum]
+        try:
+            return DeviceEnum.from_value(self.name)
+        except Protocol0Error:
+            return None
 
     @subject_slot("parameters")
     def _parameters_listener(self):

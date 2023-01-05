@@ -20,6 +20,7 @@ class DeviceEnum(AbstractEnum):
     DELAY = "Delay"
     DRUM_RACK = "Drum Rack"
     EFFECTRIX = "Effectrix"
+    ENIGMA = "Enigma Stereo"
     EQ_EIGHT = "EQ Eight"
     EQ_ROOM = "EQ Room"
     EXTERNAL_AUDIO_EFFECT = "Ext. Audio Effect"
@@ -257,6 +258,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.COMPRESSOR: 11,
                     DeviceEnum.DELAY: 10,
                     DeviceEnum.EFFECTRIX: 133,
+                    DeviceEnum.ENIGMA: 0,
                     DeviceEnum.EQ_EIGHT: 31,
                     DeviceEnum.EQ_ROOM: 31,
                     DeviceEnum.EXTERNAL_AUDIO_EFFECT: 5,
