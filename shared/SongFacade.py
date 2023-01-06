@@ -1,3 +1,4 @@
+import traceback
 from collections import Iterator
 
 import Live
@@ -152,6 +153,7 @@ class SongFacade(object):
         track_mapping = cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track
         if live_track._live_ptr not in track_mapping:
             existing_tracks = [str(track) for track in track_mapping.values()]
+            traceback.print_stack()
             raise Protocol0Error(
                 "Couldn't find live track %s in _live_track_id_to_simple_track mapping : \n "
                 "%s" % (live_track.name, "\n".join(existing_tracks))
@@ -159,12 +161,13 @@ class SongFacade(object):
 
         return track_mapping[live_track._live_ptr]
 
+
     @classmethod
     def optional_simple_track_from_live_track(cls, live_track):
         # type: (Live.Track.Track) -> Optional[SimpleTrack]
         try:
-            return cls.simple_track_from_live_track(live_track)
-        except Protocol0Error:
+            return cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track[live_track._live_ptr]
+        except KeyError:
             return None
 
     @classmethod

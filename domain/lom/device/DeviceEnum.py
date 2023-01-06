@@ -217,19 +217,16 @@ class DeviceEnum(AbstractEnum):
                 cls.COMPRESSOR,
                 cls.SSL_COMP,
                 cls.LIMITER,
-                cls.FREE_CLIP,
+                cls.TRACK_SPACER,
                 cls.UTILITY,
             ],
             [
-                cls.SATURATOR,
                 cls.LFO_TOOL,
-                cls.AUTO_PAN,
                 cls.SUPER_TAP_2,
             ],
             [
                 cls.DRUM_RACK,
                 cls.KONTAKT,
-                cls.PLAY,
                 cls.OPUS,
             ],
         ]

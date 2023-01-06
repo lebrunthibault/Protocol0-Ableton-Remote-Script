@@ -50,9 +50,9 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
             seq.wait_ms(200)
             seq.add(self._base_track.delete)
         else:
-            assert all(
-                d.enum.should_be_bounced for d in self._base_track.devices
-            ), "Move unbouncable devices"
+            # assert all(
+            #     d.enum.should_be_bounced for d in self._base_track.devices
+            # ), "Move unbouncable devices"
             seq.add(self._base_track.save)
             seq.add(self._base_track.flatten)
             # seq.add(self._post_flatten)
