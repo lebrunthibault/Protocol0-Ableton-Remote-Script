@@ -48,7 +48,7 @@ def _get_insert_instrument_track(instrument_cls):
         if t.group_track is None and t.color == target_color
     ]
 
-    last_track = list(SongFacade.simple_tracks())[-1]
+    last_track = list(SongFacade.top_tracks())[-1]
 
     return next(reversed(instrument_tracks), last_track)
 
@@ -81,6 +81,7 @@ class InstrumentInterface(SlotManager):
     PRESET_CHANGER = ProgramChangePresetChanger  # type: Type[PresetChangerInterface]
     PRESET_INITIALIZER = PresetInitializerDevicePresetName  # type: Type[PresetInitializerInterface]
     INSTRUMENT_TRACK_NAME = ""
+    IS_EXTERNAL_SYNTH = False
 
     def __init__(self, device, track_name):
         # type: (Optional[Device], str) -> None

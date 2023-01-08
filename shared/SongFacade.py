@@ -147,6 +147,11 @@ class SongFacade(object):
         return cls._INSTANCE._track_component.abstract_tracks
 
     @classmethod
+    def top_tracks(cls):
+        # type: () -> List[AbstractTrack]
+        return [t for t in cls.abstract_tracks() if t.group_track is None]
+
+    @classmethod
     def simple_track_from_live_track(cls, live_track):
         # type: (Live.Track.Track) -> SimpleTrack
         """we use the live ptr instead of the track to be able to access outdated simple tracks on deletion"""

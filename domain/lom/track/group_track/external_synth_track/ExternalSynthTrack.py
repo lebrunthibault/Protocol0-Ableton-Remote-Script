@@ -191,7 +191,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if any(track.is_foldable for track in base_group_track.sub_tracks):
             return False
 
-        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
+        midi_track = base_group_track.sub_tracks[0]
+        if not isinstance(midi_track, SimpleMidiTrack):
             return False
         if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
             return False  # type: ignore[unreachable]
@@ -199,6 +200,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
                 return False  # type: ignore[unreachable]
+
+        if midi_track.instrument is not None and not midi_track.instrument.IS_EXTERNAL_SYNTH:
+            return False
 
         return True
 
