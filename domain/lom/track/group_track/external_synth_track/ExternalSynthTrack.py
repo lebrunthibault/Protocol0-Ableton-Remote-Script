@@ -195,11 +195,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if not isinstance(midi_track, SimpleMidiTrack):
             return False
         if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
-            return False  # type: ignore[unreachable]
+            return False
 
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
-                return False  # type: ignore[unreachable]
+                return False
 
         if midi_track.instrument is not None and not midi_track.instrument.IS_EXTERNAL_SYNTH:
             return False

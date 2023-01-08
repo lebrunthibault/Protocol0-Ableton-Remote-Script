@@ -57,6 +57,7 @@ class SimpleTrack(AbstractTrack):
 
         self._clip_slots = SimpleTrackClipSlots(live_track, self.CLIP_SLOT_CLASS)
         self._clip_slots.build()
+        self._clip_slots.register_observer(self)
         self.clip_tail = ClipTail(self._clip_slots)
 
         self.devices = SimpleTrackDevices(live_track)

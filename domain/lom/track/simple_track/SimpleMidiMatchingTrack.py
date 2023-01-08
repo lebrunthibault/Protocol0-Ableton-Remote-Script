@@ -4,9 +4,11 @@ from typing import Optional, Any, cast, List
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
@@ -54,8 +56,9 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
             #     d.enum.should_be_bounced for d in self._base_track.devices
             # ), "Move unbouncable devices"
             seq.add(self._base_track.save)
+            seq.add(self._mark_clips_with_automation)
             seq.add(self._base_track.flatten)
-            # seq.add(self._post_flatten)
+            seq.add(self._post_flatten)
 
         seq.add(partial(Backend.client().show_success, "Track bounced"))
 
@@ -95,18 +98,17 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         for index, device in enumerate(devices):
             device.copy_to(list(SongFacade.selected_track().devices)[index])
 
-    # def _post_flatten(self):
-    #     # type: () -> None
-    #     flattened_track = list(SongFacade.simple_tracks())[
-    #         self._base_track.index
-    #     ]  # type: SimpleAudioTrack
-    #     if len(flattened_track.clips) != 1:
-    #         return None
-    #
-    #     src_clip = flattened_track.clips[0]
-    #
-    #     if len(set(c.file_path for c in self._track.clips)) != 1:
-    #         return None
-    #
-    #     for clip in self._track.clips:
-    #         clip.file_path = src_clip.file_path
+    def _mark_clips_with_automation(self):
+        # type: () -> None
+        # mark clips with automation
+        for clip in self._track.clips:
+            has_automation = len(clip.automation.get_automated_parameters(self._track.devices.parameters)) != 0
+            if has_automation:
+                clip.color = ClipColorEnum.HAS_AUTOMATION.value
+
+    def _post_flatten(self):
+        # type: () -> None
+        flattened_track = list(SongFacade.simple_tracks())[
+            self._base_track.index
+        ]  # type: SimpleAudioTrack
+        flattened_track.output_routing.track = self._track.output_routing.track  # type: ignore[assignment]

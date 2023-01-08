@@ -1,10 +1,12 @@
 from functools import partial
 
-from typing import List, cast, Optional
+from typing import List, cast, Optional, Any
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioMatchingTrack import \
+    SimpleAudioMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -15,6 +17,11 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 class SimpleAudioTrack(SimpleTrack):
     CLIP_SLOT_CLASS = AudioClipSlot
+
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        super(SimpleAudioTrack, self).__init__(*a, **k)
+        self.matching_track = SimpleAudioMatchingTrack(self)
 
     @property
     def clip_slots(self):

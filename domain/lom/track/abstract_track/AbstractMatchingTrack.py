@@ -5,6 +5,7 @@ from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, TYPE_CHECKING
 
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
@@ -21,10 +22,10 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
-
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 
 
 class AbstractMatchingTrack(SlotManager):
@@ -71,6 +72,7 @@ class AbstractMatchingTrack(SlotManager):
 
         return find_if(
             lambda t: t != self._base_track
+            and hasattr(t, "matching_track") and t.matching_track._track is None
             and not t.is_foldable
             and t.name == self._base_track.name,
             SongFacade.simple_tracks(SimpleAudioTrack),
@@ -166,6 +168,10 @@ class AbstractMatchingTrack(SlotManager):
         """on any name change, cut the link"""
         self.disconnect()
 
+    def bounce(self, track_crud_component):
+        # type: (TrackCrudComponent) -> Sequence
+        raise Protocol0Warning("Unbouncable %s" % self)
+
     @defer
     def disconnect(self):
         # type: () -> None
@@ -177,7 +183,12 @@ class AbstractMatchingTrack(SlotManager):
         ):
             return
 
-        self._base_track.output_routing.track = self._base_track.group_track or SongFacade.master_track()  # type: ignore[assignment]
+        # self._base_track.output_routing.track = self._base_track.group_track or SongFacade.master_track()  # type: ignore[assignment]
+
+        # recolor clip marked with automation
+        for clip in self._track.clips:
+            if clip.color == ClipColorEnum.HAS_AUTOMATION.value:
+                clip.color = self._track.color
 
         if (
             len([t for t in SongFacade.simple_tracks() if t.output_routing.track == self._track])

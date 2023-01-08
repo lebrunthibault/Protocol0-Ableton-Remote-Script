@@ -26,6 +26,7 @@ class Clip(SlotManager, Observable):
         self.index = index
         self._config = config
 
+        self.has_automation = False
         self.deleted = False
 
         self.clip_name = ClipName(live_clip)  # type: ClipName

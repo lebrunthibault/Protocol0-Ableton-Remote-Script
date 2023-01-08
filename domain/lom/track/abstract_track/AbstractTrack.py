@@ -313,6 +313,8 @@ class AbstractTrack(SlotManager):
 
     def save(self):
         # type: () -> Sequence
+        assert self.volume == 0
+
         track_color = self.color
         seq = Sequence()
         seq.add(partial(self.focus, show_browser=True))
