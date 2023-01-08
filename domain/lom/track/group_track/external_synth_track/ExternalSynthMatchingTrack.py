@@ -76,12 +76,11 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
 
             seq.add(self._copy_params_from_base_track)
             seq.add(self._copy_clips_from_base_track)
-
+            seq.add(partial(Backend.client().show_success, "Track created. Bounce again."))
         else:
             seq.add(self._base_track.save)
             seq.add(self._base_track.delete)
-
-        seq.add(partial(Backend.client().show_success, "Track bounced"))
+            seq.add(partial(Backend.client().show_success, "Track bounced"))
 
         return seq.done()
 

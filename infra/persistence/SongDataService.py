@@ -30,6 +30,9 @@ class SongDataService(object):
             SongDataEnum.SELECTED_SCENE_INDEX: SongDataElement(
                 lambda: SongFacade.selected_scene().index
             ),
+            SongDataEnum.SELECTED_SCENE_POSITION: SongDataElement(
+                lambda: SongFacade.selected_scene().position_scroller.current_value
+            ),
             SongDataEnum.SELECTED_TRACK_INDEX: SongDataElement(
                 lambda: SongFacade.selected_track().index
             ),
@@ -59,6 +62,10 @@ class SongDataService(object):
         if selected_scene_index is not None and selected_scene_index < len(SongFacade.scenes()):
             selected_scene = SongFacade.scenes()[selected_scene_index]
             self._scene_component.select_scene(selected_scene)
+
+            selected_scene_position = self._elements.get(SongDataEnum.SELECTED_SCENE_POSITION).saved_value
+            if selected_scene_position is not None:
+                selected_scene.position_scroller.set_value(selected_scene_position)
 
         selected_track_index = self._elements.get(SongDataEnum.SELECTED_TRACK_INDEX).saved_value
         if selected_track_index is not None and selected_track_index < len(
