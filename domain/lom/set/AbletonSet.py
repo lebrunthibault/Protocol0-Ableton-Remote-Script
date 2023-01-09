@@ -1,7 +1,9 @@
+import glob
 from functools import partial
+from os.path import dirname, basename
 from uuid import uuid4
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
@@ -59,6 +61,17 @@ class AbletonSet(object):
         # type: () -> str
         return "AbletonSet(%s)" % self._title
 
+    @property
+    def _saved_tracks(self):
+        # type: () -> List[str]
+        assert self._path, "set path not set"
+        tracks_folder = "%s\\tracks" % dirname(self._path)
+
+        filenames = glob.glob("%s\\*.als" % tracks_folder)
+
+        return [basename(t).replace(".als", "") for t in filenames]
+
+
     def get_id(self):
         # type: () -> str
         return self._id
@@ -105,6 +118,13 @@ class AbletonSet(object):
 
         self._title = res["title"]
         self._path = res["path"]
+
+        abstract_track_names = [t.name for t in SongFacade.abstract_tracks()]
+        orphan_tracks = [t for t in self._saved_tracks if t not in abstract_track_names]
+
+        if len(orphan_tracks):
+            Backend.client().show_warning("Found orphan saved tracks: \n%s" % "\n".join(orphan_tracks))
+            Backend.client().show_sub_tracks()
 
     def _disconnect(self):
         # type: () -> None
