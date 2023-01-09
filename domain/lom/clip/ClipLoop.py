@@ -190,6 +190,11 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: () -> float
         return int(round(self.full_length / SongFacade.signature_numerator()))
 
+    @property
+    def is_offset(self):
+        # type: () -> bool
+        return self._clip.start_marker < self._clip.loop_start
+
     def match(self, loop):
         # type: (ClipLoop) -> None
         self.start = loop.start

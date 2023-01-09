@@ -72,7 +72,7 @@ class MasterTrack(SimpleAudioTrack):
 
     def _warn_room_eq_enabled(self):
         # type: () ->  Optional
-        if self.room_eq.is_enabled:
+        if self.room_eq is not None and self.room_eq.is_enabled:
             Backend.client().show_warning("Room eq has been active for %s minutes" % (self._ROOM_EQ_WARNING_DELAY / 60))
             Scheduler.wait_ms(self._ROOM_EQ_WARNING_DELAY * 1000, self._warn_room_eq_enabled)
 

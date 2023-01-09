@@ -62,6 +62,11 @@ class AbletonSet(object):
         return "AbletonSet(%s)" % self._title
 
     @property
+    def is_unknown(self):
+        # type: () -> bool
+        return self._path is None
+
+    @property
     def _saved_tracks(self):
         # type: () -> List[str]
         assert self._path, "set path not set"
@@ -70,7 +75,6 @@ class AbletonSet(object):
         filenames = glob.glob("%s\\*.als" % tracks_folder)
 
         return [basename(t).replace(".als", "") for t in filenames]
-
 
     def get_id(self):
         # type: () -> str
@@ -119,12 +123,13 @@ class AbletonSet(object):
         self._title = res["title"]
         self._path = res["path"]
 
-        abstract_track_names = [t.name for t in SongFacade.abstract_tracks()]
-        orphan_tracks = [t for t in self._saved_tracks if t not in abstract_track_names]
+        if not self.is_unknown:
+            abstract_track_names = [t.name for t in SongFacade.abstract_tracks()]
+            orphan_tracks = [t for t in self._saved_tracks if t not in abstract_track_names]
 
-        if len(orphan_tracks):
-            Backend.client().show_warning("Found orphan saved tracks: \n%s" % "\n".join(orphan_tracks))
-            Backend.client().show_sub_tracks()
+            if len(orphan_tracks):
+                Backend.client().show_warning("Found orphan saved tracks: \n%s" % "\n".join(orphan_tracks))
+                Backend.client().show_sub_tracks()
 
     def _disconnect(self):
         # type: () -> None
