@@ -201,7 +201,7 @@ class Sequence(Observable):
         will continue the sequence on a SongStoppedEvent
         """
         if expected_emitter is not None:
-            assert issubclass(event_class, HasEmitter)
+            assert issubclass(event_class, HasEmitter), "expected emitter should be an Emitter"
 
         def subscribe():
             # type: () -> None

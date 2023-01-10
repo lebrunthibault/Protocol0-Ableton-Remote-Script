@@ -64,7 +64,6 @@ class Scene(SlotManager):
             tracks[track.abstract_track.index] = track.abstract_track
             # add group tracks if they have automation on the scene
             for group_track in track.abstract_track.group_tracks:
-                assert isinstance(group_track, AbstractGroupTrack)
                 if group_track.dummy_group.has_automation(self.index):
                     tracks[group_track.index] = group_track
 

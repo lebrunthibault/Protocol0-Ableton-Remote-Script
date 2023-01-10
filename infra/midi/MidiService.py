@@ -39,8 +39,6 @@ class MidiService(object):
     def _send_formatted_midi_message(self, message_type, channel, value, value2=None):
         # type: (str, int, int, Optional[int]) -> None
         status = self._MIDI_STATUS_BYTES[message_type]
-        assert 0 <= channel <= 15
-        assert 0 <= value <= 127
         status += channel
         msg = [status, value]
         if value2:

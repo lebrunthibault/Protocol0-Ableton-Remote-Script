@@ -313,7 +313,7 @@ class AbstractTrack(SlotManager):
 
     def save(self):
         # type: () -> Sequence
-        assert self.volume == 0
+        assert self.volume == 0, "track volume should be 0"
 
         track_color = self.color
         seq = Sequence()

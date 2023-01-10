@@ -84,7 +84,7 @@ class DrumRackService(object):
             seq.wait(3)
 
         seq.wait(20)
-        seq.add(partial(Backend.client().save_drum_rack, drum_category.drum_rack_name))
+        # seq.add(partial(Backend.client().save_drum_rack, drum_category.drum_rack_name))
         return seq.done()
 
     def drum_rack_to_simpler(self, track):

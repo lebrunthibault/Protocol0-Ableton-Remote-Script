@@ -53,7 +53,7 @@ class DeviceEnum(AbstractEnum):
     SIMPLER = "Simpler"
     SOOTHE2 = "soothe2"
     SOUNDID_REFERENCE_PLUGIN = "SoundID Reference Plugin"
-    SPLICE_BRIDGE = "Splice Bridge"
+    SPLICE = "Splice Bridge"
     SSL_COMP = "SSLComp Stereo"
     SUPER_TAP_2 = "SuperTap 2-Taps Stereo"
     SUPER_TAP_6 = "SuperTap 6-Taps Stereo"
@@ -64,12 +64,7 @@ class DeviceEnum(AbstractEnum):
     USAMO = "usamo_x64"
     UTILITY = "Utility"
     VALHALLA_VINTAGE_VERB = "ValhallaVintageVerb"
-    YOULEAN = "" \
-              "" \
-              "" \
-              "" \
-              "" \
-              "Youlean Loudness Meter 2"
+    YOULEAN = "Youlean Loudness Meter 2"
 
     @property
     def is_device_preset(self):
@@ -227,7 +222,7 @@ class DeviceEnum(AbstractEnum):
             ],
             [
                 cls.DRUM_RACK,
-                cls.SPLICE_BRIDGE,
+                cls.SPLICE,
                 cls.KONTAKT,
                 cls.OPUS,
             ],
@@ -307,7 +302,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.OPUS,
             DeviceEnum.PLAY,
             DeviceEnum.DRUM_RACK,
-            DeviceEnum.SPLICE_BRIDGE,
+            DeviceEnum.SPLICE,
         ]
 
     @classmethod

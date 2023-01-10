@@ -61,8 +61,8 @@ class TickScheduler(TickSchedulerInterface):
 
     def schedule(self, tick_count, callback, unique=False):
         # type: (int, Callable, bool) -> TickSchedulerEventInterface
-        assert callable(callback)
-        assert tick_count > 0
+        assert callable(callback), "callback is not callable"
+        assert tick_count > 0, "ticks_count is <= 0"
 
         if unique:
             for event in self._scheduled_events:

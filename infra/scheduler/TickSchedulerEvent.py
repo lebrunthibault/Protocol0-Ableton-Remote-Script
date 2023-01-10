@@ -24,7 +24,7 @@ class TickSchedulerEvent(TickSchedulerEventInterface):
 
     def decrement_timeout(self):
         # type: () -> None
-        assert self._ticks_left > 0
+        assert self._ticks_left > 0, "0 ticks left"
         self._ticks_left -= 1
 
     def execute(self):
