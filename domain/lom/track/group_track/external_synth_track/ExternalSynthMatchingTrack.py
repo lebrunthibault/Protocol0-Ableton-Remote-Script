@@ -62,6 +62,8 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
         if self._get_recorded_cs() is None:
             raise Protocol0Warning("No atk clip, please record first")
 
+        self._assert_valid_track_name()
+
         seq = Sequence()
 
         if self._track is None or not liveobj_valid(self._track._track):

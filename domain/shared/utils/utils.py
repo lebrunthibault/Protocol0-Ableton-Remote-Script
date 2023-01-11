@@ -90,3 +90,15 @@ def polynomial(x, coeffs):
         return term
 
     return sum([make_term(x, i) for i in range(len(coeffs))])
+
+def previous_power_of_2(x):
+    # type: (int) -> int
+    if x == 0:
+        return 0
+
+    res = 2**(x-1).bit_length()
+    
+    if res == x:
+        return res
+    else:
+        return int(res / 2)

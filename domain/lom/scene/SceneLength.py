@@ -3,6 +3,7 @@ from typing import Optional
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
+from protocol0.domain.shared.utils.utils import previous_power_of_2
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -26,12 +27,8 @@ class SceneLength(object):
         if clip_length % numerator != 0:
             return clip_length
 
-        # check for tails
-        # if bar_length == 2n + 1 return 2n
-        if (clip_length / numerator) % 2 == 1 and clip_length > numerator:
-            return clip_length - numerator
-
-        return clip_length
+        # check for tails and floor to 2^x
+        return previous_power_of_2(int(clip_length / numerator)) * numerator
 
     @property
     def bar_length(self):

@@ -1,11 +1,8 @@
 from functools import partial
 
-from typing import Optional, Any, cast, List
+from typing import Optional, Any, cast
 
-from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
-from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -43,6 +40,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
     def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
         assert all(clip.looping for clip in self._base_track.clips), "Some clips are not looped"
+        self._assert_valid_track_name()
 
         seq = Sequence()
         if self._track is None or not liveobj_valid(self._track._track):
@@ -79,24 +77,25 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         return seq.done()
 
     def _copy_devices(self):
-        # type: () -> Sequence
-        seq = Sequence()
-
+        # type: () -> None
         devices = [d for d in self._base_track.devices if not d.enum.should_be_bounced]
-        for device in devices:
-            seq.add(partial(CommandBus.dispatch, LoadDeviceCommand(device.enum.name)))
+        Backend.client().show_info("Please copy %s devices: \n%s" % (len(devices), "\n".join(devices)))
+        # seq = Sequence()
+        #
+        # for device in devices:
+        #     seq.add(partial(CommandBus.dispatch, LoadDeviceCommand(device.enum.name)))
+        #
+        # seq.add(partial(self._copy_params, devices))
+        #
+        # for device in devices:
+        #     seq.add(partial(self._base_track.devices.delete, device))
+        #
+        # return seq.done()
 
-        seq.add(partial(self._copy_params, devices))
-
-        for device in devices:
-            seq.add(partial(self._base_track.devices.delete, device))
-
-        return seq.done()
-
-    def _copy_params(self, devices):
-        # type: (List[Device]) -> None
-        for index, device in enumerate(devices):
-            device.copy_to(list(SongFacade.selected_track().devices)[index])
+    # def _copy_params(self, devices):
+    #     type: # (List[Device]) -> None
+        # for index, device in enumerate(devices):
+        #     device.copy_to(list(SongFacade.selected_track().devices)[index])
 
     def _mark_clips_with_automation(self):
         # type: () -> None

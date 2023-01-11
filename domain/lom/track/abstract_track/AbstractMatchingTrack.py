@@ -8,6 +8,7 @@ from typing import Optional, TYPE_CHECKING
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
@@ -101,6 +102,11 @@ class AbstractMatchingTrack(SlotManager):
                 audio_track.clip_slots,
             )
         )
+
+    def _assert_valid_track_name(self):
+        # type: () -> None
+        instrument_names = [d.value.lower() for d in DeviceEnum if d.is_instrument]
+        assert self._base_track.name.lower() in instrument_names, "Track name is not specific"
 
     def _copy_params_from_base_track(self):
         # type: () -> None

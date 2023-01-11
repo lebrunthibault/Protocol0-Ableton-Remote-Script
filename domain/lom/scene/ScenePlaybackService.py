@@ -98,8 +98,6 @@ class ScenePlaybackService(SlotManager):
     def _get_position_bar_length(self, scene, bar_length):
         # type: (Scene, Optional[int]) -> int
         # as we use single digits
-        if bar_length == 8:
-            return scene.bar_length - 1
         if bar_length is None:
             return scene.position_scroller.current_value
 
