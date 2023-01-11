@@ -46,9 +46,13 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         if self._track is None or not liveobj_valid(self._track._track):
             seq.add(partial(track_crud_component.duplicate_track, self._base_track))
             seq.add(self._post_create_matching_track)
-            seq.add(self._base_track.save)
-            seq.wait_ms(200)
-            seq.add(self._base_track.delete)
+            if all(d.enum.should_be_bounced for d in self._base_track.devices):
+                seq.add(self._base_track.save)
+                seq.wait_ms(200)
+                seq.add(self._base_track.delete)
+                seq.add(partial(Backend.client().show_success, "Track bounced"))
+            else:
+                seq.add(self._copy_devices)
         else:
             # assert all(
             #     d.enum.should_be_bounced for d in self._base_track.devices
@@ -57,8 +61,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
             seq.add(self._mark_clips_with_automation)
             seq.add(self._base_track.flatten)
             seq.add(self._post_flatten)
-
-        seq.add(partial(Backend.client().show_success, "Track bounced"))
+            seq.add(partial(Backend.client().show_success, "Track bounced"))
 
         return seq.done()
 
@@ -73,13 +76,15 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
 
         seq = Sequence()
         seq.add(duplicated_track.flatten)
-        seq.add(self._copy_devices)
         return seq.done()
 
     def _copy_devices(self):
         # type: () -> None
-        devices = [d for d in self._base_track.devices if not d.enum.should_be_bounced]
-        Backend.client().show_info("Please copy %s devices: \n%s" % (len(devices), "\n".join(devices)))
+        device_names = [d.name for d in self._base_track.devices if not d.enum.should_be_bounced]
+        Backend.client().show_info(
+            "Please copy %s devices: \n%s" % (len(device_names), "\n".join(device_names))
+        )
+        self._base_track.select()
         # seq = Sequence()
         #
         # for device in devices:
@@ -93,15 +98,16 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         # return seq.done()
 
     # def _copy_params(self, devices):
-    #     type: # (List[Device]) -> None
-        # for index, device in enumerate(devices):
-        #     device.copy_to(list(SongFacade.selected_track().devices)[index])
+    # for index, device in enumerate(devices):
+    #     device.copy_to(list(SongFacade.selected_track().devices)[index])
 
     def _mark_clips_with_automation(self):
         # type: () -> None
         # mark clips with automation
         for clip in self._track.clips:
-            has_automation = len(clip.automation.get_automated_parameters(self._track.devices.parameters)) != 0
+            has_automation = (
+                len(clip.automation.get_automated_parameters(self._track.devices.parameters)) != 0
+            )
             if has_automation:
                 clip.color = ClipColorEnum.HAS_AUTOMATION.value
 

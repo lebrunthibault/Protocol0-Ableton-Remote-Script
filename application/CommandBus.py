@@ -21,6 +21,7 @@ from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.utils.utils import import_package
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
+from protocol0.shared.types import T
 
 CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
@@ -108,6 +109,6 @@ class CommandBus(object):
         return seq.done()
 
     @classmethod
-    def has_recent_command(cls, command_class, delay):
-        # type: (Type[SerializableCommand], int) -> bool
-        return cls._INSTANCE._history.has_recent_command(command_class, delay)
+    def get_recent_command(cls, command_class, delay, except_current=False):
+        # type: (Type[T], float, bool) -> Optional[T]
+        return cls._INSTANCE._history.get_recent_command(command_class, delay, except_current)  # type: ignore[type-var]

@@ -2,10 +2,8 @@ import collections
 from functools import partial
 
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional, Dict, cast
+from typing import Optional, Dict
 
-from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.SceneFiredEvent import SceneFiredEvent
@@ -69,6 +67,9 @@ class ScenePlaybackService(SlotManager):
 
     def fire_scene_to_position(self, scene, bar_length=None):
         # type: (Scene, Optional[int]) -> Sequence
+        if bar_length is not None and bar_length >= scene.bar_length:
+            bar_length = 0
+
         bar_length = self._get_position_bar_length(scene, bar_length)
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
 
@@ -108,39 +109,6 @@ class ScenePlaybackService(SlotManager):
         # deferring because it can conflict with tail clips on fire scene to position
         if not ApplicationViewFacade.is_session_visible():
             return
-
-        # self._check_for_out_of_sync_scenes()
-
-    def _check_for_out_of_sync_scenes(self):
-        # type: () -> None
-        """
-        When the playback starts,
-            - either manually (normal song play)
-            - or from the script (command etc..)
-        the scene can be in a inconsistent play state especially if an audio tail clip was
-        previously playing but got muted
-        It might also be that the SceneClips object contain stale information
-
-        We ignore playback from the script (handled) else
-        we rebuild the SceneClips
-        we relaunch the scene cleanly
-        """
-        if not SongFacade.is_playing() or SongFacade.playing_scene() is None or SongFacade.is_track_recording():
-            return
-
-        # do not trigger on already handled playback
-        # playback can be inconsistent in some setups but we are handling it
-        if CommandBus.has_recent_command(FireSceneToPositionCommand, 100):
-            return
-
-        # some clips are playing (scene is playing) but not all
-        should_restart = any(
-            not clip.is_playing and not clip.muted for clip in SongFacade.playing_scene().clips.all
-        ) and any(clip.is_playing for clip in SongFacade.playing_scene().clips.all)
-        if should_restart:
-            # rebuild clips that are out of sync
-            SongFacade.playing_scene().clips.build()
-            self.fire_scene(cast(Scene, SongFacade.playing_scene()))
 
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None

@@ -106,7 +106,7 @@ class AbstractMatchingTrack(SlotManager):
     def _assert_valid_track_name(self):
         # type: () -> None
         instrument_names = [d.value.lower() for d in DeviceEnum if d.is_instrument]
-        assert self._base_track.name.lower() in instrument_names, "Track name is not specific"
+        assert self._base_track.name.lower() not in instrument_names, "Track name is not specific"
 
     def _copy_params_from_base_track(self):
         # type: () -> None

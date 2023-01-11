@@ -1,3 +1,4 @@
+from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
@@ -17,15 +18,29 @@ class FireSceneToPositionCommandHandler(CommandHandlerInterface):
         """
         fire_to_position = self._container.get(ScenePlaybackService).fire_scene_to_position
         selected_scene = SongFacade.selected_scene()
+        bar_length = command.bar_length
 
-        if command.bar_length is not None:
-            if command.bar_length == -1:
-                self._container.get(ScenePlaybackService).fire_previous_scene_to_last_bar()
-            else:
-                # Launching the last bar almost always means we don't want to loop
-                if command.bar_length == 8 and selected_scene == SongFacade.looping_scene():
-                    self._container.get(SceneComponent).looping_scene_toggler.reset()
-
-                fire_to_position(selected_scene, command.bar_length)
-        else:
+        if bar_length is None:
             fire_to_position(SongFacade.last_manually_started_scene())
+            return
+
+        recent_command = CommandBus.get_recent_command(
+            FireSceneToPositionCommand, 0.5, except_current=True
+        )
+
+        if recent_command is not None and recent_command.bar_length == 0:
+            bar_length += 10
+
+        if bar_length == -1:
+            self._container.get(ScenePlaybackService).fire_previous_scene_to_last_bar()
+        elif bar_length == 0:
+            return
+        else:
+            # Launching the last bar almost always means we don't want to loop
+            if (
+                bar_length == selected_scene.bar_length - 1
+                and selected_scene == SongFacade.looping_scene()
+            ):
+                self._container.get(SceneComponent).looping_scene_toggler.reset()
+
+            fire_to_position(selected_scene, bar_length)

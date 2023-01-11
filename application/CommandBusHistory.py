@@ -3,6 +3,7 @@ import time
 from typing import List, Optional, Type
 
 from protocol0.application.command.SerializableCommand import SerializableCommand
+from protocol0.shared.AbstractEnum import T
 
 
 class HistoryEntry(object):
@@ -27,15 +28,17 @@ class CommandBusHistory(object):
         # rotate history
         self._history = self._history[-20:]
 
-    def has_recent_command(self, command_class, delay):
-        # type: (Type[SerializableCommand], int) -> bool
+    def get_recent_command(self, command_class, delay, except_current):
+        # type: (Type[T], float, bool) -> Optional[T]
         """Delay in ms"""
         time_limit = time.time() - delay
 
         for entry in reversed(filter(None, self._history)):
             if entry.executed_at < time_limit:
-                return False
+                return None
             if isinstance(entry.command, command_class):
-                return True
+                if except_current and entry.executed_at > time.time() - 0.005:  # type: ignore[unreachable]
+                    continue
+                return entry.command
 
-        return False
+        return None

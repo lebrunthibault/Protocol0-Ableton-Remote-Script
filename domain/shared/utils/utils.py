@@ -97,7 +97,7 @@ def previous_power_of_2(x):
         return 0
 
     res = 2**(x-1).bit_length()
-    
+
     if res == x:
         return res
     else:
