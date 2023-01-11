@@ -1,18 +1,25 @@
 import Live
+from typing import List
 
+from _Framework.SubjectSlot import subject_slot, SlotManager
+from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.utils.string import smart_string
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class DrumPad(object):
+class DrumPad(SlotManager):
     INITIAL_NOTE = 36
     _FIRST_DRUM_PAD_WIDTH = 115
     _FIRST_DRUM_PAD_HEIGHT = 987
 
     def __init__(self, drum_pad):
         # type: (Live.DrumPad.DrumPad) -> None
+        super(DrumPad, self).__init__()
         self._drum_pad = drum_pad
+        self.chains = []  # type: List[DeviceChain]
+        self._chains_listener.subject = self._drum_pad
+        self._chains_listener()
 
     def __repr__(self):
         # type: () -> str
@@ -20,6 +27,11 @@ class DrumPad(object):
         if self.is_empty:
             out += ", empty=True"
         return out + ")"
+
+    @subject_slot("chains")
+    def _chains_listener(self):
+        # type: () -> None
+        self.chains = [DeviceChain(chain, index) for index, chain in enumerate(self._drum_pad.chains)]
 
     @property
     def name(self):

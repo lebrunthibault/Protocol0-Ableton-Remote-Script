@@ -16,11 +16,11 @@ class DeviceParameter(object):
 
         try:
             if enum is not None:
-                self._default_value = enum.default_value
+                self.default_value = enum.default_value
             else:
-                self._default_value = device_parameter.default_value
+                self.default_value = device_parameter.default_value
         except (RuntimeError, AttributeError):
-            self._default_value = 0
+            self.default_value = 0
 
     def __repr__(self, **k):
         # type: (Any) -> str
@@ -169,7 +169,7 @@ class DeviceParameter(object):
         else:
 
             try:
-                self.value = self._default_value
+                self.value = self.default_value
             except RuntimeError as e:
-                Logger.error((e, self, self.device_name, self.min, self.max, self._default_value))
+                Logger.error((e, self, self.device_name, self.min, self.max, self.default_value))
                 raise e

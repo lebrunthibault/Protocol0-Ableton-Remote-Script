@@ -128,7 +128,7 @@ class AbletonSet(object):
             orphan_tracks = [t for t in self._saved_tracks if t not in abstract_track_names]
 
             if len(orphan_tracks):
-                Backend.client().show_warning("Found orphan saved tracks: \n%s" % "\n".join(orphan_tracks))
+                Backend.client().show_warning("Found orphan saved tracks: \n\n%s" % "\n".join(orphan_tracks))
                 Backend.client().show_sub_tracks()
 
     def _disconnect(self):

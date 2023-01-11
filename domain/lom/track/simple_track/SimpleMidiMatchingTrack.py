@@ -69,6 +69,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         # type: () -> Sequence
         from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 
+        self._base_track.reset_mixer()
         duplicated_track = SongFacade.selected_track(SimpleMidiTrack)
         for device in duplicated_track.devices:
             if not device.enum.should_be_bounced:
@@ -82,9 +83,10 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         # type: () -> None
         device_names = [d.name for d in self._base_track.devices if not d.enum.should_be_bounced]
         Backend.client().show_info(
-            "Please copy %s devices: \n%s" % (len(device_names), "\n".join(device_names))
+            "Please copy %s devices: \n\n%s" % (len(device_names), "\n".join(device_names))
         )
         self._base_track.select()
+        ApplicationViewFacade.focus_detail()
         # seq = Sequence()
         #
         # for device in devices:

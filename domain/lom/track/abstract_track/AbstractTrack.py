@@ -25,7 +25,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
     SimpleTrackMonitoringState,
 )
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
@@ -309,20 +308,6 @@ class AbstractTrack(SlotManager):
                 seq.add(next(SongFacade.simple_tracks()).select)
 
         seq.add(self.select)
-        return seq.done()
-
-    def save(self):
-        # type: () -> Sequence
-        assert self.volume == 0, "track volume should be 0"
-
-        track_color = self.color
-        seq = Sequence()
-        seq.add(partial(self.focus, show_browser=True))
-        seq.add(Backend.client().save_track_to_sub_tracks)
-        seq.wait_for_backend_event("track_focused")
-        seq.add(partial(setattr, self, "color", track_color))
-        seq.wait_for_backend_event("track_saved")
-
         return seq.done()
 
     def bars_left(self, scene_index):

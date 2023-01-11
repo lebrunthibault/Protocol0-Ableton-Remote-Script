@@ -8,11 +8,11 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumPad import DrumPad
 from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
-from protocol0.domain.lom.device.Sample.SampleNotFoundError import SampleNotFoundError
 from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
 from protocol0.domain.lom.sample.SampleCategory import SampleCategory
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -88,7 +88,7 @@ class DrumRackService(object):
         return seq.done()
 
     def drum_rack_to_simpler(self, track):
-        # type: (SimpleTrack) -> None
+        # type: (SimpleTrack) -> Optional[Sequence]
         assert track.instrument
         device = cast(DrumRackDevice, track.instrument.device)
         if not isinstance(device, DrumRackDevice):
@@ -104,26 +104,23 @@ class DrumRackService(object):
                 "Expected only one pitch used, got %s in %s clips"
                 % (len(pitches), len(track.clips))
             )
-            return
+            return None
 
         self._from_drum_rack_to_simpler_notes()
+
         pitch = pitches[0]
-        sample_name = device.drum_pads[pitch].name
+        drum_pad = device.drum_pads[pitch]
+        assert not drum_pad.is_empty, "the pitch '%s' corresponds to an empty drum pad" % pitch
 
-        if track.instrument.device.is_top:
-            try:
-                self._browser_service.load_sample("%s.wav" % sample_name)
-                return
-            except SampleNotFoundError:
-                Backend.client().show_warning(
-                    "Cannot load sample. Process manually.", centered=True
-                )
-        else:  # instrument is in a rack
-            Backend.client().show_warning(
-                "Cannot load simpler in rack. Process manually.", centered=True
-            )
+        sample_path = drum_pad.chains[0].devices[0].sample.file_path
+        ApplicationViewFacade.show_device()
 
-        Backend.client().search(sample_name)
+        Backend.client().load_sample_in_simpler(sample_path)
+
+        seq = Sequence()
+        seq.wait_for_backend_event("sample_loaded")
+        seq.add(partial(Backend.client().show_success, "Sample loaded"))
+        return seq.done()
 
     def _from_drum_rack_to_simpler_notes(self):
         # type: () -> None

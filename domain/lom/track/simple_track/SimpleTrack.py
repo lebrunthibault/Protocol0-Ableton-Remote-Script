@@ -212,6 +212,29 @@ class SimpleTrack(AbstractTrack):
             for param in clip.automation.get_automated_parameters(self.devices.parameters)
         }
 
+    def reset_mixer(self):
+        # type: () -> None
+        self.volume = 0
+        for param in self.devices.mixer_device.parameters:
+            param.value = param.default_value
+
+    def save(self):
+        # type: () -> Sequence
+        assert self.volume == 0, "track volume should be 0"
+        assert all(
+            p.value == p.default_value for p in self.devices.mixer_device.parameters
+        ), "send levels should be at zero"
+
+        track_color = self.color
+        seq = Sequence()
+        seq.add(partial(self.focus, show_browser=True))
+        seq.add(Backend.client().save_track_to_sub_tracks)
+        seq.wait_for_backend_event("track_focused")
+        seq.add(partial(setattr, self, "color", track_color))
+        seq.wait_for_backend_event("track_saved")
+
+        return seq.done()
+
     def disconnect(self):
         # type: () -> None
         super(SimpleTrack, self).disconnect()
