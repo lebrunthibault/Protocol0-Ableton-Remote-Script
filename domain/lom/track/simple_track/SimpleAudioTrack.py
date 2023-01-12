@@ -3,7 +3,9 @@ from functools import partial
 from typing import List, cast, Optional, Any
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioMatchingTrack import (
     SimpleAudioMatchingTrack,
@@ -11,6 +13,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioMatchingTrack import (
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -70,3 +73,20 @@ class SimpleAudioTrack(SimpleTrack):
         seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("matching_track_loaded")
         return seq.done()
+
+    def restore_clip_color(self):
+        # type: () -> None
+        for clip in self.clips:
+            if clip.color == ClipColorEnum.HAS_AUTOMATION.value:
+                clip.color = self.color
+
+    def disconnect(self):
+        # type: () -> None
+        super(SimpleAudioTrack, self).disconnect()
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("disconnect %s" % self)
+        matching_track = AbstractMatchingTrack.get_matching_track(self)
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(matching_track)
+        if matching_track is not None:
+            Scheduler.defer(matching_track.restore_clip_color)

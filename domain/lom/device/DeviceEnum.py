@@ -54,6 +54,7 @@ class DeviceEnum(AbstractEnum):
     SOOTHE2 = "soothe2"
     SOUNDID_REFERENCE_PLUGIN = "SoundID Reference Plugin"
     SPLICE = "Splice Bridge"
+    SPIFF = "Spiff"
     SSL_COMP = "SSLComp Stereo"
     SUPER_TAP_2 = "SuperTap 2-Taps Stereo"
     SUPER_TAP_6 = "SuperTap 6-Taps Stereo"
@@ -277,6 +278,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.SERUM: 147,
                     DeviceEnum.SIMPLER: 56,
                     DeviceEnum.SOOTHE2: 206,
+                    DeviceEnum.SPIFF: 270,
                     DeviceEnum.SUPER_TAP_2: 45,
                     DeviceEnum.SUPER_TAP_6: 45,
                     DeviceEnum.SURFEREQ: 116,
