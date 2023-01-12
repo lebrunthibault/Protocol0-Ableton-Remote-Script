@@ -1,5 +1,6 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
+from protocol0.domain.lom.device.DeviceEnumGroup import DeviceEnumGroup
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -202,24 +203,23 @@ class DeviceEnum(AbstractEnum):
 
     @classmethod
     def favorites(cls):
-        # type: () -> List[List[DeviceEnum]]
+        # type: () -> List[List[Union[DeviceEnum, DeviceEnumGroup]]]
         return [
             [
                 cls.AUTO_FILTER_HIGH_PASS,
                 cls.AUTO_FILTER_LOW_PASS,
-                cls.EQ_EIGHT,
-                cls.PRO_Q_3,
-            ],
-            [
-                cls.COMPRESSOR,
-                cls.SSL_COMP,
-                cls.LIMITER,
-                cls.TRACK_SPACER,
+                DeviceEnumGroup("EQ", [cls.PRO_Q_3, cls.EQ_EIGHT]),
                 cls.UTILITY,
             ],
             [
-                cls.LFO_TOOL,
-                cls.SUPER_TAP_2,
+                DeviceEnumGroup("Comp", [cls.COMPRESSOR, cls.SSL_COMP]),
+                DeviceEnumGroup("Limiter", [cls.LIMITER, cls.L1_LIMITER, cls.L1_ULTRAMAXIMIZER]),
+                cls.TRACK_SPACER,
+            ],
+            [
+                DeviceEnumGroup("Vol Mod", [cls.LFO_TOOL, cls.GATEKEEPER]),
+                DeviceEnumGroup("Delay", [cls.SUPER_TAP_2, cls.SUPER_TAP_6, cls.DELAY]),
+                DeviceEnumGroup("Satu", [cls.SATURN_2, cls.SATURATOR]),
             ],
             [
                 cls.DRUM_RACK,
