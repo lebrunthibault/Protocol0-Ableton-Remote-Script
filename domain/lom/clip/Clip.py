@@ -28,6 +28,7 @@ class Clip(SlotManager, Observable):
 
         self.has_automation = False
         self.deleted = False
+        self.selected = False
 
         self.clip_name = ClipName(live_clip)  # type: ClipName
         self.appearance = ClipAppearance(live_clip, self.clip_name, config.color)
@@ -102,6 +103,12 @@ class Clip(SlotManager, Observable):
         # type: (Clip, bool) -> None
         if self._clip:
             self._clip.is_playing = is_playing
+
+    def select(self):
+        # type: () -> None
+        self.selected = True
+        self.notify_observers()
+        self.selected = False
 
     def stop(self, immediate=False, wait_until_end=False):
         # type: (bool, bool) -> None

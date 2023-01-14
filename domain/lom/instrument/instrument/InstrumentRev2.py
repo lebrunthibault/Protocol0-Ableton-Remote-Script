@@ -47,9 +47,8 @@ class InstrumentRev2(InstrumentInterface):
         # type: () -> Optional[Sequence]
         InstrumentRev2.ACTIVE_INSTANCE = self
         seq = Sequence()
-        seq.wait(5)
         seq.add(Backend.client().activate_rev2_editor)
-        seq.wait(10)
+        # seq.wait(10)
         return seq.done()
 
     def post_activate(self):

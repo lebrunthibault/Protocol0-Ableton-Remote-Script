@@ -1,2 +1,0 @@
-class AudioClipCreatedEvent(object):
-    pass

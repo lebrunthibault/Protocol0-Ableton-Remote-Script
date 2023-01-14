@@ -26,7 +26,7 @@ class TrackRecorderExternalSynthAudioExportOnce(TrackRecorderExternalSynthAudioE
 
         return super(TrackRecorderExternalSynthAudioExportOnce, self).record(bar_length)
 
-    def _configure_clips(self, bar_length):
+    def _configure_loop_clip(self, bar_length):
         # type: (int) -> None
         self.atk_cs.clip.name = ClipNameEnum.ONCE.value
 

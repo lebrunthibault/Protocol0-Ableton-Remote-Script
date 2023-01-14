@@ -14,7 +14,6 @@ from protocol0.domain.audit.SetFixerService import SetFixerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.audit.SongStatsService import SongStatsService
-from protocol0.domain.lom.clip.ClipSampleService import ClipSampleService
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.device.DrumRackService import DrumRackService
@@ -26,9 +25,9 @@ from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
+from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
-from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.song.SongInitService import SongInitService
 from protocol0.domain.lom.song.components.ClipComponent import ClipComponent
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
@@ -138,13 +137,11 @@ class Container(ContainerInterface):
         track_mapper_service = TrackMapperService(live_song, track_factory)
         track_service = TrackService()
         track_player_service = TrackPlayerService(playback_component, track_repository)
-        clip_sample_service = ClipSampleService()
         track_recorder_service = TrackRecorderService(
             playback_component,
             recording_component,
             scene_crud_component,
             quantization_component,
-            clip_sample_service,
         )
         scene_service = SceneService(live_song, scene_crud_component)
         scene_playback_service = ScenePlaybackService(playback_component)

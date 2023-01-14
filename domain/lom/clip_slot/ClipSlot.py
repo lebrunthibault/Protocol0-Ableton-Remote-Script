@@ -7,6 +7,7 @@ from typing import Any, Optional, Type
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipCreatedOrDeletedEvent import ClipCreatedOrDeletedEvent
+from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip_slot.ClipSlotAppearance import ClipSlotAppearance
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -73,19 +74,13 @@ class ClipSlot(SlotManager, Observable):
         if isinstance(observable, Clip):
             if observable.deleted:
                 self.delete_clip()
+            elif observable.selected:
+                self.select()
 
     @property
     def has_clip(self):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.has_clip
-
-    def delete_clip(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        if self._clip_slot and self.has_clip and self.clip:
-            seq.add(self._clip_slot.delete_clip)
-            seq.wait_for_event(ClipCreatedOrDeletedEvent, self._clip_slot)
-        return seq.done()
 
     @property
     def index(self):
@@ -112,6 +107,19 @@ class ClipSlot(SlotManager, Observable):
     def fire(self):
         # type: () -> None
         self._clip_slot.fire()
+
+    def select(self):
+        # type: () -> None
+        DomainEventBus.emit(ClipSlotSelectedEvent(self._clip_slot))
+
+    def delete_clip(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        if self._clip_slot and self.has_clip and self.clip:
+            seq.add(self._clip_slot.delete_clip)
+            seq.wait_for_event(ClipCreatedOrDeletedEvent, self._clip_slot)
+        return seq.done()
+
 
     def prepare_for_record(self):
         # type: () -> Sequence

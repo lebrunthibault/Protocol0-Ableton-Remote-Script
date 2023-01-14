@@ -1,11 +1,10 @@
 from functools import partial
 
-from _Framework.SubjectSlot import subject_slot
 from typing import Any, Optional
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -17,55 +16,35 @@ class AudioClipSlot(ClipSlot):
         # type: (Any, Any) -> None
         super(AudioClipSlot, self).__init__(*a, **k)
         self.clip = self.clip  # type: Optional[AudioClip]
-        self._clip_replaceable = False
-        self._clip_loop_start = 0.0
-        self._clip_loop_end = 0.0
 
-    @subject_slot("has_clip")
-    def has_clip_listener(self):
-        # type: () -> None
-        super(AudioClipSlot, self).has_clip_listener()
+    def replace_clip_sample(self, source_cs=None, file_path=""):
+        # type: (Optional[AudioClipSlot], Optional[str]) -> Optional[Sequence]
+        if not self._clip_slot:
+            return None
 
-        if self.clip is not None and self._clip_replaceable:
-            Logger.info("arranging replaced clip loop of %s" % self)
-            Scheduler.defer(partial(self._update_clip_loop, self._clip_loop_start, self._clip_loop_end))
+        assert self.clip is not None, "no clip"
 
-        self._clip_loop_start = 0
-        self._clip_loop_end = 0
-        self._clip_replaceable = False
-
-    def replace_clip(self, source_clip_slot):
-        # type: (AudioClipSlot) -> Optional[Sequence]
-        Logger.info("Replacing %s with %s" % (self.clip, source_clip_slot.clip))
-
-        clip_looping = self.clip.looping
-        clip_start_marker = self.clip._clip.start_marker
-        clip_end_marker = self.clip._clip.end_marker
-        self.mark_as_replaceable()
-
+        loop_data = self.clip.loop.to_dict()
+        clip_name = self.clip.name
         seq = Sequence()
-        seq.add(partial(source_clip_slot.duplicate_clip_to, self))
-        seq.defer()
-        seq.add(lambda: setattr(self.clip, "looping", clip_looping))
-        seq.add(lambda: setattr(self.clip._clip, "start_marker", clip_start_marker))
-        seq.add(lambda: setattr(self.clip._clip, "end_marker", clip_end_marker))
 
+        if source_cs is not None:
+            Logger.info("Replacing %s with %s" % (self.clip, source_cs.clip))
+            seq.add(partial(source_cs.duplicate_clip_to, self))
+            seq.defer()
+        else:
+            # 'manual' replacement
+            assert file_path is not None, "provide clip_slot or file path"
+            seq.add(self.select)
+            seq.add(partial(Backend.client().set_clip_file_path, file_path))
+            seq.wait_for_backend_event("file_path_updated")
+            seq.add(lambda: self._assert_clip_file_path(self.clip, file_path))  # type: ignore[arg-type]
+
+        # restore loop (the clip object has potentially been replaced)
+        seq.add(lambda: self.clip.loop.update_from_dict(loop_data))
+        seq.add(lambda: setattr(self.clip, "name", clip_name))
         return seq.done()
 
-    def _update_clip_loop(self, start, end):
-        # type: (float, float) -> None
-        self.clip.loop.start = start
-        self.clip.loop.end = end
-
-    def mark_as_replaceable(self):
-        # type: () -> None
-        """
-            When rerecording audio, mark this audio clip slot as having its clip replaced
-            it will keep its loop start and end
-        """
-        if self.clip is None:
-            return
-
-        self._clip_loop_start = self.clip.loop.start
-        self._clip_loop_end = self.clip.loop.end
-        self._clip_replaceable = True
+    def _assert_clip_file_path(self, clip, file_path):
+        # type: (AudioClip, str) -> None
+        assert clip.file_path == file_path, "file path not replaced for %s" % clip

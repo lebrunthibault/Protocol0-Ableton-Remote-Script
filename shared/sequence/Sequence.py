@@ -231,7 +231,7 @@ class Sequence(Observable):
         return self._add_timeout_step(subscribe, "wait_for_event %s" % event_class)
 
     def wait_for_backend_event(self, event_type):
-        # type: (str) -> None
+        # type: (str) -> Sequence
         """event types are hardcoded in the script and backend"""
         self.add(nop, notify_terminated=False)
 
@@ -247,6 +247,8 @@ class Sequence(Observable):
                 self._execute_next_step()
 
         DomainEventBus.subscribe(BackendEvent, on_event)
+
+        return self
 
     def _add_timeout_step(self, func, legend):
         # type: (Callable, str) -> Sequence

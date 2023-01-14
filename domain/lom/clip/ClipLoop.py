@@ -2,7 +2,7 @@ from functools import partial
 
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
-from typing import Optional
+from typing import Optional, Dict
 
 from protocol0.domain.lom.clip.ClipLoopChangedEvent import ClipLoopChangedEvent
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
@@ -38,6 +38,24 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
             self.end,
             self.length,
         )
+
+    def to_dict(self):
+        # type: () -> Dict
+        return {
+            "looping": self.looping,
+            "start_marker": self._clip.start_marker,
+            "end_marker": self._clip.end_marker,
+            "start": self.start,
+            "end": self.end,
+        }
+
+    def update_from_dict(self, loop_data):
+        # type: (Dict) -> None
+        self.looping = loop_data["looping"]
+        self._clip.start_marker = loop_data["start_marker"]
+        self._clip.end_marker = loop_data["end_marker"]
+        self.start = loop_data["start"]
+        self.end = loop_data["end"]
 
     def disable_events(self):
         # type: () -> None

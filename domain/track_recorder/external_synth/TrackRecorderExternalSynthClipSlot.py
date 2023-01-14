@@ -1,15 +1,16 @@
-from typing import Optional, Tuple
+from functools import partial
+
+from typing import Optional, cast, List
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.lom.clip.ClipSampleService import ClipToReplace
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.LiveObject import liveobj_valid
-from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.track_recorder.external_synth.ClipToReplaceDetectedEvent import (
-    ClipToReplaceDetectedEvent,
-)
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SourceClipSlot(object):
@@ -66,33 +67,30 @@ class SourceClipSlot(object):
         clip.muted = False
         clip.name = self._name
 
+    @property
+    def matching_clip_slots(self):
+        # type: () -> List[AudioClipSlot]
+        matching_track = cast(ExternalSynthTrack, self._track.abstract_track).matching_track._track
+        if matching_track is None:
+            return []
+        else:
+            return [cs for cs in matching_track.clip_slots if self.matches_cs(cs)]
+
     def replace_clips(self):
-        # type: () -> Tuple[int, int]
-        if self.clip_slot is None or self.clip_slot.clip is None:
-            return 0, 0
+        # type: () -> Sequence
+        matching_track = cast(ExternalSynthTrack, self._track.abstract_track).matching_track._track
 
-        clips_replaced_count = 0
-        clips_count = 0
-
-        tracks = (t for t in SongFacade.simple_tracks(SimpleAudioTrack) if t != self._track)
-        clip_slots = [(t, cs) for t in tracks for cs in t.clip_slots if self.matches_cs(cs)]
-
-        for track, clip_slot in clip_slots:
-            if not self.matches_cs(clip_slot):
-                continue
-
-            automated_params = clip_slot.clip.automation.get_automated_parameters(
-                track.devices.parameters
-            )
-
-            clips_count += 1
+        seq = Sequence()
+        for clip_slot in self.matching_clip_slots:
+            device_params = matching_track.devices.parameters
+            automated_params = clip_slot.clip.automation.get_automated_parameters(device_params)
 
             # duplicate when no automation else manual action is needed
             if len(automated_params) == 0:
-                clips_replaced_count += 1
-                clip_slot.replace_clip(self.clip_slot)
+                clip_slot.replace_clip_sample(self.clip_slot)
             else:
-                clip_to_replace = ClipToReplace(track, clip_slot, self.clip_slot.clip.file_path)
-                DomainEventBus.emit(ClipToReplaceDetectedEvent(clip_to_replace))
+                seq.add(partial(clip_slot.replace_clip_sample, None, self.clip_slot.clip.file_path))
 
-        return clips_replaced_count, clips_count
+        seq.add(partial(Backend.client().close_explorer_window, "Recorded"))
+
+        return seq.done()

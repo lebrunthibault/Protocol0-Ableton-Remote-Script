@@ -1,10 +1,8 @@
 from functools import partial
 
+import Live
 from typing import Optional
 
-import Live
-
-from protocol0.domain.lom.clip.ClipSampleService import ClipSampleService
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
@@ -50,14 +48,13 @@ class TrackRecorderService(object):
     _DEBUG = True
 
     def __init__(
-        self, playback_component, recording_component, scene_crud_component, quantization_component, clip_sample_service
+        self, playback_component, recording_component, scene_crud_component, quantization_component
     ):
-        # type: (PlaybackComponent, RecordingComponent, SceneCrudComponent, QuantizationComponent, ClipSampleService) -> None
+        # type: (PlaybackComponent, RecordingComponent, SceneCrudComponent, QuantizationComponent) -> None
         self._playback_component = playback_component
         self._recording_component = recording_component
         self._scene_crud_component = scene_crud_component
         self._quantization_component = quantization_component
-        self._clip_sample_service = clip_sample_service
 
         self.recording_bar_length_scroller = RecordingBarLengthScroller(
             Config.DEFAULT_RECORDING_BAR_LENGTH
@@ -89,8 +86,6 @@ class TrackRecorderService(object):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         # we'll subscribe back later
         DomainEventBus.un_subscribe(SongStoppedEvent, self._on_song_stopped_event)
-
-        self._clip_sample_service.reset_clips_to_replace()
 
         if self._recorder is not None:
             self._cancel_record()
