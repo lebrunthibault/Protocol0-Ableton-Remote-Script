@@ -3,6 +3,7 @@ from functools import partial
 import Live
 from typing import Optional, cast
 
+from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DeviceLoadedEvent import DeviceLoadedEvent
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
@@ -12,6 +13,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAu
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -22,9 +24,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class DeviceService(object):
-    def __init__(
-        self, track_crud_component, device_component, browser_service
-    ):
+    def __init__(self, track_crud_component, device_component, browser_service):
         # type: (TrackCrudComponent, DeviceComponent, BrowserServiceInterface) -> None
         self._track_crud_component = track_crud_component
         self._device_component = device_component
@@ -45,6 +45,13 @@ class DeviceService(object):
             seq.add(lambda: setattr(SongFacade.selected_track(), "name", device_enum.value))
 
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
+
+        if (
+            device_enum.default_parameter is not None
+            and SongFacade.selected_clip(raise_if_none=False) is not None
+            and ApplicationViewFacade.is_clip_view_visible()
+        ):
+            seq.add(partial(self._create_default_automation, SongFacade.selected_clip()))
 
         return seq.done()
 
@@ -79,13 +86,21 @@ class DeviceService(object):
 
         return track
 
-    def _on_device_loaded_event(self, event):
+    def _on_device_loaded_event(self, _):
         # type: (DeviceLoadedEvent) -> None
         """Select the default parameter if it exists"""
         device = SongFacade.selected_track().devices.selected
-        if event.device_enum.default_parameter:
-            parameter = device.get_parameter_by_name(event.device_enum.default_parameter)
+        if device.enum.default_parameter is not None:
+            parameter = device.get_parameter_by_name(device.enum.default_parameter)
             self._device_component.selected_parameter = parameter
+
+    def _create_default_automation(self, clip):
+        # type: (Clip) -> None
+        device = SongFacade.selected_track().devices.selected
+        assert device.enum.default_parameter, "Loaded device has no default parameter"
+        parameter = device.get_parameter_by_name(device.enum.default_parameter)
+        assert parameter is not None, "parameter not found"
+        clip.automation.show_parameter_envelope(parameter)
 
     def scroll_selected_parameter(self, go_next):
         # type: (bool) -> None
@@ -101,8 +116,6 @@ class DeviceService(object):
                 lambda d: param in d.parameters,
                 SongFacade.selected_track().devices.get_from_enum(DeviceEnum.SATURATOR),
             )
-            saturator_output = device.get_parameter_by_name(
-                DeviceParameterEnum.SATURATOR_OUTPUT
-            )
+            saturator_output = device.get_parameter_by_name(DeviceParameterEnum.SATURATOR_OUTPUT)
 
             saturator_output.value = -param.value

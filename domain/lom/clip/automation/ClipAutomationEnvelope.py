@@ -35,6 +35,7 @@ class ClipAutomationEnvelope(object):
         self.create_start_and_end_points()
         Backend.client().select_and_paste()
 
-    def focus(self):
+    @classmethod
+    def focus(cls):
         # type: () -> None
         Backend.client().move_to(1225, 1013)

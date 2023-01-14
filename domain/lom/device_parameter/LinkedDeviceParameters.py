@@ -1,6 +1,7 @@
 from functools import partial
 
 from protocol0.domain.lom.clip.automation.ClipAutomation import ClipAutomation
+from protocol0.domain.lom.clip.automation.ClipAutomationEnvelope import ClipAutomationEnvelope
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -27,7 +28,7 @@ class LinkedDeviceParameters(object):
 
         seq = Sequence()
         seq.add(partial(automation.show_parameter_envelope, self._param_a))
-        seq.add(a_env.focus)
+        seq.add(ClipAutomationEnvelope.focus)
         seq.wait(3)
         seq.add(a_env.copy)
         seq.wait(10)

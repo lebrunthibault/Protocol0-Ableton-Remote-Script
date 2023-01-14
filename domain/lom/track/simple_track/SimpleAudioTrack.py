@@ -83,10 +83,6 @@ class SimpleAudioTrack(SimpleTrack):
     def disconnect(self):
         # type: () -> None
         super(SimpleAudioTrack, self).disconnect()
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev("disconnect %s" % self)
         matching_track = AbstractMatchingTrack.get_matching_track(self)
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(matching_track)
         if matching_track is not None:
             Scheduler.defer(matching_track.restore_clip_color)

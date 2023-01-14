@@ -331,8 +331,8 @@ class SongFacade(object):
             return clip_slot
 
     @classmethod
-    def selected_clip(cls, clip_cls=None):
-        # type: (Optional[Type[T]]) -> T|Clip
+    def selected_clip(cls, clip_cls=None, raise_if_none=True):
+        # type: (Optional[Type[T]], bool) -> Optional[T|Clip]
         from protocol0.domain.lom.clip.Clip import Clip
 
         clip_cls = clip_cls or Clip
@@ -341,10 +341,10 @@ class SongFacade(object):
         if clip is None:
             clip = cls.selected_track().clip_slots[SongFacade.selected_scene().index].clip
 
-        if clip is None:
+        if clip is None and raise_if_none:
             raise Protocol0Warning("no selected clip")
 
-        if not isinstance(clip, clip_cls):
+        if clip is not None and not isinstance(clip, clip_cls):
             raise Protocol0Warning("clip is not a %s" % clip_cls.__name__)
 
         return clip
