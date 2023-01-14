@@ -1,3 +1,5 @@
+import traceback
+
 from typing import Any, Callable, Optional
 
 from protocol0.domain.shared.errors.error_handler import handle_error
@@ -37,7 +39,10 @@ class SequenceStep(Observable):
             self._execute()
         except Exception as e:
             self._error()
-            raise e
+            from protocol0.shared.logging.Logger import Logger
+            Logger.error(traceback.format_exc())
+            # traceback.print_stack()
+            # raise e
 
     def _execute(self):
         # type: () -> None

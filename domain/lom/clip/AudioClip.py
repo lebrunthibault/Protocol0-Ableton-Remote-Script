@@ -35,6 +35,12 @@ class AudioClip(Clip):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
 
+    @file_path.setter
+    def file_path(self, file_path):
+        # type: (str) -> None
+        if self._clip:
+            self._clip.file_path = file_path
+
     def crop(self):
         # type: () -> None
         """Live.Clip.Clip.crop_sample doesn't exist, so we notify the user"""
