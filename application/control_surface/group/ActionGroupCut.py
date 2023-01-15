@@ -1,10 +1,7 @@
 from functools import partial
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
-from protocol0.domain.lom.loop.Looper import Looper
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
-from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -13,27 +10,6 @@ class ActionGroupCut(ActionGroupInterface):
 
     def configure(self):
         # type: () -> None
-        # STaRT encoder
-        self.add_encoder(
-            identifier=1,
-            name="scroll clip start",
-            on_scroll=lambda: Looper(SongFacade.current_loop()).scroll_start,
-        )
-
-        # END encoder
-        self.add_encoder(
-            identifier=2,
-            name="scroll clip end",
-            on_scroll=lambda: Looper(SongFacade.current_loop()).scroll_end,
-        )
-
-        # LOOP encoder
-        self.add_encoder(
-            identifier=3,
-            name="scroll loop",
-            on_scroll=lambda: Looper(SongFacade.current_loop()).scroll_loop,
-        )
-
         # SPLiT encoder
         self.add_encoder(
             identifier=8,
@@ -52,4 +28,11 @@ class ActionGroupCut(ActionGroupInterface):
             on_press=lambda: partial(
                 self._container.get(SceneCrudComponent).crop_scene, SongFacade.selected_scene()
             ),
+        )
+
+        # TAIL encoder
+        self.add_encoder(
+            identifier=14,
+            name="isolate clip tail",
+            on_press=lambda: SongFacade.selected_track().isolate_clip_tail,
         )

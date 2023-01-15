@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
     from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
     from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
-    from protocol0.domain.lom.song.components.SongLoopComponent import SongLoopComponent
     from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
     from protocol0.domain.lom.song.components.QuantizationComponent import QuantizationComponent
     from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
@@ -42,7 +41,6 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
     from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
-    from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 
 
 class SongFacade(object):
@@ -59,7 +57,6 @@ class SongFacade(object):
         quantization_component,  # type: QuantizationComponent
         recording_component,  # type: RecordingComponent
         scene_component,  # type: SceneComponent
-        song_loop_component,  # type: SongLoopComponent
         tempo_component,  # type: TempoComponent
         track_component,  # type: TrackComponent
         scene_service,  # type: SceneService
@@ -78,7 +75,6 @@ class SongFacade(object):
         self._quantization_component = quantization_component
         self._recording_component = recording_component
         self._scene_component = scene_component
-        self._song_loop_component = song_loop_component
         self._tempo_component = tempo_component
         self._track_component = track_component
 
@@ -400,16 +396,6 @@ class SongFacade(object):
         # type: () -> Live.Song.BeatTime
         # noinspection PyArgumentList
         return cls._live_song().get_current_beats_song_time()
-
-    @classmethod
-    def current_loop(cls):
-        # type: () -> LoopableInterface
-        from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-
-        if ApplicationViewFacade.is_session_visible():
-            return cls.selected_clip(MidiClip).loop
-        else:
-            return cls._INSTANCE._song_loop_component
 
     @classmethod
     def draw_mode(cls, draw_mode):

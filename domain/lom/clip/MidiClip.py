@@ -119,9 +119,11 @@ class MidiClip(Clip):
         self.set_notes(notes)
 
     def crop(self):
-        # type: () -> None
+        # type: () -> Optional[Sequence]
         if self._clip:
             self._clip.crop()  # noqa
+
+        return None
 
     def get_linked_parameters(self, device_parameters):
         # type: (List[DeviceParameter]) -> List[LinkedDeviceParameters]

@@ -235,6 +235,25 @@ class SimpleTrack(AbstractTrack):
 
         return seq.done()
 
+    def isolate_clip_tail(self):
+        # type: () -> Sequence
+        clip = SongFacade.selected_clip()
+        assert clip.has_tail, "clip has no tail"
+        assert len(self.clip_slots) > clip.index + 1, "No next clip slot"
+
+        next_cs = self.clip_slots[clip.index + 1]
+        assert next_cs.clip is None, "next clip slot has a clip"
+
+        seq = Sequence()
+        seq.add(partial(self.clip_slots[clip.index].duplicate_clip_to, next_cs))
+        seq.add(clip.remove_tail)
+        seq.add(lambda: next_cs.clip.crop_to_tail())
+        # seq.add(lambda: next_cs.clip.select())
+        seq.add(lambda: next_cs.clip.crop())
+        # seq.add(lambda: next_cs.clip.automation.show_envelope())
+
+        return seq.done()
+
     def disconnect(self):
         # type: () -> None
         super(SimpleTrack, self).disconnect()

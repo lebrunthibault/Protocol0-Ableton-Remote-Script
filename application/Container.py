@@ -36,7 +36,6 @@ from protocol0.domain.lom.song.components.QuantizationComponent import Quantizat
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
-from protocol0.domain.lom.song.components.SongLoopComponent import SongLoopComponent
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
@@ -105,7 +104,6 @@ class Container(ContainerInterface):
         scene_crud_component = SceneCrudComponent(
             live_song.create_scene, live_song.duplicate_scene, live_song.delete_scene
         )
-        song_loop_component = SongLoopComponent(live_song)
         track_component = TrackComponent(live_song.view)
         track_crud_component = TrackCrudComponent(
             live_song.create_midi_track,
@@ -168,7 +166,6 @@ class Container(ContainerInterface):
             quantization_component,
             recording_component,
             scene_component,
-            song_loop_component,
             tempo_component,
             track_component,
             scene_service,

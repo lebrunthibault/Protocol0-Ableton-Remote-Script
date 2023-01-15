@@ -27,6 +27,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.ui.ColorEnum import ColorEnum
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.utils import volume_to_db, db_to_volume
 from protocol0.shared.SongFacade import SongFacade
@@ -297,7 +298,7 @@ class AbstractTrack(SlotManager):
     def focus(self, show_browser=False):
         # type: (bool) -> Sequence
         # track can disappear out of view if this is done later
-        self.color = TrackColorEnum.FOCUSED.int_value
+        self.color = ColorEnum.FOCUSED.int_value
         seq = Sequence()
 
         if show_browser and not ApplicationViewFacade.is_browser_visible():

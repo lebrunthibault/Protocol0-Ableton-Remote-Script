@@ -49,7 +49,7 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_clip().loop.start = 0.0
+        SongFacade.selected_clip().crop()
         # path = "C:\\Users\\thiba\\OneDrive\\Documents\\Ableton\\Live Recordings\\Temp-12 Project\\Samples\\Recorded\\a 0001 [2023-01-14 144423].wav"
         #
         # seq = Sequence()

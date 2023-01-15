@@ -176,6 +176,17 @@ class Clip(SlotManager, Observable):
         # type: () -> bool
         return self._clip.end_marker > self._clip.loop_end
 
+    def remove_tail(self):
+        # type: () -> None
+        self.loop.end = self.loop.end
+
+    def crop_to_tail(self):
+        # type: () -> None
+        loop_end = self.loop.end
+        self.loop.end = self._clip.end_marker
+        self.loop.start = loop_end
+        self.loop.looping = False
+
     def show_loop(self):
         # type: () -> None
         self._clip.view.show_loop()
@@ -196,7 +207,7 @@ class Clip(SlotManager, Observable):
         self.clip_name.update("")
 
     def crop(self):
-        # type: () -> None
+        # type: () -> Optional[Sequence]
         """implemented in MidiClip and AudioClip"""
         raise NotImplementedError
 

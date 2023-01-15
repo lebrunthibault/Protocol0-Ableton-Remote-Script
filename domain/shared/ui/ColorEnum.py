@@ -4,6 +4,7 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 class ColorEnum(ColorEnumInterface, AbstractEnum):
     WARNING = 12
+    FOCUSED = 26
 
     @property
     def int_value(self):
