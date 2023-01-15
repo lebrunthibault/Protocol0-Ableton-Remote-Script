@@ -21,7 +21,7 @@ class SceneLength(object):
     @property
     def length(self):
         # type: () -> float
-        clip_length = self.longest_clip.loop.full_loop_length if self.longest_clip else 0.0
+        clip_length = self.longest_clip.length if self.longest_clip else 0.0
         numerator = SongFacade.signature_numerator()
 
         if clip_length % numerator != 0:
@@ -61,4 +61,4 @@ class SceneLength(object):
         if len(clips) == 0:
             return None
         else:
-            return max(clips, key=lambda c: c.loop.full_loop_length)
+            return max(clips, key=lambda c: c.length)

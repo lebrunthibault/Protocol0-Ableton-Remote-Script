@@ -75,7 +75,7 @@ class ClipName(SlotManager):
             return ""
 
         return get_length_legend(
-            self._live_clip.loop_end - self._live_clip.start_marker,
+            self._live_clip.loop_end - self._live_clip.loop_start,
             SongFacade.signature_numerator(),
         )
 

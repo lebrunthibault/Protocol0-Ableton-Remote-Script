@@ -3,11 +3,9 @@ from functools import partial
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupInterface):
@@ -49,12 +47,9 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_clip().crop()
-        # path = "C:\\Users\\thiba\\OneDrive\\Documents\\Ableton\\Live Recordings\\Temp-12 Project\\Samples\\Recorded\\a 0001 [2023-01-14 144423].wav"
-        #
-        # seq = Sequence()
-        # for clip in SongFacade.selected_track(SimpleAudioTrack).clips:
-        #     seq.add(partial(clip.replace_clip_sample, file_path=path))
-        #
-        # seq.add(partial(Backend.client().close_explorer_window, "Recorded"))
-        # seq.done()
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(SongFacade.selected_clip().loop)
+        Logger.dev(SongFacade.selected_clip().loop.bar_length)
+        Logger.dev(SongFacade.selected_clip().playing_position)
+        Logger.dev(SongFacade.selected_clip().playing_position.bars_left)
+        Logger.dev("")
