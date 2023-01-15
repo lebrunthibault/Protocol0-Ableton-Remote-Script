@@ -68,16 +68,10 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
             return None
 
         audio_clip.loop.looping = False
-        audio_tail_clip = None
-        if self.track.audio_tail_track is not None:
-            audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
-
         self.track.midi_track.stop()
 
         DomainEventBus.subscribe(Last32thPassedEvent, self._on_last_32th_passed_event)
         seq = Sequence()
         seq.wait_for_event(AudioClipSilentEvent, continue_on_song_stop=True)
         seq.add(partial(audio_clip.stop, immediate=True))  # don't catch end bar glitch
-        if audio_tail_clip is not None:
-            seq.add(partial(audio_tail_clip.stop, immediate=True))  # idem
         return seq.done()

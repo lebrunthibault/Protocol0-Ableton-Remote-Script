@@ -12,9 +12,7 @@ class TrackRecorderExternalSynthNormal(TrackRecorderExternalSynthMixin, Abstract
     @property
     def _recording_tracks(self):
         # type: () -> List[SimpleTrack]
-        return filter(
-            None, [self.track.midi_track, self.track.audio_track, self.track.audio_tail_track]
-        )
+        return [self.track.midi_track, self.track.audio_track]
 
     def _post_audio_record(self):
         # type: () -> None

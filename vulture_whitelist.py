@@ -80,3 +80,5 @@ _.load_matching_track  # unused method (domain\lom\track\simple_track\SimpleAudi
 BounceTrackToAudioCommand  # unused import (application\control_surface\group\ActionGroupTest.py:4)
 OZONE  # unused variable (domain\lom\device\DeviceEnum.py:42)
 YOULEAN  # unused variable (domain\lom\device\DeviceEnum.py:65)
+_._start_marker  # unused attribute (domain\lom\clip\ClipLoop.py:133)
+_._end_marker  # unused attribute (domain\lom\clip\ClipLoop.py:162)

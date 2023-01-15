@@ -5,8 +5,6 @@ from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
-from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
@@ -74,7 +72,8 @@ class AbstractMatchingTrack(SlotManager):
 
         return find_if(
             lambda t: t != base_track
-            and hasattr(t, "matching_track") and t.matching_track._track is None
+            and hasattr(t, "matching_track")
+            and t.matching_track._track is None
             and not t.is_foldable
             and t.name == base_track.name,
             SongFacade.simple_tracks(SimpleAudioTrack),
@@ -83,30 +82,6 @@ class AbstractMatchingTrack(SlotManager):
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
         return AbstractMatchingTrack.get_matching_track(self._base_track)
-
-    def _get_recorded_cs(self):
-        # type: () -> Optional[AudioClipSlot]
-        audio_track = self._base_track.sub_tracks[1]
-
-        if len(audio_track.clips) == 0:
-            raise Protocol0Warning("Audio track has no clips")
-
-        return (
-            find_if(
-                lambda cs: cs.clip is not None
-                and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
-                audio_track.clip_slots,
-            )
-            or find_if(
-                lambda cs: cs.clip is not None
-                and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
-                audio_track.clip_slots,
-            )
-            or find_if(
-                lambda cs: cs.clip is not None,
-                audio_track.clip_slots,
-            )
-        )
 
     def _assert_valid_track_name(self):
         # type: () -> None

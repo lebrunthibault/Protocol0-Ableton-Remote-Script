@@ -22,7 +22,7 @@ class ClipPlayingPosition(object):
     @property
     def position(self):
         # type: () -> float
-        return self._live_clip.playing_position - self._live_clip.start_marker
+        return self._live_clip.playing_position - self._clip_loop.start_marker
 
     @property
     def bar_position(self):

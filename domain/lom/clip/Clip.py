@@ -174,7 +174,7 @@ class Clip(SlotManager, Observable):
     @property
     def has_tail(self):
         # type: () -> bool
-        return self._clip.end_marker > self._clip.loop_end
+        return self.loop.end_marker > self.loop.end
 
     def remove_tail(self):
         # type: () -> None
@@ -183,7 +183,7 @@ class Clip(SlotManager, Observable):
     def crop_to_tail(self):
         # type: () -> None
         loop_end = self.loop.end
-        self.loop.end = self._clip.end_marker
+        self.loop.end = self.loop.end_marker
         self.loop.start = loop_end
         self.loop.looping = False
 

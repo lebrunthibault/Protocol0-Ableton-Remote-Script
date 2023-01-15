@@ -36,9 +36,7 @@ class TrackRecorderExternalSynthMixin(object):
         audio_clip = track.audio_track.clip_slots[self.recording_scene_index].clip
         if not midi_clip or not audio_clip:
             return None
-        #
-        # track.midi_track.select_clip_slot(midi_clip_slot._clip_slot)
-        # midi_clip.show_loop()
+
         Scheduler.wait(10, partial(midi_clip.clip_name.update, ""))
         Scheduler.wait(10, partial(audio_clip.clip_name.update, ""))
 

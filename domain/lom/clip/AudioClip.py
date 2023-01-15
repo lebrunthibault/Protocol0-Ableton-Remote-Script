@@ -7,6 +7,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.ui.ColorEnum import ColorEnum
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -55,3 +56,20 @@ class AudioClip(Clip):
         seq.log("done")
         seq.add(partial(setattr, self, "color", clip_color))
         return seq.done()
+
+    def post_record(self, bar_length):
+        # type: (int) -> None
+        super(AudioClip, self).post_record(bar_length)
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("audio clip")
+        Logger.dev((bar_length, self.bar_length))
+        Logger.dev((self.loop.end, self.loop.start + bar_length * SongFacade.signature_numerator()))
+        if bar_length == self.bar_length:
+            return
+
+        if bar_length * 2 < self.bar_length:
+            # we recorded twice
+            self.loop.start = bar_length * SongFacade.signature_numerator()
+
+        self.loop.end = self.loop.start + bar_length * SongFacade.signature_numerator()
+

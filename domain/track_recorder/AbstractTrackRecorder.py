@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Optional, List
 
 from protocol0.domain.lom.clip.ClipCreatedOrDeletedEvent import ClipCreatedOrDeletedEvent
@@ -10,6 +12,7 @@ from protocol0.domain.lom.song.components.RecordingComponent import RecordingCom
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -156,10 +159,9 @@ class AbstractTrackRecorder(object):
         # type: (int) -> Optional[Sequence]
         self._recording_component.session_record = False
         for clip_slot in self._recording_clip_slots:
-            if clip_slot.clip:
+            if clip_slot.clip is not None:
                 # deferring because the clip length is not accurate right now
-                clip_slot.clip.post_record(bar_length)
-                # Scheduler.wait(10, partial(clip_slot.clip.post_record, bar_length))
+                Scheduler.wait_ms(50, partial(clip_slot.clip.post_record, bar_length))
         self._post_record()
         return None
 

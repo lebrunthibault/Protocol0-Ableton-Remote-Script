@@ -13,10 +13,9 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SourceClipSlot(object):
-    def __init__(self, track, scene_index, name):
-        # type: (Optional[SimpleAudioTrack], int, str) -> None
+    def __init__(self, track, scene_index):
+        # type: (Optional[SimpleAudioTrack], int) -> None
         self.clip_slot = None  # type: Optional[AudioClipSlot]
-        self._name = name
         self._track = track
 
         if track is None or len(track.clip_slots) <= scene_index:
@@ -29,10 +28,6 @@ class SourceClipSlot(object):
             self.file_path = self.clip.file_path
 
         self.clip_slot.delete_clip()
-
-    def __repr__(self):
-        # type: () -> str
-        return "%s - %s" % (self._track, self._name)
 
     @property
     def clip(self):
@@ -64,7 +59,6 @@ class SourceClipSlot(object):
 
         clip.looping = True
         clip.muted = False
-        clip.name = self._name
 
     @property
     def matching_clip_slots(self):

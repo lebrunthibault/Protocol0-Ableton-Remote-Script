@@ -1,8 +1,7 @@
 from functools import partial
 
-from typing import Optional
+from typing import Optional, cast
 
-from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -11,7 +10,6 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -59,7 +57,7 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
 
     def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
-        if self._get_recorded_cs() is None:
+        if len(self._base_track.clips) == 0:
             raise Protocol0Warning("No atk clip, please record first")
 
         self._assert_valid_track_name()
@@ -89,36 +87,19 @@ class ExternalSynthMatchingTrack(AbstractMatchingTrack):
     def _copy_clips_from_base_track(self):
         # type: () -> None
         """Copy audio clips from ext track to audio matching track"""
-        atk_cs = self._get_recorded_cs()
+        audio_track = cast(SimpleAudioTrack, self._base_track.sub_tracks[1])
 
-        if atk_cs is None:
-            return None
-        
-        atk_cs.clip.muted = False
-        atk_cs.clip.looping = True
+        if len(audio_track.clips) == 0:
+            raise Protocol0Warning("Audio track has no clips")
 
-        loop_cs = None
-        if len(self._base_track.sub_tracks) > 2:
-            loop_cs = find_if(
-                lambda cs: cs.clip is not None
-                and cs.clip.clip_name.base_name == ClipNameEnum.LOOP.value,
-                self._base_track.sub_tracks[2].clip_slots,
-            )
-
-        if loop_cs is not None:
-            loop_cs.clip.muted = False
-            loop_cs.clip.looping = True
+        source_cs = audio_track.clip_slots[audio_track.clips[0].index]
+        source_cs.clip.muted = False
+        source_cs.clip.looping = True
 
         midi_clip_slots = self._base_midi_track.clip_slots
         for mcs in midi_clip_slots:
             destination_cs = self._track.clip_slots[mcs.index]
             if mcs.clip is not None and destination_cs.clip is None:
-                is_loop_clip = (
-                    loop_cs is not None
-                    and mcs.index != 0
-                    and midi_clip_slots[mcs.index - 1].clip is not None
-                )
-                audio_cs = loop_cs if is_loop_clip else atk_cs
-                assert audio_cs.clip.looping, "audio cs not looped"
+                assert source_cs.clip.looping, "audio cs not looped"
 
-                audio_cs.duplicate_clip_to(destination_cs)
+                source_cs.duplicate_clip_to(destination_cs)

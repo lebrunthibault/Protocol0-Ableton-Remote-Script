@@ -48,8 +48,6 @@ class RecordTypeEnum(AbstractEnum):
             TrackRecorderExternalSynthAudioMulti
         from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthNormal import \
             TrackRecorderExternalSynthNormal
-        from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthNormalUnlimited import \
-            TrackRecorderExternalSynthNormalUnlimited
 
         return self.get_value_from_mapping(
             {
@@ -58,7 +56,7 @@ class RecordTypeEnum(AbstractEnum):
                 RecordTypeEnum.AUDIO_EXPORT_ONE: TrackRecorderExternalSynthAudioExportOnce,
                 RecordTypeEnum.AUDIO_MULTI: TrackRecorderExternalSynthAudioMulti,
                 RecordTypeEnum.MIDI: TrackRecorderExternalSynthNormal,
-                RecordTypeEnum.MIDI_UNLIMITED: TrackRecorderExternalSynthNormalUnlimited,
+                RecordTypeEnum.MIDI_UNLIMITED: TrackRecorderExternalSynthNormal,
             }
         )
 
