@@ -53,17 +53,12 @@ class AudioClip(Clip):
         seq.defer()
         seq.add(Backend.client().crop_clip)
         seq.wait_for_backend_event("clip_cropped")
-        seq.log("done")
         seq.add(partial(setattr, self, "color", clip_color))
         return seq.done()
 
     def post_record(self, bar_length):
         # type: (int) -> None
         super(AudioClip, self).post_record(bar_length)
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev("audio clip")
-        Logger.dev((bar_length, self.bar_length))
-        Logger.dev((self.loop.end, self.loop.start + bar_length * SongFacade.signature_numerator()))
         if bar_length == self.bar_length:
             return
 
