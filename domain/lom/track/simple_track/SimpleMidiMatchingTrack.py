@@ -1,13 +1,12 @@
 from functools import partial
 
-from typing import Optional, Any, cast
+from typing import Optional, Any, cast, Dict
 
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -42,70 +41,26 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         assert all(clip.looping for clip in self._base_track.clips), "Some clips are not looped"
         self._assert_valid_track_name()
 
-        seq = Sequence()
-        if self._track is None or not liveobj_valid(self._track._track):
-            seq.add(partial(track_crud_component.duplicate_track, self._base_track))
-            seq.add(self._post_create_matching_track)
-            if all(d.enum.should_be_bounced for d in self._base_track.devices):
-                seq.add(self._base_track.save)
-                seq.wait_ms(200)
-                seq.add(self._base_track.delete)
-                seq.add(partial(Backend.client().show_success, "Track bounced"))
-            else:
-                seq.add(self._copy_devices)
-        else:
-            # assert all(
-            #     d.enum.should_be_bounced for d in self._base_track.devices
-            # ), "Move unbouncable devices"
-            seq.add(self._base_track.save)
-            seq.add(self._mark_clips_with_automation)
-            seq.add(self._base_track.flatten)
-            seq.add(self._post_flatten)
-            seq.add(partial(Backend.client().show_success, "Track bounced"))
-
-        return seq.done()
-
-    def _post_create_matching_track(self):
-        # type: () -> Sequence
-        from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-
-        self._base_track.reset_mixer()
-        duplicated_track = SongFacade.selected_track(SimpleMidiTrack)
-        for device in duplicated_track.devices:
-            if not device.enum.should_be_bounced:
-                duplicated_track.devices.delete(device)
+        mixer_data = None
 
         seq = Sequence()
-        seq.add(duplicated_track.flatten)
+        if self._track is None:
+            mixer_data = self._base_track.devices.mixer_device.to_dict()
+            self._base_track.reset_mixer()
+
+        seq.add(self._mark_clips_with_automation)
+        seq.add(self._base_track.flatten)
+        seq.add(partial(self._post_flatten, mixer_data))
+        seq.add(partial(Backend.client().show_success, "Track bounced"))
+
         return seq.done()
-
-    def _copy_devices(self):
-        # type: () -> None
-        device_names = [d.name for d in self._base_track.devices if not d.enum.should_be_bounced]
-        Backend.client().show_info(
-            "Please copy %s devices: \n\n%s" % (len(device_names), "\n".join(device_names))
-        )
-        self._base_track.select()
-        ApplicationViewFacade.focus_detail()
-        # seq = Sequence()
-        #
-        # for device in devices:
-        #     seq.add(partial(CommandBus.dispatch, LoadDeviceCommand(device.enum.name)))
-        #
-        # seq.add(partial(self._copy_params, devices))
-        #
-        # for device in devices:
-        #     seq.add(partial(self._base_track.devices.delete, device))
-        #
-        # return seq.done()
-
-    # def _copy_params(self, devices):
-    # for index, device in enumerate(devices):
-    #     device.copy_to(list(SongFacade.selected_track().devices)[index])
 
     def _mark_clips_with_automation(self):
         # type: () -> None
         # mark clips with automation
+        if self._track is None:
+            return
+
         for clip in self._track.clips:
             has_automation = (
                 len(clip.automation.get_automated_parameters(self._track.devices.parameters)) != 0
@@ -113,9 +68,13 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
             if has_automation:
                 clip.color = ClipColorEnum.HAS_AUTOMATION.value
 
-    def _post_flatten(self):
-        # type: () -> None
+    def _post_flatten(self, mixer_data):
+        # type: (Dict) -> None
         flattened_track = list(SongFacade.simple_tracks())[
             self._base_track.index
         ]  # type: SimpleAudioTrack
-        flattened_track.output_routing.track = self._track.output_routing.track  # type: ignore[assignment]
+
+        if self._track is not None:
+            flattened_track.output_routing.track = self._track.output_routing.track  # type: ignore[assignment]
+        else:
+            flattened_track.devices.mixer_device.update_from_dict(mixer_data)

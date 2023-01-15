@@ -10,6 +10,7 @@ class UndoFacade(object):
         self._begin_undo_step = begin_undo_step
         self._end_undo_step = end_undo_step
 
+
     @classmethod
     def begin_undo_step(cls):
         # type: () -> None

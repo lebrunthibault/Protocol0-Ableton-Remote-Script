@@ -40,8 +40,12 @@ class TrackCrudComponent(object):
     def duplicate_track(self, track):
         # type: (AbstractTrack) -> Sequence
         seq = Sequence()
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("before duplicate_track")
         self._duplicate_track(track.index)
+        Logger.dev("duplicated")
         seq.wait_for_event(TracksMappedEvent)
+        seq.log("tracks mapped")
         seq.defer()
         return seq.done()
 

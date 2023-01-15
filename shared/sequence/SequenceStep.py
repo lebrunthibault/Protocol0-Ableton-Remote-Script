@@ -40,7 +40,7 @@ class SequenceStep(Observable):
             self._execute()
         except Exception as e:
             self._error()
-            Logger.error(traceback.format_exc())
+            Logger.warning(traceback.format_exc())
             raise e
 
     def _execute(self):

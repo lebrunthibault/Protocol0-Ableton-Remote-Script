@@ -7,10 +7,10 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import List, Optional, Callable
 
 from protocol0.application.control_surface.EncoderAction import EncoderAction, EncoderMoveEnum
+from protocol0.domain.lom.set.AbletonSetChangedEvent import AbletonSetChangedEvent
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.lom.set.AbletonSetChangedEvent import AbletonSetChangedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -118,7 +118,7 @@ class MultiEncoder(SlotManager):
                 params["go_next"] = go_next
 
             action.execute(encoder_name=self.name, **params)
-        except Exception:  # noqa
+        except Exception as e:  # noqa
             DomainEventBus.emit(ErrorRaisedEvent())
 
     def _find_matching_action(self, move_type):

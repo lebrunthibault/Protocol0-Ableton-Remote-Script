@@ -97,14 +97,6 @@ class DeviceEnum(AbstractEnum):
         ]
 
     @property
-    def should_be_bounced(self):
-        # type: () -> bool
-        """Heavy devices that should be bounced when flattening to audio"""
-        return self.is_instrument or self in [
-            DeviceEnum.SOOTHE2,
-        ]
-
-    @property
     def browser_name(self):
         # type: () -> str
         try:

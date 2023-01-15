@@ -229,9 +229,8 @@ class SimpleTrack(AbstractTrack):
         seq = Sequence()
         seq.add(partial(self.focus, show_browser=True))
         seq.add(Backend.client().save_track_to_sub_tracks)
-        seq.wait_for_backend_event("track_focused")
-        seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("track_saved")
+        seq.add(partial(setattr, self, "color", track_color))
 
         return seq.done()
 

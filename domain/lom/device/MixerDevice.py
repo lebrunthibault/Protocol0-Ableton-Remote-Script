@@ -1,6 +1,6 @@
 import Live
 from _Framework.SubjectSlot import SlotManager
-from typing import List
+from typing import List, Dict
 
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 
@@ -14,6 +14,18 @@ class MixerDevice(SlotManager):
         self._parameters = [
             DeviceParameter(parameter, is_mixer_parameter=True) for parameter in parameters
         ]
+
+    def to_dict(self):
+        # type: () -> Dict
+        return {
+            "params": [p.value for p in self.parameters]
+        }
+
+    def update_from_dict(self, mixer_data):
+        # type: (Dict) -> None
+        assert len(self.parameters) == len(mixer_data["params"]), "Cannot update mixer device"
+        for param, value in zip(self.parameters, mixer_data["params"]):
+            param.value = value
 
     @property
     def parameters(self):
