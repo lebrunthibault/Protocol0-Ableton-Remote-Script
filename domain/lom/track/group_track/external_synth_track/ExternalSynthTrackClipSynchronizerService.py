@@ -49,7 +49,7 @@ class ExternalSynthTrackClipSynchronizerService(object):
 
         audio_clip = current_track.audio_track.clip_slots[SongFacade.selected_scene().index].clip
 
-        Scheduler.defer(partial(audio_clip.loop.match, midi_clip.loop))
+        Scheduler.defer(partial(audio_clip.loop.matches, midi_clip.loop))
 
         if current_track.audio_tail_track is None:
             return

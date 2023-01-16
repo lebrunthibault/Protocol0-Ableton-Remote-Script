@@ -11,6 +11,7 @@ from protocol0.domain.lom.device_parameter.LinkedDeviceParameters import LinkedD
 from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -21,6 +22,11 @@ class MidiClip(Clip):
         # type: (Any, Any) -> None
         super(MidiClip, self).__init__(*a, **k)
         self._cached_notes = []  # type: List[Note]
+
+        # select when a new midi clip is recorded
+        if self.is_recording:
+            Scheduler.defer(self.select)
+
 
     @property
     def hash(self):
@@ -95,7 +101,8 @@ class MidiClip(Clip):
 
     def post_record(self, bar_length):
         # type: (int) -> None
-        super(MidiClip, self).post_record(bar_length)
+        self.clip_name.update("")
+
         if bar_length == 0:  # unlimited recording
             clip_end = int(self.loop.end) - (int(self.loop.end) % SongFacade.signature_numerator())
             self.loop.end = clip_end

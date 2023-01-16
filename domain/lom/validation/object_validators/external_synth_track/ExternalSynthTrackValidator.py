@@ -1,6 +1,5 @@
 from typing import Optional, List
 
-from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
@@ -37,18 +36,7 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
         validators += SimpleMidiExtTrackValidator(track.midi_track, browser_service)._validators
         validators += SimpleAudioExtTrackValidator(track.audio_track, track.midi_track)._validators
 
-        # AUDIO TAIL TRACK
-        # always preset except for Minitaur (mono)
-        validators.append(
-            CallbackValidator(
-                track,
-                lambda t: isinstance(t.instrument, InstrumentMinitaur)
-                or t.audio_tail_track is not None,
-                None,
-                "track should have an audio tail track",
-            )
-        )
-        if track.audio_tail_track:
+        if track.audio_tail_track is not None:
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
         super(ExternalSynthTrackValidator, self).__init__(track, validators)

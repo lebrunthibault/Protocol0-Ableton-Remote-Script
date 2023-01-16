@@ -10,10 +10,10 @@ class StatusBar(object):
 
     _INSTANCE = None  # type: Optional[StatusBar]
 
-    def __init__(self, show_messsage):
+    def __init__(self, show_message):
         # type: (Callable) -> None
         StatusBar._INSTANCE = self
-        self._show_message = show_messsage
+        self._show_message = show_message
 
     @classmethod
     def show_message(cls, message):

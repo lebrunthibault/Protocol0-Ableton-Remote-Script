@@ -1,0 +1,2 @@
+class RecordCancelledEvent(object):
+    pass

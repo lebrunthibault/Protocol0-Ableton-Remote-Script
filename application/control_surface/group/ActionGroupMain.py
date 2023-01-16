@@ -11,7 +11,7 @@ from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
+from protocol0.domain.track_recorder.RecordService import RecordService
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -28,7 +28,7 @@ class ActionGroupMain(ActionGroupInterface):
         # type: () -> None
         def record_track(record_type):
             # type: (RecordTypeEnum) -> Optional[Sequence]
-            return self._container.get(TrackRecorderService).record_track(
+            return self._container.get(RecordService).record_track(
                 SongFacade.current_track(), record_type
             )
 
@@ -73,16 +73,8 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=5,
             name="record audio export",
             filter_active_tracks=True,
-            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_EXPORT),
-            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_EXPORT_ONE),
-        )
-
-        # RECordAudio 2 encoder
-        self.add_encoder(
-            identifier=6,
-            name="record audio jam",
-            filter_active_tracks=True,
             on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_FULL),
         )
 
         # MONitor encoder
@@ -99,7 +91,7 @@ class ActionGroupMain(ActionGroupInterface):
             name="record normal",
             filter_active_tracks=True,
             on_scroll=self._container.get(
-                TrackRecorderService
+                RecordService
             ).recording_bar_length_scroller.scroll,
             on_press=lambda: partial(record_track, RecordTypeEnum.MIDI),
             on_long_press=lambda: partial(record_track, RecordTypeEnum.MIDI_UNLIMITED),

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
     from protocol0.domain.lom.scene.SceneService import SceneService
     from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
-    from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
+    from protocol0.domain.track_recorder.RecordService import RecordService
     from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -61,7 +61,7 @@ class SongFacade(object):
         track_component,  # type: TrackComponent
         scene_service,  # type: SceneService
         track_mapper_service,  # type: TrackMapperService
-        track_recorder_service,  # type: TrackRecorderService
+        track_recorder_service,  # type: RecordService
         session_to_arrangement_service,  # type: SessionToArrangementService
     ):
         # type: (...) -> None

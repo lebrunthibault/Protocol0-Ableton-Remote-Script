@@ -4,9 +4,8 @@ from functools import partial
 import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import subject_slot
-from typing import Optional, cast, List, Dict, Tuple
+from typing import Optional, cast, List, Dict
 
-from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
@@ -36,13 +35,10 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.domain.shared.utils.timing import defer
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.observer.Observable import Observable
@@ -66,7 +62,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
         self.dummy_group = ExternalSynthTrackDummyGroup(self)  # type: ExternalSynthTrackDummyGroup
-        self.matching_track = ExternalSynthMatchingTrack(self.base_track, self.midi_track)
+        self.matching_track = ExternalSynthMatchingTrack(self.base_track)
 
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:
@@ -88,9 +84,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track)
         self.arm_state.register_observer(self.matching_track)
         self.arm_state.register_observer(self.monitoring_state)
-        self._is_stopping = False  # quantized, this is not part of Live API
-
-        DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
 
         # this is necessary to monitor the group track solo state
         self._un_soloed_at = time.time()  # type: float
@@ -109,60 +102,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self._sub_track_solo_listener.replace_subjects(
             [sub_track._track for sub_track in self.sub_tracks]
         )
-
-    def _on_third_beat_passed_event(self, _):
-        # type: (ThirdBeatPassedEvent) -> None
-        """
-        Unlike with midi clips, managing seamless loops with a single audio clip is not possible.
-        It would mean losing the clip tail when starting it again.
-        We need two clips.
-
-        Solution : we duplicate the audio track and play both (identical) clips alternately
-        We launch the duplicate clip when the audio playing clip reaches its last beat
-
-        NB : This solution is almost perfect but will not handle well short clips with
-        very long tails. That doesn't really happen irl anyway
-        """
-        if not self._should_loop_audio:
-            return
-
-        playing_clip = self.playing_audio_track.playing_clip
-        clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
-
-        if clip_to_fire is not None:
-            if clip_to_fire.index != playing_clip.index:
-                Logger.error(
-                    "Index mismatch for audio / tail clip. Got index: %s and tail "
-                    "index: %s. For %s " % (playing_clip.index, clip_to_fire.index, self),
-                    show_notification=False,
-                )
-                raise Protocol0Warning("Tail clip index mismatch for %s" % self)
-            clip_to_fire.fire()
-
-    @property
-    def _should_loop_audio(self):
-        # type: () -> bool
-        """Should loop playing audio clip"""
-        if self.is_recording:
-            return False
-
-        if not self.midi_track.is_playing or self.playing_audio_track is None:
-            return False
-
-        midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
-
-        scene_should_loop = (
-            SongFacade.playing_scene() is not None
-            and SongFacade.playing_scene().should_loop
-            and not SongFacade.is_bouncing()
-        )
-        # assert we're not in the last bar of a non looping scene
-        if SongFacade.playing_scene() is None or (
-            SongFacade.playing_scene().playing_state.in_last_bar and not scene_should_loop
-        ):
-            return False
-
-        return midi_clip.playing_position.in_last_bar
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
@@ -260,11 +199,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
     @property
     def is_playing(self):
         # type: () -> bool
-        return (
-            self.midi_track.is_playing
-            or self.audio_track.is_playing
-            or (self.audio_tail_track is not None and self.audio_tail_track.is_playing)
-        )
+        return self.midi_track.is_playing or self.audio_track.is_playing
 
     @property
     def is_recording(self):
@@ -309,66 +244,26 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 Logger.info("duration since last un solo: %s" % duration_since_last_un_solo)
                 self.solo = duration_since_last_un_solo > 0.3
 
-    @property
-    def playing_audio_track(self):
-        # type: () -> Optional[SimpleAudioTrack]
-        """Determining which track is currently playing the clip between audio and audio tail"""
-        # reset on playback stop
-        if not SongFacade.is_playing():
-            return None
-
-        if self.audio_tail_track is None:
-            return self.audio_track if self.audio_track.is_playing else None
-
-        if not self.audio_track.is_playing and not self.audio_tail_track.is_playing:
-            return None
-
-        # On long tails both clips are playing. We take the most recently launched one
-        if self.audio_track.is_playing and self.audio_tail_track.is_playing:
-            tracks = cast(Tuple[SimpleAudioTrack], (self.audio_track, self.audio_tail_track))
-
-            return min(
-                tracks,
-                key=lambda track: track.playing_clip.playing_position.position,
-            )
-        else:
-            return self.audio_track if self.audio_track.is_playing else self.audio_tail_track
-
-    def _audio_clip_to_fire(self, scene_index):
-        # type: (int) -> Optional[AudioClip]
-        """The opposite track from the playing one in the couple audio / audio tail"""
-        if (
-            self.playing_audio_track is self.audio_track
-            and self.audio_tail_track is not None
-            and self.audio_tail_track.clip_slots[scene_index].clip is not None
-        ):
-            return self.audio_tail_track.clip_slots[scene_index].clip
-        else:
-            return self.audio_track.clip_slots[scene_index].clip
-
     def bars_left(self, scene_index):
         # type: (int) -> int
-        if self.playing_audio_track is not None and self.playing_audio_track.is_playing:
-            return self.playing_audio_track.playing_clip.playing_position.bars_left
+        if self.audio_track.is_playing:
+            return self.audio_track.playing_clip.playing_position.bars_left
         else:
             return 0
 
     def fire(self, scene_index):
         # type: (int) -> None
-        """Firing midi and alternating between audio and audio tail for the audio clip"""
         super(ExternalSynthTrack, self).fire(scene_index)
 
         midi_clip = self.midi_track.clip_slots[scene_index].clip
         if midi_clip is None or midi_clip.muted:
             return
 
-        self._is_stopping = False
-
         midi_clip.fire()
         if not self.is_recording:
-            audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
-            if audio_clip_to_fire is not None:
-                audio_clip_to_fire.fire()
+            audio_clip = self.audio_track.clip_slots[scene_index].clip
+            if audio_clip is not None:
+                audio_clip.fire()
 
     def stop(self, scene_index=None, next_scene_index=None, immediate=False):
         # type: (Optional[int], Optional[int], bool) -> None
@@ -378,29 +273,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         """
         super(ExternalSynthTrack, self).stop(scene_index, next_scene_index, immediate=immediate)
 
-        should_let_tail_play = True
-        if scene_index is not None:
-            midi_clip = self.midi_track.clip_slots[scene_index].clip
-
-            # if we stopped before the end
-            # or if there is not tail for this scene
-            if (
-                midi_clip is not None
-                and midi_clip.is_playing
-                and not midi_clip.playing_position.in_last_bar
-            ):
-                should_let_tail_play = False
-
-        if should_let_tail_play:
-            # have the tail keep playing without launching the clip again
-            self._is_stopping = True
-            Scheduler.wait_bars(
-                1, partial(setattr, self, "_is_stopping", False), execute_on_song_stop=True
-            )
-        else:
-            self.audio_track.stop(immediate=immediate)
-            if self.audio_tail_track:
-                self.audio_tail_track.stop(immediate=immediate)
+        self.audio_track.stop(
+            scene_index=scene_index, next_scene_index=next_scene_index, immediate=immediate
+        )
 
     def prepare_for_scrub(self, scene_index):
         # type: (int) -> None
@@ -409,14 +284,14 @@ class ExternalSynthTrack(AbstractGroupTrack):
         the audio clip need to be looping else it will stop on scrub_by
         and have the same length as the midi clip
         """
-        audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
         midi_clip = self.midi_track.clip_slots[scene_index].clip
-        if audio_clip_to_fire is None or midi_clip is None:
+        audio_clip = self.audio_track.clip_slots[scene_index].clip
+        if midi_clip is None or audio_clip is None:
             return None
 
         midi_clip_bar_length = midi_clip.bar_length
         try:
-            audio_clip_to_fire.set_temporary_length(midi_clip_bar_length)
+            audio_clip.set_temporary_length(midi_clip_bar_length)
         except IndexError:
             Backend.client().show_warning("%s: invalid clip length" % self)
             return None

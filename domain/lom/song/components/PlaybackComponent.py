@@ -6,10 +6,12 @@ from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import (
-    TrackRecordingCancelledEvent,
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.track_recorder.event.RecordCancelledEvent import (
+    RecordCancelledEvent,
 )
-from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
+from protocol0.domain.track_recorder.event.RecordEndedEvent import RecordEndedEvent
+from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -26,9 +28,11 @@ class PlaybackComponent(SlotManager):
             False  # caching this because _is_playing_listener activates multiple times
         )
         self._is_playing_listener.subject = self._live_song
-        DomainEventBus.subscribe(TrackRecordingStartedEvent, lambda _: song.stop_playing())
-        DomainEventBus.subscribe(TrackRecordingCancelledEvent, lambda _: song.stop_playing())
+        DomainEventBus.subscribe(RecordStartedEvent, lambda _: song.stop_playing())
+        DomainEventBus.subscribe(RecordEndedEvent, self._on_record_ended_event)
+        DomainEventBus.subscribe(RecordCancelledEvent, self._on_record_cancelled_event)
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
+        DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
 
     @subject_slot("is_playing")
     def _is_playing_listener(self):
@@ -67,6 +71,22 @@ class PlaybackComponent(SlotManager):
             Logger.info("beat offset: %s" % beat_offset)
 
         self._live_song.scrub_by(beat_offset)
+
+    def _on_record_ended_event(self, _):
+        # type: (RecordEndedEvent) -> None
+        self.metronome = False
+        # this is delayed in the case an encoder is touched after the recording is finished by mistake
+        for tick in [1, 10, 50, 100]:
+            Scheduler.wait(tick, self.re_enable_automation)
+
+    def _on_record_cancelled_event(self, _):
+        # type: (RecordCancelledEvent) -> None
+        self.metronome = False
+        self._live_song.stop_playing()
+
+    def _on_song_stopped_event(self, _):
+        # type: (SongStoppedEvent) -> None
+        self.metronome = False
 
     @property
     def is_playing(self):

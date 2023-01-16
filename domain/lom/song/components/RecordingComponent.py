@@ -1,7 +1,13 @@
+from functools import partial
+
 import Live
 
 from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.track_recorder.event.RecordEndedEvent import RecordEndedEvent
+from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
+from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class RecordingComponent(object):
@@ -9,6 +15,30 @@ class RecordingComponent(object):
         # type: (Live.Song.Song) -> None
         self._live_song = song
         DomainEventBus.subscribe(ClipEnvelopeShowedEvent, lambda _: song.re_enable_automation())
+        DomainEventBus.subscribe(RecordStartedEvent, self._on_record_started_event)
+        DomainEventBus.subscribe(RecordEndedEvent, self._on_record_ended_event)
+
+    def _on_record_started_event(self, event):
+        # type: (RecordStartedEvent) -> None
+        recording_scene = SongFacade.scenes()[event.scene_index]
+        recording_scene.fire()
+        seq = Sequence()
+        if event.has_count_in:
+            seq.defer()
+        seq.add(partial(self._start_session_record, event))
+        seq.done()
+
+    def _start_session_record(self, event):
+        # type: (RecordStartedEvent) -> None
+        self.session_automation_record = True
+        self.session_record = True
+        if event.full_record:
+            self.record_mode = True
+
+    def _on_record_ended_event(self, _):
+        # type: (RecordEndedEvent) -> None
+        self.session_automation_record = False
+        self.session_record = False
 
     @property
     def back_to_arranger(self):

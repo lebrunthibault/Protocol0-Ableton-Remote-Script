@@ -1,37 +1,38 @@
 from functools import partial
 
-from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
+from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 class CountInOneBar(CountInInterface):
-    def launch(self):
-        # type: () -> Sequence
-        self._playback_component.stop()
-        self._playback_component.metronome = True
+    def launch(self, playback_component, track):
+        # type: (PlaybackComponent, AbstractTrack) -> Sequence
+        playback_component.stop()
         # solo for count in
-        track_solo = self._track.solo
-        self._track.solo = True
-        self._playback_component.start_playing()
-        self._schedule_stop_count_in(track_solo)
+        track_solo = track.solo
+        track.solo = True
+        playback_component.start_playing()
 
-        return Sequence().defer().done()
-
-    def _schedule_stop_count_in(self, track_solo):
-        # type: (bool) -> None
         seq = Sequence()
         seq.defer()
-        seq.wait_for_event(LastBeatPassedEvent, continue_on_song_stop=True)
-        seq.add(partial(setattr, self._track, "solo", track_solo))
-        seq.add(self._stop_count_in)
+        seq.add(partial(setattr, playback_component, "metronome", True))
+        seq.wait_for_event(BarEndingEvent, continue_on_song_stop=True)
+        seq.add(partial(setattr, track, "solo", track_solo))
+        seq.add(partial(self._stop_count_in, playback_component, track))
         seq.done()
+        # we don't delay because we launch the scene at the same time
+        # and launch the session record just after
+        # this leaves 1 bar (because of quantization)
+        return Sequence().defer().done()
 
-    def _stop_count_in(self):
-        # type: () -> None
+    def _stop_count_in(self, playback_component, track):
+        # type: (PlaybackComponent, AbstractTrack) -> None
         if (
             len([clip for clip in SongFacade.selected_scene().clips if not clip.muted]) >= 1
-            and not self._track.solo
+            and not track.solo
         ):
-            self._playback_component.metronome = False
+            playback_component.metronome = False

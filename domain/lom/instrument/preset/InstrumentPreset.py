@@ -26,5 +26,5 @@ class InstrumentPreset(object):
         if name is None:
             return "empty"
 
-        base_preset_name = re.sub("\\.[a-z0-9]{2,4}", "", name)  # remove file extension
+        base_preset_name = re.sub("\\.[a-z\d]{2,4}", "", name)  # remove file extension
         return str(base_preset_name)

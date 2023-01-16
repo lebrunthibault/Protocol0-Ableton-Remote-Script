@@ -55,7 +55,7 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
+from protocol0.domain.track_recorder.RecordService import RecordService
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
 from protocol0.infra.interface.BrowserService import BrowserService
 from protocol0.infra.interface.InterfaceClicksService import InterfaceClicksService
@@ -135,9 +135,8 @@ class Container(ContainerInterface):
         track_mapper_service = TrackMapperService(live_song, track_factory)
         track_service = TrackService()
         track_player_service = TrackPlayerService(playback_component, track_repository)
-        track_recorder_service = TrackRecorderService(
+        track_recorder_service = RecordService(
             playback_component,
-            recording_component,
             scene_crud_component,
             quantization_component,
         )

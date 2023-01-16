@@ -201,11 +201,6 @@ class Clip(SlotManager, Observable):
         """overridden"""
         pass
 
-    def post_record(self, bar_length):
-        # type: (int) -> None
-        """overridden"""
-        self.clip_name.update("")
-
     def crop(self):
         # type: () -> Optional[Sequence]
         """implemented in MidiClip and AudioClip"""

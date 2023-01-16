@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, TYPE_CHECKING, cast
+from typing import Tuple, Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum

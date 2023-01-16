@@ -8,6 +8,7 @@ from protocol0.domain.lom.instrument.InstrumentSelectedEvent import InstrumentSe
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
@@ -46,6 +47,9 @@ class InstrumentDisplayService(object):
         seq.add(
             partial(self.activate_plugin_window, track, force_activate=track.instrument.force_show)
         )
+        # todo: remove
+        seq.add(Backend.client().hide_plugins)
+
         # if not track.instrument.force_show:
         #     seq.add(Backend.client().hide_plugins)
         # track.instrument.force_show = False

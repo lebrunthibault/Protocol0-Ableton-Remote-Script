@@ -1,0 +1,2 @@
+class RecordEndedEvent(object):
+    pass

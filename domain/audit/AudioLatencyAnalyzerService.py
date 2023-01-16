@@ -20,7 +20,7 @@ from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceCli
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
+from protocol0.domain.track_recorder.RecordService import RecordService
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -33,7 +33,7 @@ class AudioLatencyAnalyzerService(object):
         track_crud_component,
         tempo_component,
     ):
-        # type: (TrackRecorderService, InterfaceClicksServiceInterface, TrackCrudComponent, TempoComponent) -> None
+        # type: (RecordService, InterfaceClicksServiceInterface, TrackCrudComponent, TempoComponent) -> None
         self._track_recorder_service = track_recorder_service
         self._interface_clicks_service = interface_clicks_service
         self._track_crud_component = track_crud_component

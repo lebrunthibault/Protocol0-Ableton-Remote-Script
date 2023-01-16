@@ -7,7 +7,6 @@ from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.song.components.QuantizationComponent import QuantizationComponent
-from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
@@ -19,23 +18,23 @@ from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import (
+from protocol0.domain.track_recorder.AbstractRecorderFactory import (
     AbstractTrackRecorderFactory,
 )
+from protocol0.domain.track_recorder.BaseRecorder import BaseRecorder
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import (
-    TrackRecordingCancelledEvent,
+from protocol0.domain.track_recorder.config.RecordConfig import RecordConfig
+from protocol0.domain.track_recorder.event.RecordCancelledEvent import (
+    RecordCancelledEvent,
 )
-from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
-from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
+from protocol0.domain.track_recorder.event.RecordEndedEvent import RecordEndedEvent
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthFactory import (
     TrackRecorderExternalSynthFactory,
 )
 from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthScroller import (
     RecordingBarLengthScroller,
 )
-from protocol0.domain.track_recorder.simple.TrackRecoderSimpleFactory import (
+from protocol0.domain.track_recorder.simple.RecorderSimpleFactory import (
     TrackRecorderSimpleFactory,
 )
 from protocol0.shared.Config import Config
@@ -44,22 +43,19 @@ from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class TrackRecorderService(object):
+class RecordService(object):
     _DEBUG = True
 
-    def __init__(
-        self, playback_component, recording_component, scene_crud_component, quantization_component
-    ):
-        # type: (PlaybackComponent, RecordingComponent, SceneCrudComponent, QuantizationComponent) -> None
+    def __init__(self, playback_component, scene_crud_component, quantization_component):
+        # type: (PlaybackComponent, SceneCrudComponent, QuantizationComponent) -> None
         self._playback_component = playback_component
-        self._recording_component = recording_component
         self._scene_crud_component = scene_crud_component
         self._quantization_component = quantization_component
 
         self.recording_bar_length_scroller = RecordingBarLengthScroller(
             Config.DEFAULT_RECORDING_BAR_LENGTH
         )
-        self._recorder = None  # type: Optional[AbstractTrackRecorder]
+        self._recorder = None  # type: Optional[BaseRecorder]
 
     @property
     def is_recording(self):
@@ -69,18 +65,11 @@ class TrackRecorderService(object):
     def _get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
-            factory_class = TrackRecorderSimpleFactory
+            return TrackRecorderSimpleFactory()
         elif isinstance(track, ExternalSynthTrack):
-            factory_class = TrackRecorderExternalSynthFactory  # type: ignore[assignment]
+            return TrackRecorderExternalSynthFactory()
         else:
             raise Protocol0Warning("This track is not recordable")
-
-        return factory_class(
-            track,
-            self._playback_component,
-            self._recording_component,
-            self.recording_bar_length_scroller.current_value.bar_length_value,
-        )
 
     def record_track(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
@@ -95,48 +84,57 @@ class TrackRecorderService(object):
             self._quantization_component.clip_trigger_quantization = Live.Song.Quantization.q_bar
 
         recorder_factory = self._get_track_recorder_factory(track)
-        recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
+        config = recorder_factory.get_recorder_config(
+            track=track,
+            record_type=record_type,
+            recording_bar_length=self.recording_bar_length_scroller.current_value.bar_length_value,
+        )
+        self._recorder = BaseRecorder(track, config)
 
         seq = Sequence()
         # assert there is a scene we can record on
-        if recording_scene_index is None:
-            recording_scene_index = len(SongFacade.scenes())
+        if config._scene_index is None:
+            config.scene_index = len(SongFacade.scenes())
             seq.add(self._scene_crud_component.create_scene)
-
-        if (
-            record_type.need_additional_scene
-            and len(SongFacade.scenes()) <= recording_scene_index + 1
-        ):
-            seq.add(self._scene_crud_component.create_scene)
-
-        bar_length = recorder_factory.get_recording_bar_length(record_type)
-
-        count_in = recorder_factory.create_count_in(record_type)
-        self._recorder = recorder_factory.create_recorder(record_type)
-        self._recorder.set_recording_scene_index(recording_scene_index)
 
         if self._DEBUG:
-            Logger.info("recorder_factory: %s" % recorder_factory)
-            Logger.info("recorder: %s" % self._recorder)
+            Logger.info("recorder_config: %s" % config)
 
-        Backend.client().show_info("Rec: %s" % self._recorder.legend(bar_length))
+        Backend.client().show_info("Rec: %s (%d bars)" % (config.record_name, config.bar_length))
 
-        seq.add(partial(self._start_recording, count_in, self._recorder, bar_length))
+        seq.add(partial(self._start_recording, track, record_type, config))
         return seq.done()
 
-    def _start_recording(self, count_in, recorder, bar_length):
-        # type: (CountInInterface, AbstractTrackRecorder, int) -> Optional[Sequence]
-        DomainEventBus.emit(TrackRecordingStartedEvent(recorder.recording_scene_index))
+    def _start_recording(self, track, record_type, config):
+        # type: (AbstractTrack, RecordTypeEnum, RecordConfig) -> Optional[Sequence]
         # this will stop the previous playing scene on playback stop
-        PlayingSceneFacade.set(recorder.recording_scene)
+        PlayingSceneFacade.set(config.recording_scene)
         DomainEventBus.once(ErrorRaisedEvent, self._on_error_raised_event)
+
         seq = Sequence()
-        seq.add(recorder.pre_record)
-        seq.add(count_in.launch)
+
+        # PRE RECORD
+        seq.add(self._recorder.pre_record)
+        if config.pre_record_processor is not None:
+            seq.add(partial(config.pre_record_processor.process, track, config))
+        seq.add(partial(record_type.get_count_in().launch, self._playback_component, track))
         seq.add(partial(DomainEventBus.subscribe, SongStoppedEvent, self._on_song_stopped_event))
-        seq.add(partial(recorder.record, bar_length))
-        seq.add(recorder.post_audio_record)
-        seq.add(partial(recorder.post_record, bar_length))
+
+        # RECORD
+        if config.record_processor is not None:
+            seq.add(partial(config.record_processor.process, track, config))
+        else:
+            seq.add(self._recorder.record)
+
+        if config.on_record_end_processor is not None:
+            seq.add(partial(config.on_record_end_processor.process, track, config))
+
+        seq.add(partial(DomainEventBus.emit, RecordEndedEvent()))
+
+        # POST RECORD
+        if config.post_record_processor is not None:
+            seq.add(partial(config.post_record_processor.process, track, config))
+
         seq.add(partial(setattr, self, "_recorder", None))
         seq.add(partial(DomainEventBus.un_subscribe, ErrorRaisedEvent, self._on_error_raised_event))
 
@@ -149,7 +147,7 @@ class TrackRecorderService(object):
 
     def _cancel_record(self, show_notification=True):
         # type: (bool) -> None
-        DomainEventBus.emit(TrackRecordingCancelledEvent())
+        DomainEventBus.emit(RecordCancelledEvent())
         Scheduler.restart()
 
         if self._recorder is not None:
