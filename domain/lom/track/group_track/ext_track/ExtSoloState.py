@@ -4,7 +4,7 @@ import time
 
 from _Framework.SubjectSlot import subject_slot, SlotManager, subject_slot_group
 
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.logging.Logger import Logger
 

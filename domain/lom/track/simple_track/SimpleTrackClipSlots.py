@@ -7,16 +7,9 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import (
-    SimpleTrackFirstClipAddedEvent,
-)
-from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import (
-    SimpleTrackLastClipDeletedEvent,
-)
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.domain.shared.utils.timing import defer
-from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
 
@@ -97,10 +90,6 @@ class SimpleTrackClipSlots(SlotManager, Observable):
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot):
-            if observable.has_clip and len(self.clips) == 1:
-                DomainEventBus.emit(SimpleTrackFirstClipAddedEvent())
-            elif not observable.has_clip and len(self.clips) == 0:
-                DomainEventBus.emit(SimpleTrackLastClipDeletedEvent())
             self.notify_observers()
 
     @subject_slot_group("has_clip")

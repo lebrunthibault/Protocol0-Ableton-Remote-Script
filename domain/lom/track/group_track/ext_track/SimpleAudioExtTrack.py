@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
         ExternalSynthTrack,
     )
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
 
 class SimpleAudioExtTrack(SimpleAudioTrack):

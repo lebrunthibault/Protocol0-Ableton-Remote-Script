@@ -6,11 +6,11 @@ from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
-from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import InstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.audio.special.ResamplingTrack import ResamplingTrack
+from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.utils.timing import debounce
 from protocol0.shared.Song import Song

@@ -19,7 +19,7 @@ from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+    from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 
@@ -59,7 +59,7 @@ class AbstractMatchingTrack(SlotManager):
 
     def _get_track(self):
         # type: () -> Optional[SimpleAudioTrack]
-        from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
         return find_if(
             lambda t: t != self._base_track

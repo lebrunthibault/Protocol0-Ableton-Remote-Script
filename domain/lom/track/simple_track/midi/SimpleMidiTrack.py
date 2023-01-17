@@ -4,8 +4,7 @@ from typing import List, cast, Any
 
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
-from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.simple_track.SimpleMidiMatchingTrack import SimpleMidiMatchingTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiMatchingTrack import SimpleMidiMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning

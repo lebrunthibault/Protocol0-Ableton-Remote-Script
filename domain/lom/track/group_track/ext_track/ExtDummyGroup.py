@@ -2,7 +2,7 @@ from typing import Tuple, Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (

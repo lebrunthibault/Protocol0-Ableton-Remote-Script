@@ -1,6 +1,6 @@
 from typing import Optional
 
-from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
+from protocol0.domain.lom.track.simple_track.audio.special.ResamplingTrack import ResamplingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.AbstractRecorderFactory import (

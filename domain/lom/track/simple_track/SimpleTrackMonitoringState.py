@@ -14,7 +14,7 @@ class SimpleTrackMonitoringState(object):
 
     def switch(self):
         # type: () -> None
-        from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
         if self._track.current_monitoring_state == CurrentMonitoringStateEnum.AUTO:
             if isinstance(self._track, SimpleAudioTrack):

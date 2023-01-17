@@ -1,6 +1,6 @@
 from typing import Any
 
-from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 
 
 class SimpleMidiExtTrack(SimpleMidiTrack):

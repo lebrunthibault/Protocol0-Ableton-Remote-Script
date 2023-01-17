@@ -3,8 +3,8 @@ from typing import Tuple
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
-from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
 

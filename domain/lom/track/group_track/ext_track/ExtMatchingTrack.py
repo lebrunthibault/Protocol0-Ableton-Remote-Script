@@ -7,8 +7,8 @@ from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import Abst
 from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import (
     ExtMonitoringState,
 )
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
@@ -47,12 +47,15 @@ class ExtMatchingTrack(AbstractMatchingTrack):
             seq.add(partial(track_crud_component.create_audio_track, insert_index))
             seq.add(lambda: setattr(Song.selected_track(), "name", self._base_track.name))
             seq.add(lambda: setattr(Song.selected_track(), "color", self._base_track.color))
-            seq.add(lambda: Song.selected_track().devices.mixer_device.update_from_dict(mixer_data))  # noqa
+            seq.add(
+                lambda: Song.selected_track().devices.mixer_device.update_from_dict(mixer_data)
+            )  # noqa
             seq.add(self._init)  # connect to the matching track
 
             seq.add(self._copy_clips_from_base_track)
 
         else:
+            # clips = self._audio_track.clips
             seq.add(self._base_track.save)
             seq.add(self._audio_track.flatten)
 

@@ -1,5 +1,5 @@
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song

@@ -1,6 +1,6 @@
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (

@@ -29,8 +29,8 @@ if TYPE_CHECKING:
     )
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
-    from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
-    from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
+    from protocol0.domain.lom.track.simple_track.audio.master.MasterTrack import MasterTrack
+    from protocol0.domain.lom.track.simple_track.audio.special.ReferenceTrack import ReferenceTrack
     from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip

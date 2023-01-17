@@ -6,8 +6,8 @@ from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import Abst
 from protocol0.domain.lom.track.group_track.ext_track.ExtArmedEvent import \
     ExtArmedEvent
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.sequence.Sequence import Sequence
 

@@ -4,7 +4,7 @@ from protocol0.domain.lom.track.group_track.ext_track.ExtArmState import (
     ExtArmState,
 )
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.shared.observer.Observable import Observable
 

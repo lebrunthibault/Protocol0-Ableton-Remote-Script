@@ -6,7 +6,7 @@ from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import 
 from protocol0.domain.lom.track.group_track.ext_track.ExtArmedEvent import (
     ExtArmedEvent,
 )
-from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus

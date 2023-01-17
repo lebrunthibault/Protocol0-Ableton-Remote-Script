@@ -15,13 +15,13 @@ from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
-from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
-from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
-from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
-from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
+from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import InstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.audio.master.MasterTrack import MasterTrack
+from protocol0.domain.lom.track.simple_track.audio.special.ReferenceTrack import ReferenceTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
-from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
+from protocol0.domain.lom.track.simple_track.midi.special.UsamoTrack import UsamoTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus

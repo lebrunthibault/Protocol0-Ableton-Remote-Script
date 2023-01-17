@@ -1,2 +1,0 @@
-class SimpleTrackLastClipDeletedEvent(object):
-    pass

@@ -3,7 +3,7 @@ from protocol0.application.command_handler.CommandHandlerInterface import Comman
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import \
     ExternalSynthTrack
-from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.shared.Song import Song
 
 

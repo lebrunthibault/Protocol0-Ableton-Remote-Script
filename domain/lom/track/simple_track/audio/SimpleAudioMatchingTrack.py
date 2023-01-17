@@ -7,7 +7,7 @@ class SimpleAudioMatchingTrack(AbstractMatchingTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleAudioMatchingTrack, self).__init__(*a, **k)
-        from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
         self._base_track = cast(SimpleAudioTrack, self._base_track)
 

@@ -1,0 +1,2 @@
+class SimpleAudioTrackClips(object):
+    pass

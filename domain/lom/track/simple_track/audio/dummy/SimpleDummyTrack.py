@@ -7,11 +7,11 @@ from protocol0.domain.lom.clip_slot.DummyClipSlot import DummyClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import (
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrackAddedEvent import (
     SimpleDummyTrackAddedEvent,
 )
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import (
+from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrackAutomation import (
     SimpleDummyTrackAutomation,
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots

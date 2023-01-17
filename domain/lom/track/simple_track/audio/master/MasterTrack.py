@@ -7,12 +7,12 @@ from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
-from protocol0.domain.lom.track.simple_track.MasterTrackMuteToggledEvent import \
+from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackMuteToggledEvent import \
     MasterTrackMuteToggledEvent
-from protocol0.domain.lom.track.simple_track.MasterTrackRoomEqToggledEvent import (
+from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackRoomEqToggledEvent import (
     MasterTrackRoomEqToggledEvent,
 )
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler

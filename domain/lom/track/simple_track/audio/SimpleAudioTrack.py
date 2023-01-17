@@ -4,7 +4,7 @@ from typing import List, cast, Any
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
-from protocol0.domain.lom.track.simple_track.SimpleAudioMatchingTrack import (
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioMatchingTrack import (
     SimpleAudioMatchingTrack,
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack

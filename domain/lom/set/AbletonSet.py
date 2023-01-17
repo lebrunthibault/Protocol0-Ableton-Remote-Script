@@ -13,16 +13,10 @@ from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import (
     AbstractTrackNameUpdatedEvent,
 )
-from protocol0.domain.lom.track.simple_track.MasterTrackMuteToggledEvent import \
+from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackMuteToggledEvent import \
     MasterTrackMuteToggledEvent
-from protocol0.domain.lom.track.simple_track.MasterTrackRoomEqToggledEvent import (
+from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackRoomEqToggledEvent import (
     MasterTrackRoomEqToggledEvent,
-)
-from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import (
-    SimpleTrackFirstClipAddedEvent,
-)
-from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import (
-    SimpleTrackLastClipDeletedEvent,
 )
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -48,8 +42,6 @@ class AbletonSet(object):
             DrumRackLoadedEvent,
             MasterTrackRoomEqToggledEvent,
             MasterTrackMuteToggledEvent,
-            SimpleTrackFirstClipAddedEvent,
-            SimpleTrackLastClipDeletedEvent,
             TracksMappedEvent,
             SelectedTrackChangedEvent,
         ]

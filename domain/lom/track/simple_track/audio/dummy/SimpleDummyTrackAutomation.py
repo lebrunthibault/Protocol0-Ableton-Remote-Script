@@ -10,7 +10,7 @@ from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import (
+from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrackAddedEvent import (
     SimpleDummyTrackAddedEvent,
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots

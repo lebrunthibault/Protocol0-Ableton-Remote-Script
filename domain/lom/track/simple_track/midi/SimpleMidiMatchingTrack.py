@@ -4,7 +4,7 @@ from typing import Any, cast, Dict, Optional
 
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
@@ -14,7 +14,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleMidiMatchingTrack, self).__init__(*a, **k)
-        from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+        from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 
         self._base_track = cast(SimpleMidiTrack, self._base_track)
 

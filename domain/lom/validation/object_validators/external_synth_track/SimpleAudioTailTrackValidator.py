@@ -4,7 +4,7 @@ from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import 
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import (
     SimpleAudioTrackValidator,
