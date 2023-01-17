@@ -13,7 +13,7 @@ from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -82,10 +82,10 @@ class MidiClip(Clip):
 
         seq = Sequence()
         seq.defer()
-        seq.add(partial(setattr, self, "length", SongFacade.selected_scene().length))
+        seq.add(partial(setattr, self, "length", Song.selected_scene().length))
         seq.add(self.show_loop)
 
-        if isinstance(SongFacade.selected_track().instrument, InstrumentSimpler):
+        if isinstance(Song.selected_track().instrument, InstrumentSimpler):
             seq.add(self.generate_base_notes)
             seq.wait(10)
 
@@ -104,7 +104,7 @@ class MidiClip(Clip):
         self.clip_name.update("")
 
         if bar_length == 0:  # unlimited recording
-            clip_end = int(self.loop.end) - (int(self.loop.end) % SongFacade.signature_numerator())
+            clip_end = int(self.loop.end) - (int(self.loop.end) % Song.signature_numerator())
             self.loop.end = clip_end
 
         self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_eighth
@@ -161,7 +161,7 @@ class MidiClip(Clip):
         if len(parameters_couple) == 0:
             raise Protocol0Warning("This clip has no linked automated parameters")
 
-        SongFacade.draw_mode(False)
+        Song.draw_mode(False)
         seq = Sequence()
         for couple in parameters_couple:
             seq.add(partial(couple.link_clip_automation, self.automation))

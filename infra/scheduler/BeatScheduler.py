@@ -14,7 +14,7 @@ from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassed
 from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
 from protocol0.infra.scheduler.BeatSchedulerEvent import BeatSchedulerEvent
 from protocol0.infra.scheduler.BeatTime import BeatTime
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class BeatScheduler(SlotManager, BeatSchedulerInterface):
@@ -53,7 +53,7 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
 
     def _dispatch_timing_events(self):
         # type: () -> None
-        current_beats_song_time = BeatTime.from_song_beat_time(SongFacade.current_beats_song_time())
+        current_beats_song_time = BeatTime.from_song_beat_time(Song.current_beats_song_time())
 
         events = []  # type: List[object]
         if (
@@ -61,7 +61,7 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
             and not self._last_beats_song_time.is_start
         ):
             events.append(BarChangedEvent())
-            playing_scene = SongFacade.playing_scene()
+            playing_scene = Song.playing_scene()
             if playing_scene is not None and playing_scene.playing_state.in_last_bar:
                 events.append(SceneLastBarPassedEvent(playing_scene._scene))
 

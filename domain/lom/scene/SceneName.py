@@ -11,7 +11,7 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.utils import get_length_legend
 from protocol0.shared.Config import Config
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -68,7 +68,7 @@ class SceneName(SlotManager):
         else:
             length_legend = get_length_legend(
                 self._scene_length.length,
-                SongFacade.signature_numerator(),
+                Song.signature_numerator(),
             )
 
         if self._scene_playing_state.is_playing:
@@ -81,7 +81,7 @@ class SceneName(SlotManager):
         else:
             scene_name = "%s" % length_legend
 
-        if SongFacade.looping_scene() and SongFacade.looping_scene()._scene == self._scene:
+        if Song.looping_scene() and Song.looping_scene()._scene == self._scene:
             scene_name = "*%s" % scene_name
 
         self._scene.name = scene_name

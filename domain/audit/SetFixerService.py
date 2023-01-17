@@ -2,7 +2,7 @@ from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -19,7 +19,7 @@ class SetFixerService(object):
 
         invalid_objects = []
 
-        objects_to_validate = SongFacade.scenes() + list(SongFacade.abstract_tracks())  # noqa
+        objects_to_validate = Song.scenes() + list(Song.abstract_tracks())  # noqa
         for obj in objects_to_validate:
             is_valid = self._validator_service.validate_object(obj)
             if not is_valid:
@@ -45,17 +45,17 @@ class SetFixerService(object):
 
     def _refresh_objects_appearance(self):
         # type: () -> None
-        clip_slots = [cs for track in SongFacade.simple_tracks() for cs in track.clip_slots]
-        clips = [clip for track in SongFacade.simple_tracks() for clip in track.clips]
+        clip_slots = [cs for track in Song.simple_tracks() for cs in track.clip_slots]
+        clips = [clip for track in Song.simple_tracks() for clip in track.clips]
         # noinspection PyTypeChecker
         objects_to_refresh_appearance = (
-            clip_slots + clips + SongFacade.scenes() + list(SongFacade.abstract_tracks())
+                clip_slots + clips + Song.scenes() + list(Song.abstract_tracks())
         )
 
         for obj in objects_to_refresh_appearance:
             obj.appearance.refresh()
 
-        for track in SongFacade.external_synth_tracks():
+        for track in Song.external_synth_tracks():
             track.midi_track.name = "m"
             track.audio_track.name = "a"
             if track.audio_tail_track:

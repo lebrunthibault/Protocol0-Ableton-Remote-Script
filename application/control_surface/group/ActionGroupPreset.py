@@ -6,7 +6,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService impo
     InstrumentPresetScrollerService,
 )
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class ActionGroupPreset(ActionGroupInterface):
@@ -21,7 +21,7 @@ class ActionGroupPreset(ActionGroupInterface):
             filter_active_tracks=True,
             on_scroll=lambda: partial(
                 self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples,
-                SongFacade.current_track(),
+                Song.current_track(),
             ),
         )
 
@@ -31,7 +31,7 @@ class ActionGroupPreset(ActionGroupInterface):
             name="scroll preset categories",
             on_scroll=lambda: partial(
                 self._container.get(InstrumentPresetScrollerService).scroll_preset_categories,
-                SongFacade.current_track(),
+                Song.current_track(),
             ),
         )
 

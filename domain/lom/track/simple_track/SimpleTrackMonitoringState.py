@@ -1,16 +1,15 @@
 from typing import TYPE_CHECKING
 
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.domain.lom.track.MonitoringStateInterface import MonitoringStateInterface
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class SimpleTrackMonitoringState(MonitoringStateInterface):
+class SimpleTrackMonitoringState(object):
     def __init__(self, track):
-        # type: (AbstractTrack) -> None
+        # type: (SimpleTrack) -> None
         self._track = track
 
     def switch(self):
@@ -19,9 +18,9 @@ class SimpleTrackMonitoringState(MonitoringStateInterface):
 
         if self._track.current_monitoring_state == CurrentMonitoringStateEnum.AUTO:
             if isinstance(self._track, SimpleAudioTrack):
-                self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN
+                self._track.input_routing.type = InputRoutingTypeEnum.EXT_IN  # type: ignore[has-type]
             self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         else:
             if isinstance(self._track, SimpleAudioTrack):
-                self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
+                self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT  # type: ignore[has-type]
             self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO

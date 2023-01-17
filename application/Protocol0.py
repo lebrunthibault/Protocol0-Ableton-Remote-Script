@@ -8,7 +8,7 @@ from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivated
 from protocol0.application.command.ReloadScriptCommand import ReloadScriptCommand
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -47,7 +47,7 @@ class Protocol0(ControlSurface):
         DomainEventBus.reset()
         Sequence.reset()
 
-        for track in SongFacade.all_simple_tracks():
+        for track in Song.all_simple_tracks():
             track.disconnect()
-        for scene in SongFacade.scenes():
+        for scene in Song.scenes():
             scene.disconnect()

@@ -1,10 +1,9 @@
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -22,7 +21,7 @@ class LogService(object):
         # type: () -> None
         Logger.clear()
         self.focus_window()
-        current_track = SongFacade.current_track()
+        current_track = Song.current_track()
         Logger.info("********* CURRENT_TRACK *************")
         Logger.info("current_track: %s" % current_track)
         Logger.info()
@@ -36,8 +35,6 @@ class LogService(object):
         if hasattr(current_track, "matching_track"):
             Logger.info("current_track.matching_track: %s" % current_track.matching_track)
             Logger.info()
-        Logger.info("current_track.clips: %s" % current_track.clips)
-        Logger.info()
         Logger.info("current_track.instrument: %s" % current_track.instrument)
         if current_track.instrument:
             Logger.info()
@@ -58,58 +55,58 @@ class LogService(object):
 
         Logger.info()
         Logger.info("********* SELECTED_TRACK *************")
-        Logger.info("selected_track: %s" % SongFacade.selected_track())
+        Logger.info("selected_track: %s" % Song.selected_track())
         Logger.info()
-        Logger.info("selected_track.group_track: %s" % SongFacade.selected_track().group_track)
+        Logger.info("selected_track.group_track: %s" % Song.selected_track().group_track)
         Logger.info()
-        if SongFacade.selected_track().group_track:
+        if Song.selected_track().group_track:
             Logger.info(
                 "selected_track.group_track.abstract_group_track: %s"
-                % SongFacade.selected_track().group_track.abstract_group_track
+                % Song.selected_track().group_track.abstract_group_track
             )
             Logger.info()
         Logger.info(
             "selected_track.abstract_group_track: %s"
-            % SongFacade.selected_track().abstract_group_track
+            % Song.selected_track().abstract_group_track
         )
         Logger.info()
-        Logger.info("selected_track.clip_slots: %s" % SongFacade.selected_track().clip_slots)
+        Logger.info("selected_track.clip_slots: %s" % Song.selected_track().clip_slots)
         Logger.info()
-        Logger.info("selected_track.clips: %s" % SongFacade.selected_track().clips)
+        Logger.info("selected_track.clips: %s" % Song.selected_track().clips)
         Logger.info()
-        Logger.info("selected_track.instrument: %s" % SongFacade.selected_track().instrument)
-        if SongFacade.selected_track().instrument:
+        Logger.info("selected_track.instrument: %s" % Song.selected_track().instrument)
+        if Song.selected_track().instrument:
             Logger.info(
                 "selected_track.instrument.device: %s"
-                % SongFacade.selected_track().instrument.device
+                % Song.selected_track().instrument.device
             )
         Logger.info()
         Logger.info("********* SELECTED_SCENE *************")
         Logger.info()
-        Logger.info("selected_scene: %s" % SongFacade.selected_scene())
+        Logger.info("selected_scene: %s" % Song.selected_scene())
         Logger.info()
-        Logger.info("selected_scene.abstract_tracks: %s" % SongFacade.selected_scene().abstract_tracks)
+        Logger.info("selected_scene.abstract_tracks: %s" % Song.selected_scene().abstract_tracks)
         Logger.info()
-        Logger.info("selected_scene.clips.all: %s" % SongFacade.selected_scene().clips.all)
+        Logger.info("selected_scene.clips.all: %s" % Song.selected_scene().clips.all)
         Logger.info()
-        Logger.info("selected_scene.longest_clip: %s" % SongFacade.selected_scene()._scene_length.longest_clip)
+        Logger.info("selected_scene.longest_clip: %s" % Song.selected_scene()._scene_length.longest_clip)
         Logger.info()
         Logger.info("********* SELECTED_DEVICE *************")
         Logger.info()
         try:
-            Logger.info("selected_device: %s" % SongFacade.selected_track().devices.selected)
+            Logger.info("selected_device: %s" % Song.selected_track().devices.selected)
             Logger.info()
         except AssertionError:
             pass
-        Logger.info("selected_parameter: %s" % SongFacade.selected_parameter())
-        if SongFacade.selected_parameter():
+        Logger.info("selected_parameter: %s" % Song.selected_parameter())
+        if Song.selected_parameter():
             Logger.info()
-            Logger.info("selected_parameter: %s" % SongFacade.selected_parameter())
+            Logger.info("selected_parameter: %s" % Song.selected_parameter())
             Logger.info()
-            if SongFacade.selected_track().devices.selected is not None:
+            if Song.selected_track().devices.selected is not None:
                 Logger.info(
                     "selected_device.parameters: %s"
-                    % SongFacade.selected_track().devices.selected.parameters
+                    % Song.selected_track().devices.selected.parameters
                 )
         Logger.info()
 
@@ -118,32 +115,11 @@ class LogService(object):
             Logger.info()
             Logger.info("current_track.instrument: %s" % current_track.instrument)
             Logger.info()
-            device = current_track.instrument.device
-            if isinstance(device, PluginDevice):
-                Logger.info(
-                    "current_track.instrument.device.selected_preset: %s" % device.selected_preset
-                )
-                Logger.info(
-                    "current_track.instrument.device.selected_preset_index: %s"
-                    % device.selected_preset_index
-                )
-                Logger.info(
-                    "current_track.instrument.device.selected_preset: %s" % device.selected_preset
-                )
-                Logger.info()
             Logger.info("current_track.instrument: %s" % current_track.instrument)
             Logger.info()
             Logger.info(
                 "current_track.instrument.selected_preset: %s"
                 % current_track.instrument.selected_preset
-            )
-            Logger.info()
-            Logger.info(
-                "current_track.instrument.preset_list: %s" % current_track.instrument.preset_list
-            )
-            Logger.info()
-            Logger.info(
-                "current_track.instrument.presets_path: %s" % current_track.instrument.PRESETS_PATH
             )
             Logger.info()
 
@@ -152,55 +128,55 @@ class LogService(object):
         Logger.clear()
         self.focus_window()
         Logger.info("********* GLOBAL objects *************")
-        Logger.info("song.is_playing: %s" % SongFacade.is_playing())
+        Logger.info("song.is_playing: %s" % Song.is_playing())
         Logger.info()
         Logger.info(
-            "song.midi_recording_quantization: %s" % SongFacade.midi_recording_quantization()
+            "song.midi_recording_quantization: %s" % Song.midi_recording_quantization()
         )
         Logger.info()
         Logger.info("********* SONG TRACKS *************")
         Logger.info("live_tracks : %s" % list(self._track_mapper_service._live_track_id_to_simple_track.values()))
         Logger.info()
-        Logger.info("simple_tracks : %s" % list(SongFacade.simple_tracks()))
+        Logger.info("simple_tracks : %s" % list(Song.simple_tracks()))
         Logger.info()
-        Logger.info("abstract_tracks : %s" % list(SongFacade.abstract_tracks()))
+        Logger.info("abstract_tracks : %s" % list(Song.abstract_tracks()))
         Logger.info()
-        Logger.info("drums_track : %s" % SongFacade.drums_track())
+        Logger.info("drums_track : %s" % Song.drums_track())
         Logger.info()
         Logger.info("********* SONG SCENES *************")
-        Logger.info("scenes : %s" % list(SongFacade.scenes()))
+        Logger.info("scenes : %s" % list(Song.scenes()))
         Logger.info()
-        Logger.info("selected_scene.tracks : %s" % list(SongFacade.selected_scene().clips.tracks))
+        Logger.info("selected_scene.tracks : %s" % list(Song.selected_scene().clips.tracks))
         Logger.info()
         Logger.info(
-            "selected_scene.abstract_tracks : %s" % SongFacade.selected_scene().abstract_tracks
+            "selected_scene.abstract_tracks : %s" % Song.selected_scene().abstract_tracks
         )
         Logger.info()
-        Logger.info("selected_scene.clips : %s" % list(SongFacade.selected_scene().clips))
+        Logger.info("selected_scene.clips : %s" % list(Song.selected_scene().clips))
         Logger.info()
-        Logger.info("playing_scene: %s" % SongFacade.playing_scene())
+        Logger.info("playing_scene: %s" % Song.playing_scene())
         Logger.info()
-        Logger.info("looping_scene: %s" % SongFacade.looping_scene())
+        Logger.info("looping_scene: %s" % Song.looping_scene())
         Logger.info()
         Logger.info("********* SELECTED_CLIP_SLOT *************")
         Logger.info()
-        Logger.info("song.selected_clip_slot: %s" % SongFacade.selected_clip_slot())
-        if SongFacade.selected_clip_slot():
+        Logger.info("song.selected_clip_slot: %s" % Song.selected_clip_slot())
+        if Song.selected_clip_slot():
             Logger.info(
                 "song.selected_clip_slot._clip_slot: %s"
-                % SongFacade.selected_clip_slot()._clip_slot
+                % Song.selected_clip_slot()._clip_slot
             )
 
-        if SongFacade.selected_clip_slot().clip is not None:
+        if Song.selected_clip_slot().clip is not None:
             Logger.info()
             Logger.info("********* SELECTED_CLIP *************")
             Logger.info()
-            Logger.info("song.selected_clip: %s" % SongFacade.selected_clip_slot().clip)
+            Logger.info("song.selected_clip: %s" % Song.selected_clip_slot().clip)
             Logger.info()
-            Logger.info("song.selected_clip.length: %s" % SongFacade.selected_clip().length)
+            Logger.info("song.selected_clip.length: %s" % Song.selected_clip().length)
             Logger.info()
-            Logger.info("song.selected_clip.loop_start: %s" % SongFacade.selected_clip().loop.start)
-            Logger.info("song.selected_clip.loop_end: %s" % SongFacade.selected_clip().loop.end)
+            Logger.info("song.selected_clip.loop_start: %s" % Song.selected_clip().loop.start)
+            Logger.info("song.selected_clip.loop_end: %s" % Song.selected_clip().loop.end)
 
         Logger.info()
         Logger.info("********* ABLETON_SET *************")
@@ -208,7 +184,7 @@ class LogService(object):
 
     def log_missing_vsts(self):
         # type: () -> None
-        for track in SongFacade.all_simple_tracks():
+        for track in Song.all_simple_tracks():
             for device in track.devices.all:
                 if device.name in DeviceEnum.missing_plugin_names():
                     Logger.warning((track, device))

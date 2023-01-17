@@ -1,5 +1,3 @@
-from functools import partial
-
 import Live
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, List, cast
@@ -12,7 +10,7 @@ from protocol0.domain.lom.clip.ClipPlayingPosition import ClipPlayingPosition
 from protocol0.domain.lom.clip.automation.ClipAutomation import ClipAutomation
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
@@ -136,24 +134,6 @@ class Clip(SlotManager, Observable):
             self._clip.fire()
         return None
 
-    def set_temporary_length(self, bar_length):
-        # type: (float) -> None
-        """
-            This will temporarily set the loop length
-            Allows going around Live scrub by behavior
-        """
-
-        self.loop.looping = True
-        audio_clip_length = self.length
-        self.bar_length = bar_length
-
-        seq = Sequence()
-        seq.wait_ms(1000)
-        # NB : modify length before looping to have loop modification
-        seq.add(partial(setattr, self, "length", audio_clip_length))
-        seq.add(partial(setattr, self.loop, "looping", False))
-        seq.done()
-
     def delete(self):
         # type: () -> Sequence
         self.deleted = True
@@ -165,7 +145,7 @@ class Clip(SlotManager, Observable):
         if self._clip:
             UndoFacade.begin_undo_step()
             record_quantization_index = self._QUANTIZATION_OPTIONS.index(
-                SongFacade.midi_recording_quantization()
+                Song.midi_recording_quantization()
             )
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)

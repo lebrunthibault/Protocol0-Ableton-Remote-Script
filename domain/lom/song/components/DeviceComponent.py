@@ -9,7 +9,7 @@ from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParamete
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -39,7 +39,7 @@ class DeviceComponent(SlotManager):
         if self._overridden_selected_parameter is not None:
             return self._overridden_selected_parameter
         all_parameters = [
-            param for track in SongFacade.simple_tracks() for param in track.devices.parameters
+            param for track in Song.simple_tracks() for param in track.devices.parameters
         ]
         return find_if(
             lambda p: p._device_parameter == self._view.selected_parameter, all_parameters

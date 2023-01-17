@@ -12,7 +12,7 @@ from protocol0.application.push2.P0ShowInstrumentMode import P0ShowInstrumentMod
 from protocol0.application.push2.P0TrackListComponent import P0TrackListComponent
 from protocol0.application.push2.P0TransportComponent import P0TransportComponent
 from protocol0.domain.shared.utils.func import nop
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -130,7 +130,7 @@ class P0Push2(Push2):
         # type: (Live.Scene.Scene) -> None
         """unfold scene on select"""
         super(P0Push2, self).on_select_scene(scene)
-        SongFacade.selected_scene().unfold()
+        Song.selected_scene().unfold()
 
     def _on_select_clip_slot(self, scene_index, track_index, _):
         # type: (int, int, Live.ClipSlot.ClipSlot) -> None
@@ -140,10 +140,10 @@ class P0Push2(Push2):
 
         if track_index >= len(tracks):
             return None
-        track = tracks[track_index]
+        track = tracks[track_index].base_track
 
         scene_index += self._session_ring.scene_offset
         if scene_index >= len(track.clip_slots):
             return None
         track.clip_slots[scene_index].select()
-        SongFacade.selected_clip().show_loop()
+        Song.selected_clip().show_loop()

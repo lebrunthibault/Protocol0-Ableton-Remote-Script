@@ -1,7 +1,7 @@
 import Live
 
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class ClipPlayingPosition(object):
@@ -27,7 +27,7 @@ class ClipPlayingPosition(object):
     @property
     def bar_position(self):
         # type: () -> float
-        return self.position / SongFacade.signature_numerator()
+        return self.position / Song.signature_numerator()
 
     @property
     def current_bar(self):

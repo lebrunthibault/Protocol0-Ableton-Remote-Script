@@ -89,6 +89,11 @@ class DeviceEnum(AbstractEnum):
         ]
 
     @property
+    def is_external_device(self):
+        # type: () -> bool
+        return self.value in ("Ext. Audio Effect", "Ext. Instrument")
+
+    @property
     def can_be_saved(self):
         # type: () -> bool
         return self not in [

@@ -1,14 +1,14 @@
 from typing import Any
 
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 
 
-class ResamplingTrack(SimpleTrack):
+class ResamplingTrack(SimpleAudioTrack):
     TRACK_NAME = "Resampling"
 
     def stop(self, *a, **k):
         # type: (Any, Any) -> None
-        if self.is_recording:
+        if any(clip.is_recording for clip in self.clips):
             return
 
         super(ResamplingTrack, self).stop(*a, **k)

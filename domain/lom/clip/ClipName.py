@@ -7,7 +7,7 @@ from typing import Optional
 
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.utils import get_length_legend
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -76,7 +76,7 @@ class ClipName(SlotManager):
 
         return get_length_legend(
             self._live_clip.loop_end - self._live_clip.loop_start,
-            SongFacade.signature_numerator(),
+            Song.signature_numerator(),
         )
 
     def update(self, base_name=None):

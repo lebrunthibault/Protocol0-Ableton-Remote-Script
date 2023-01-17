@@ -1,7 +1,7 @@
 from functools import partial
 
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler

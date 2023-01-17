@@ -7,7 +7,7 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class DeviceStats(object):
@@ -65,8 +65,8 @@ class DevicesStats(object):
         # type: () -> Iterator[Device]
         """Return only devices that matters for stats"""
 
-        for track in SongFacade.all_simple_tracks():
-            for device in track.devices.all:
+        for track in Song.all_simple_tracks():
+            for device in track.devices.all:  # type: ignore[has-type]
                 if (
                     not isinstance(device, (SimplerDevice, DrumRackDevice))
                     and device.type_name not in self._EXCLUDED_DEVICE_NAMES

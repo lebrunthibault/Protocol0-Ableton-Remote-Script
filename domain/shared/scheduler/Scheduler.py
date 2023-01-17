@@ -5,7 +5,7 @@ from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import (
     TickSchedulerEventInterface,
 )
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class Scheduler(object):
@@ -33,7 +33,7 @@ class Scheduler(object):
     @classmethod
     def wait_bars(cls, bars, callback, execute_on_song_stop=False):
         # type: (float, Callable, bool) -> None
-        cls._INSTANCE._beat_scheduler.wait_beats(bars * SongFacade.signature_numerator(), callback, execute_on_song_stop)
+        cls._INSTANCE._beat_scheduler.wait_beats(bars * Song.signature_numerator(), callback, execute_on_song_stop)
 
     @classmethod
     def wait(cls, tick_count, callback, unique=False):

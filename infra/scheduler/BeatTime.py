@@ -2,7 +2,7 @@ from math import floor
 
 import Live
 
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class BeatTime(object):
@@ -39,7 +39,7 @@ class BeatTime(object):
         # type: () -> int
         sixteenths_coeff = 60
         beat_coeff = 4 * sixteenths_coeff
-        bar_coeff = beat_coeff * SongFacade.signature_numerator()
+        bar_coeff = beat_coeff * Song.signature_numerator()
         return (
             self._ticks
             + self._sixteenths * sixteenths_coeff
@@ -61,16 +61,16 @@ class BeatTime(object):
     def make_from_beat_offset(cls, beat_total_offset):
         # type: (float) -> BeatTime
         if float(beat_total_offset).is_integer():
-            bars_offset = int(beat_total_offset / SongFacade.signature_numerator())
-            beats_offset = int(beat_total_offset % SongFacade.signature_numerator())
+            bars_offset = int(beat_total_offset / Song.signature_numerator())
+            beats_offset = int(beat_total_offset % Song.signature_numerator())
             sixteenths_offset = 0
             ticks_offset = 0
         else:
             beats_floor_offset = floor(beat_total_offset)
             beats_reminder = beat_total_offset - beats_floor_offset
-            bars_offset = int(beats_floor_offset / SongFacade.signature_numerator())
-            beats_offset = int(beats_floor_offset % SongFacade.signature_numerator())
-            sixteenth_float_value = float(1) / SongFacade.signature_numerator()
+            bars_offset = int(beats_floor_offset / Song.signature_numerator())
+            beats_offset = int(beats_floor_offset % Song.signature_numerator())
+            sixteenth_float_value = float(1) / Song.signature_numerator()
             tick_float_value = float(1) / 60
 
             sixteenths_float_reminder = beats_reminder % sixteenth_float_value
@@ -78,7 +78,7 @@ class BeatTime(object):
             sixteenths_offset = int(beats_reminder // sixteenth_float_value)
             ticks_offset = int(sixteenths_float_reminder // tick_float_value)
 
-        song_beat_time = SongFacade.current_beats_song_time()
+        song_beat_time = Song.current_beats_song_time()
 
         return cls(
             bars=song_beat_time.bars + bars_offset,
@@ -90,7 +90,7 @@ class BeatTime(object):
     @property
     def in_last_beat(self):
         # type: () -> bool
-        return self.beats == SongFacade.signature_numerator()
+        return self.beats == Song.signature_numerator()
 
     @property
     def in_last_8th(self):

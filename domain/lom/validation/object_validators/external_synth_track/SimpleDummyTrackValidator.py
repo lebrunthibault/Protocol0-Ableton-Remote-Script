@@ -4,8 +4,6 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.domain.lom.validation.object_validators.external_synth_track.DummyClipValidator import \
-    DummyClipValidator
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
     PropertyValueValidator,
@@ -25,8 +23,5 @@ class SimpleDummyTrackValidator(AggregateValidator):
             PropertyValueValidator(track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT),
             PropertyValueValidator(track.output_routing, "track", track.group_track),
         ]  # type: List[ValidatorInterface]
-
-        for clip in track.clips:
-            validators += DummyClipValidator(clip, track.devices)._validators
 
         super(SimpleDummyTrackValidator, self).__init__(validators)

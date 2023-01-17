@@ -5,7 +5,7 @@ from _Framework.SubjectSlot import Subject
 from typing import cast, List
 
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.tests.domain.fixtures.clip_slot import AbletonClipSlot
 from protocol0.tests.domain.fixtures.device import AbletonDevice
 
@@ -18,8 +18,10 @@ class TrackType(object):
 
 class TrackRoutingType(object):
     def __init__(self, display_name=""):
-        # type: () -> None
+        # type: (str) -> None
         self.display_name = display_name
+        self.attached_object = None
+        self.category = Live.Track.RoutingTypeCategory.none
 
 
 class AbletonTrack(Subject):
@@ -46,7 +48,7 @@ class AbletonTrack(Subject):
         self.solo = False
         self.fold_state = False
         self.is_visible = True
-        self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
+        self.has_midi_input = self.is_foldable = self.fold_state = False
         self.available_input_routing_types = []
         self.available_input_routing_channels = []
         self.available_output_routing_types = [
@@ -58,7 +60,6 @@ class AbletonTrack(Subject):
         self.group_track = None
         self.color_index = 0
         self.has_audio_input = False
-        self.has_audio_output = True
         self.has_midi_input = False
 
         self.track_type = track_type
@@ -79,5 +80,5 @@ class AbletonTrack(Subject):
 def add_track(track_type):
     # type: (str) -> AbletonTrack
     live_track = AbletonTrack(track_type=track_type)
-    SongFacade._live_song().tracks.append(cast(Live.Track.Track, live_track))
+    Song._live_song().tracks.append(cast(Live.Track.Track, live_track))
     return live_track

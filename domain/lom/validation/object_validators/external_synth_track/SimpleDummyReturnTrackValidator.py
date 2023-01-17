@@ -4,8 +4,6 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.domain.lom.validation.object_validators.external_synth_track.DummyClipValidator import \
-    DummyClipValidator
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
@@ -32,9 +30,6 @@ class SimpleDummyReturnTrackValidator(AggregateValidator):
                 "%s should have no devices. Got %s" % (track, len(list(track.devices))),
             ),
         ]  # type: List[ValidatorInterface]
-
-        for clip in track.clips:
-            validators += DummyClipValidator(clip, track.devices)._validators
 
         super(SimpleDummyReturnTrackValidator, self).__init__(validators)
 

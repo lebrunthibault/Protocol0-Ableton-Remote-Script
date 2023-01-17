@@ -3,7 +3,7 @@ from typing import Optional, List, TYPE_CHECKING
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
@@ -64,7 +64,7 @@ class PlayingSceneFacade(object):
             why some scenes are left out of the playing scene pattern
         """
         unknown_playing_scenes = []
-        for scene in SongFacade.scenes():
+        for scene in Song.scenes():
             if scene.playing_state.is_playing and scene != cls.get():
                 unknown_playing_scenes.append(scene)
 

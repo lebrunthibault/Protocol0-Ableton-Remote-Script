@@ -11,13 +11,12 @@ from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionS
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
-from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -41,17 +40,17 @@ class ScenePlaybackService(SlotManager):
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
-        if SongFacade.playing_scene():
-            SongFacade.playing_scene().scene_name.update()
+        if Song.playing_scene():
+            Song.playing_scene().scene_name.update()
 
     def _on_third_beat_passed_event(self, _):
         # type: (ThirdBeatPassedEvent) -> None
-        if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.is_playing:
-            Scheduler.defer(SongFacade.playing_scene().on_bar_end)
+        if Song.playing_scene() and Song.playing_scene().playing_state.is_playing:
+            Scheduler.defer(Song.playing_scene().on_bar_end)
 
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
-        scene = SongFacade.selected_scene()
+        scene = Song.selected_scene()
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
         scene.scene_name.update(bar_position=scene.position_scroller.current_value)
 
@@ -79,7 +78,7 @@ class ScenePlaybackService(SlotManager):
         if bar_length != 0:
             # removing click when changing position
             # (created by playing shortly the scene beginning)
-            SongFacade.master_track().mute_for(250)
+            Song.master_track().mute_for(250)
 
         seq = Sequence()
         seq.add(self._playback_component.stop)
@@ -89,8 +88,8 @@ class ScenePlaybackService(SlotManager):
 
     def fire_previous_scene_to_last_bar(self):
         # type: () -> None
-        previous_scene = SongFacade.selected_scene().previous_scene
-        if previous_scene == SongFacade.selected_scene():
+        previous_scene = Song.selected_scene().previous_scene
+        if previous_scene == Song.selected_scene():
             self.fire_scene(previous_scene)
             return None
 
@@ -113,7 +112,7 @@ class ScenePlaybackService(SlotManager):
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
         # don't activate when doing quick play / stop (e.g. in FireSelectedSceneCommand)
-        if not SongFacade.is_playing():
+        if not Song.is_playing():
             self._stop_previous_playing_scene()
 
         Scheduler.defer(self._mute_audio_tails)
@@ -121,7 +120,7 @@ class ScenePlaybackService(SlotManager):
     def _mute_audio_tails(self):
         # type: () -> None
         """On song stop : iterating all scenes because we don't know which tail might be playing"""
-        for scene in SongFacade.scenes():
+        for scene in Song.scenes():
             for clip in scene.clips.audio_tail_clips:
                 clip.muted = True
 
@@ -129,15 +128,15 @@ class ScenePlaybackService(SlotManager):
         # type: (SceneFiredEvent) -> None
         """Event is fired *before* the scene starts playing"""
         # Stop the previous scene : quantized or immediate
-        playing_scene = SongFacade.playing_scene()
-        fired_scene = SongFacade.scenes()[event.scene_index]
+        playing_scene = Song.playing_scene()
+        fired_scene = Song.scenes()[event.scene_index]
 
         if playing_scene is not None and playing_scene.index != event.scene_index:
-            playing_scene.stop(immediate=not SongFacade.is_playing(), next_scene=fired_scene)
+            playing_scene.stop(immediate=not Song.is_playing(), next_scene=fired_scene)
 
         # update the playing scene singleton at the next bar
         seq = Sequence()
-        if SongFacade.is_playing():
+        if Song.is_playing():
             seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
         seq.add(partial(PlayingSceneFacade.set, fired_scene))
         seq.done()
@@ -149,12 +148,5 @@ class ScenePlaybackService(SlotManager):
         else on play
         tracks with tail from the previous scene are going to play again
         """
-        if PlayingSceneFacade.get() is not None:
-            for track in PlayingSceneFacade.get().abstract_tracks:
-                if isinstance(track, AbstractGroupTrack):
-                    track.dummy_group.reset_automation(
-                        PlayingSceneFacade.get().index, immediate=True
-                    )
-
         if PlayingSceneFacade.get_previous() is not None:
             PlayingSceneFacade.get_previous().stop(immediate=True)

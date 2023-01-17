@@ -17,7 +17,7 @@ from protocol0.domain.shared.utils.list import find_if
 from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -61,7 +61,7 @@ class SimpleTrackClipSlots(SlotManager, Observable):
     @property
     def selected(self):
         # type: () -> ClipSlot
-        return list(self._clip_slots)[SongFacade.selected_scene().index]
+        return list(self._clip_slots)[Song.selected_scene().index]
 
     @property
     def playing_clip(self):

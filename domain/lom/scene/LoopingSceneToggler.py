@@ -4,7 +4,7 @@ from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChan
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.shared.ValueToggler import ValueToggler
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class LoopingSceneToggler(ValueToggler):
@@ -15,15 +15,15 @@ class LoopingSceneToggler(ValueToggler):
 
     def _on_playing_scene_changed_event(self, _):
         # type: (PlayingSceneChangedEvent) -> None
-        if self.value and self.value != SongFacade.playing_scene():
+        if self.value and self.value != Song.playing_scene():
             self.reset()
 
     def _get_value(self):
         # type: () -> Scene
-        if SongFacade.is_playing():
-            return cast(Scene, SongFacade.playing_scene())
+        if Song.is_playing():
+            return cast(Scene, Song.playing_scene())
         else:
-            return SongFacade.selected_scene()
+            return Song.selected_scene()
 
     def _value_set(self, scene):
         # type: (Scene) -> None

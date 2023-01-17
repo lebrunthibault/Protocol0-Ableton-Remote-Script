@@ -7,7 +7,7 @@ from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class ScenePositionScroller(ValueScroller):
@@ -26,7 +26,7 @@ class ScenePositionScroller(ValueScroller):
     def _get_values(self):
         # type: () -> List
         if self.use_fine_scrolling:
-            beat_division = 1.0 / SongFacade.signature_numerator()
+            beat_division = 1.0 / Song.signature_numerator()
             return [x * beat_division for x in range(0, int(self._scene_length.length))]
         else:
             return range(0, self._scene_length.bar_length)

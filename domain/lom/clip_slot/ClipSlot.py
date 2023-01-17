@@ -12,7 +12,7 @@ from protocol0.domain.lom.clip_slot.ClipSlotAppearance import ClipSlotAppearance
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -145,7 +145,7 @@ class ClipSlot(SlotManager, Observable):
             raise Protocol0Warning("%s has already a clip" % self)
 
         seq = Sequence()
-        seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()))
+        seq.add(partial(self._clip_slot.create_clip, Song.signature_numerator()))
         seq.wait_for_event(ClipCreatedOrDeletedEvent, self._clip_slot)
         seq.defer()
         seq.add(lambda: self.clip.clip_name._name_listener())

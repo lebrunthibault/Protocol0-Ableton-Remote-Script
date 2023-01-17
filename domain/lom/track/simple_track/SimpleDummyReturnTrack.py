@@ -20,7 +20,7 @@ class SimpleDummyReturnTrack(SimpleDummyTrack):
         # type: (AbstractTrack) -> bool
         return (
             type(track) == SimpleAudioTrack
-            and not track.is_foldable
+            and not track.base_track.is_foldable
             and track.instrument is None
             and track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
         )

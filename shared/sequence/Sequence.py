@@ -13,7 +13,7 @@ from protocol0.domain.shared.event.HasEmitter import HasEmitter
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.debug import get_frame_info
 from protocol0.domain.shared.utils.func import nop, get_callable_repr
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.ParallelSequence import ParallelSequence
@@ -161,18 +161,18 @@ class Sequence(Observable):
 
     def wait_bars(self, bars, wait_for_song_start=False, continue_on_song_stop=False):
         # type: (float, bool, bool) -> Sequence
-        if not SongFacade.is_playing() and wait_for_song_start:
+        if not Song.is_playing() and wait_for_song_start:
             self.wait_for_event(SongStartedEvent)
 
         return self.wait_beats(
-            bars * SongFacade.signature_numerator(), continue_on_song_stop=continue_on_song_stop
+            bars * Song.signature_numerator(), continue_on_song_stop=continue_on_song_stop
         )
 
     def wait_beats(self, beats, continue_on_song_stop=False):
         # type: (float, bool) -> Sequence
         def execute():
             # type: () -> None
-            if not SongFacade.is_playing():
+            if not Song.is_playing():
                 if continue_on_song_stop:
                     self._execute_next_step()
                     return
@@ -207,7 +207,7 @@ class Sequence(Observable):
             # type: () -> None
             DomainEventBus.subscribe(event_class, on_event)
             if continue_on_song_stop:
-                if not SongFacade.is_playing():
+                if not Song.is_playing():
                     on_event(SongStoppedEvent())
                 else:
                     DomainEventBus.once(SongStoppedEvent, on_event)

@@ -1,6 +1,6 @@
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack

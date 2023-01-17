@@ -15,16 +15,13 @@ from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
-    ExternalSynthTrack,
-)
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.timing import throttle
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -88,7 +85,7 @@ class Scene(SlotManager):
         if self.should_loop:
             return self
         else:
-            next_scene = SongFacade.scenes()[self.index + 1]
+            next_scene = Song.scenes()[self.index + 1]
             if next_scene.skipped:
                 return next_scene.next_scene
             else:
@@ -98,18 +95,18 @@ class Scene(SlotManager):
     def should_loop(self):
         # type: () -> bool
         return (
-            self == SongFacade.looping_scene()
-            or self == SongFacade.scenes()[-1]
-            or SongFacade.scenes()[self.index + 1].bar_length == 0
+                self == Song.looping_scene()
+                or self == Song.scenes()[-1]
+                or Song.scenes()[self.index + 1].bar_length == 0
         )
 
     @property
     def previous_scene(self):
         # type: () -> Scene
-        if self == SongFacade.scenes()[0]:
+        if self == Song.scenes()[0]:
             return self
         else:
-            previous_scene = SongFacade.scenes()[self.index - 1]
+            previous_scene = Song.scenes()[self.index - 1]
             if previous_scene.skipped:
                 return previous_scene.previous_scene
             else:
@@ -131,7 +128,7 @@ class Scene(SlotManager):
 
     def on_bar_end(self):
         # type: () -> None
-        if SongFacade.is_track_recording():
+        if Song.is_track_recording():
             return
 
         if self.playing_state.in_last_bar:
@@ -145,7 +142,7 @@ class Scene(SlotManager):
                 seq.add(
                     partial(
                         DomainEventBus.emit,
-                        NextSceneStartedEvent(SongFacade.selected_scene().index),
+                        NextSceneStartedEvent(Song.selected_scene().index),
                     )
                 )
                 seq.done()
@@ -165,9 +162,9 @@ class Scene(SlotManager):
         It could almost be removed as this case happens very rarely
         (I fire scenes almost always from keyboard shortcuts / commands)
         """
-        if SongFacade.is_playing() is False or not self.playing_state.is_playing:
+        if Song.is_playing() is False or not self.playing_state.is_playing:
             return
-        if SongFacade.playing_scene() == self:
+        if Song.playing_scene() == self:
             return
 
         DomainEventBus.emit(SceneFiredEvent(self.index))
@@ -183,20 +180,22 @@ class Scene(SlotManager):
         # stop the previous scene in advance, using clip launch quantization
         DomainEventBus.emit(SceneFiredEvent(self.index))
 
-        # only way to start all clips together
-        if not SongFacade.is_playing():
-            self._scene.fire()
-        else:
-            # including usamo as we use empty clips to define the scene length sometimes
-            for track in SongFacade.abstract_tracks():
-                track.fire(self.index)
+        self._scene.fire()
+        #
+        # # only way to start all clips together
+        # if not SongFacade.is_playing():
+        #     self._scene.fire()
+        # else:
+        #     # including usamo as we use empty clips to define the scene length sometimes
+        #     for track in SongFacade.abstract_tracks():
+        #         track.fire(self.index)
 
     def stop(self, next_scene=None, immediate=False):
         # type: (Optional[Scene], bool) -> None
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
-        for track in SongFacade.abstract_tracks():
+        for track in Song.abstract_tracks():
             next_scene_index = next_scene.index if next_scene is not None else None
             track.stop(
                 scene_index=self.index, immediate=immediate, next_scene_index=next_scene_index
@@ -212,12 +211,6 @@ class Scene(SlotManager):
         # type: (int) -> Sequence
         seq = Sequence()
 
-        if bar_length != 0:
-            for track in SongFacade.abstract_tracks():
-                if isinstance(track, ExternalSynthTrack):
-                    track.prepare_for_scrub(self.index)
-            seq.defer()  # for prepare_for_scrub to finish
-
         self.scene_name.update(bar_position=bar_length)
         seq.add(self.fire)
         seq.defer()
@@ -230,7 +223,7 @@ class Scene(SlotManager):
         tracks = [track.get_view_track(self.index) for track in self.abstract_tracks]
         tracks = filter(None, tracks)
         tracks.sort(key=lambda t: t.index)
-        next_track = ValueScroller.scroll_values(tracks, SongFacade.selected_track(), go_next)
+        next_track = ValueScroller.scroll_values(tracks, Song.selected_track(), go_next)
         next_track.select()
 
         ApplicationViewFacade.focus_session()
@@ -238,15 +231,15 @@ class Scene(SlotManager):
     def unfold(self):
         # type: () -> None
         """Show only scene tracks"""
-        for track in SongFacade.abstract_tracks():
-            if track.is_foldable:
-                track.is_folded = True
+        for track in Song.abstract_tracks():
+            if track.base_track.is_foldable:
+                track.base_track.is_folded = True
 
         for track in self.abstract_tracks:
-            if track.is_foldable:
-                track.is_folded = False
+            if track.base_track.is_foldable:
+                track.base_track.is_folded = False
             if track.group_track:
-                track.group_track.is_folded = False
+                track.base_track.group_track.is_folded = False
 
     def disconnect(self):
         # type: () -> None

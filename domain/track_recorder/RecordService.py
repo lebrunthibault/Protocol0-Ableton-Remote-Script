@@ -9,7 +9,7 @@ from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackCompo
 from protocol0.domain.lom.song.components.QuantizationComponent import QuantizationComponent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -24,6 +24,7 @@ from protocol0.domain.track_recorder.AbstractRecorderFactory import (
 from protocol0.domain.track_recorder.BaseRecorder import BaseRecorder
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.config.RecordConfig import RecordConfig
+from protocol0.domain.track_recorder.config.RecordProcessors import RecordProcessors
 from protocol0.domain.track_recorder.event.RecordCancelledEvent import (
     RecordCancelledEvent,
 )
@@ -38,7 +39,7 @@ from protocol0.domain.track_recorder.simple.RecorderSimpleFactory import (
     TrackRecorderSimpleFactory,
 )
 from protocol0.shared.Config import Config
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -84,29 +85,31 @@ class RecordService(object):
             self._quantization_component.clip_trigger_quantization = Live.Song.Quantization.q_bar
 
         recorder_factory = self._get_track_recorder_factory(track)
-        config = recorder_factory.get_recorder_config(
+        config = recorder_factory.get_record_config(
             track=track,
             record_type=record_type,
             recording_bar_length=self.recording_bar_length_scroller.current_value.bar_length_value,
         )
+        processors = recorder_factory.get_processors(record_type)
         self._recorder = BaseRecorder(track, config)
 
         seq = Sequence()
         # assert there is a scene we can record on
         if config._scene_index is None:
-            config.scene_index = len(SongFacade.scenes())
+            config.scene_index = len(Song.scenes())
             seq.add(self._scene_crud_component.create_scene)
 
         if self._DEBUG:
             Logger.info("recorder_config: %s" % config)
+            Logger.info("processors: %s" % processors)
 
         Backend.client().show_info("Rec: %s (%d bars)" % (config.record_name, config.bar_length))
 
-        seq.add(partial(self._start_recording, track, record_type, config))
+        seq.add(partial(self._start_recording, track, record_type, config, processors))
         return seq.done()
 
-    def _start_recording(self, track, record_type, config):
-        # type: (AbstractTrack, RecordTypeEnum, RecordConfig) -> Optional[Sequence]
+    def _start_recording(self, track, record_type, config, processors):
+        # type: (AbstractTrack, RecordTypeEnum, RecordConfig, RecordProcessors) -> Optional[Sequence]
         # this will stop the previous playing scene on playback stop
         PlayingSceneFacade.set(config.recording_scene)
         DomainEventBus.once(ErrorRaisedEvent, self._on_error_raised_event)
@@ -115,25 +118,25 @@ class RecordService(object):
 
         # PRE RECORD
         seq.add(self._recorder.pre_record)
-        if config.pre_record_processor is not None:
-            seq.add(partial(config.pre_record_processor.process, track, config))
+        if processors.pre_record is not None:
+            seq.add(partial(processors.pre_record.process, track, config))
         seq.add(partial(record_type.get_count_in().launch, self._playback_component, track))
         seq.add(partial(DomainEventBus.subscribe, SongStoppedEvent, self._on_song_stopped_event))
 
         # RECORD
-        if config.record_processor is not None:
-            seq.add(partial(config.record_processor.process, track, config))
+        if processors.record is not None:
+            seq.add(partial(processors.record.process, track, config))
         else:
             seq.add(self._recorder.record)
 
-        if config.on_record_end_processor is not None:
-            seq.add(partial(config.on_record_end_processor.process, track, config))
+        if processors.on_record_end is not None:
+            seq.add(partial(processors.on_record_end.process, track, config))
 
         seq.add(partial(DomainEventBus.emit, RecordEndedEvent()))
 
         # POST RECORD
-        if config.post_record_processor is not None:
-            seq.add(partial(config.post_record_processor.process, track, config))
+        if processors.post_record is not None:
+            seq.add(partial(processors.post_record.process, track, config))
 
         seq.add(partial(setattr, self, "_recorder", None))
         seq.add(partial(DomainEventBus.un_subscribe, ErrorRaisedEvent, self._on_error_raised_event))

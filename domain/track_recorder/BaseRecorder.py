@@ -7,7 +7,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.track_recorder.config.RecordConfig import RecordConfig
 from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -37,15 +37,15 @@ class BaseRecorder(object):
         # type: () -> Sequence
         seq = Sequence()
         if (
-            not SongFacade.current_track().arm_state.is_armed
-            and len(list(SongFacade.armed_tracks())) != 0
+            not Song.current_track().arm_state.is_armed
+            and len(list(Song.armed_tracks())) != 0
         ):
             options = ["Arm current track", "Record on armed track"]
             seq.select("The current track is not armed", options=options)
             seq.add(
                 lambda: self._track.arm_state.arm()
                 if seq.res == options[0]
-                else setattr(self, "_track", list(SongFacade.armed_tracks())[0])
+                else setattr(self, "_track", list(Song.armed_tracks())[0])
             )
         else:
             seq.add(self._track.arm_state.arm)
@@ -63,7 +63,7 @@ class BaseRecorder(object):
         seq = Sequence()
         bar_length = cast(float, self._config.bar_length)
         if bar_length:
-            if not SongFacade.is_playing():
+            if not Song.is_playing():
                 seq.wait_for_event(SongStartedEvent)
             if not self._config.records_midi:
                 # play well with the tail recording
@@ -74,7 +74,7 @@ class BaseRecorder(object):
             seq.wait_for_event(Last32thPassedEvent)
         else:
             seq.wait_for_event(SongStoppedEvent)
-            seq.add(lambda: SongFacade.selected_scene().scene_name.update(""))
+            seq.add(lambda: Song.selected_scene().scene_name.update(""))
 
         return seq.done()
 

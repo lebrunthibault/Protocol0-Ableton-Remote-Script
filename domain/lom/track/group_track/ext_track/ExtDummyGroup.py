@@ -5,15 +5,15 @@ from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRouti
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
         ExternalSynthTrack,
     )
 
 
-class ExternalSynthTrackDummyGroup(DummyGroup):
+class ExtDummyGroup(DummyGroup):
     def __init__(self, track):
         # type: (ExternalSynthTrack) -> None
-        super(ExternalSynthTrackDummyGroup, self).__init__(track)
+        super(ExtDummyGroup, self).__init__(track)
         self._track = track
 
     def _get_tracks(self):

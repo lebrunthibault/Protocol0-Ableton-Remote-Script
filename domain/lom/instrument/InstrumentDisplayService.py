@@ -1,19 +1,24 @@
 from functools import partial
 
-from typing import Optional
+from typing import Optional, Union, cast
 
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.instrument.InstrumentSelectedEvent import InstrumentSelectedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
+
+RecordableTrack = Union[ExternalSynthTrack, SimpleTrack]
 
 
 class InstrumentDisplayService(object):
@@ -28,15 +33,19 @@ class InstrumentDisplayService(object):
         if track.instrument is None or not track.instrument.CAN_BE_SHOWN:
             raise Protocol0Warning("Instrument cannot be shown")
 
-        return self.activate_plugin_window(track.instrument_track, force_activate=True, slow=False)
+        return self.activate_plugin_window(
+            cast(RecordableTrack, track).instrument_track, force_activate=True, slow=False
+        )
 
     def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> Optional[Sequence]
-        track = SongFacade.simple_track_from_live_track(event.live_track)
+        track = Song.simple_track_from_live_track(event.live_track)
 
+        current_track = Song.current_track()
         if (
-            not SongFacade.current_track().instrument
-            or SongFacade.current_track().instrument_track != track
+            not isinstance(current_track, (ExternalSynthTrack, SimpleTrack))
+            or current_track.instrument is not None
+            or current_track.instrument_track != track
         ):
             return None
 
@@ -57,7 +66,7 @@ class InstrumentDisplayService(object):
 
     def _on_instrument_selected_event(self, _):
         # type: (InstrumentSelectedEvent) -> Optional[Sequence]
-        return self.show_instrument(SongFacade.current_track())
+        return self.show_instrument(Song.current_track())
 
     def activate_plugin_window(self, track, force_activate=False, slow=True):
         # type: (SimpleTrack, bool, bool) -> Optional[Sequence]
@@ -73,7 +82,7 @@ class InstrumentDisplayService(object):
                 self._device_display_service.make_plugin_window_showable,
                 track,
                 instrument.device,
-                slow=slow
+                slow=slow,
             )
         )
 

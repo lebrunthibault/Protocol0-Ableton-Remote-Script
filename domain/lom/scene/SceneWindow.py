@@ -6,7 +6,7 @@ from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class SceneWindow(object):
@@ -38,7 +38,6 @@ class SceneWindow(object):
             if clip_length <= self._length:
                 continue
 
-            clip.loop.disable_events()
             if not (self._contains_scene_end and isinstance(clip, DummyClip)):
                 clip.loop.end = clip.loop.start + self._end_length
             clip.loop.start += self._start_length
@@ -53,7 +52,7 @@ class SceneWindow(object):
     def create_from_split(cls, scene_length, split_bar_length):
         # type: (float, int) -> Tuple[SceneWindow, SceneWindow]
         cls._validate_scene(scene_length, split_bar_length)
-        crop_length = SongFacade.signature_numerator() * split_bar_length
+        crop_length = Song.signature_numerator() * split_bar_length
 
         if crop_length > 0:
             return cls._create_from_split_length(scene_length, crop_length)
@@ -69,7 +68,7 @@ class SceneWindow(object):
     def create_from_crop(cls, scene_length, crop_bar_length):
         # type: (float, int) -> SceneWindow
         cls._validate_scene(scene_length, crop_bar_length)
-        crop_length = SongFacade.signature_numerator() * crop_bar_length
+        crop_length = Song.signature_numerator() * crop_bar_length
 
         if crop_length > 0:
             return cls(0, crop_length, False)
@@ -79,7 +78,7 @@ class SceneWindow(object):
     @classmethod
     def _validate_scene(cls, scene_length, split_bar_length):
         # type: (float, int) -> None
-        bar_length = scene_length * SongFacade.signature_numerator()
+        bar_length = scene_length * Song.signature_numerator()
         assert float(split_bar_length).is_integer(), "split_bar_length is not an integer"
         if bar_length < 2:
             raise Protocol0Warning("Scene should be at least 2 bars for splitting")

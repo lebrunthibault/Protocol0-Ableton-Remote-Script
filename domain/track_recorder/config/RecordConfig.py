@@ -3,8 +3,7 @@ from typing import List, Optional
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.track_recorder.config.RecordProcessorConfig import RecordProcessorConfig
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class RecordConfig(object):
@@ -15,7 +14,6 @@ class RecordConfig(object):
         scene_index,  # type: Optional[int]
         bar_length,  # type: int
         records_midi,  # type: bool
-        processor_config,  # type: RecordProcessorConfig
     ):
         # type: (...) -> None
         self.record_name = record_name
@@ -23,13 +21,6 @@ class RecordConfig(object):
         self._scene_index = scene_index
         self.bar_length = bar_length
         self.records_midi = records_midi
-
-        # processors
-        self._processor_config = processor_config
-        self.pre_record_processor = processor_config.pre_record_processor
-        self.record_processor = processor_config.record_processor
-        self.on_record_end_processor = processor_config.on_record_end_processor
-        self.post_record_processor = processor_config.post_record_processor
 
     @property
     def scene_index(self):
@@ -45,7 +36,7 @@ class RecordConfig(object):
     @property
     def recording_scene(self):
         # type: () -> Scene
-        return SongFacade.scenes()[self.scene_index]
+        return Song.scenes()[self.scene_index]
 
     @property
     def clip_slots(self):
@@ -56,13 +47,12 @@ class RecordConfig(object):
         # type: () -> str
         # noinspection SpellCheckingInspection
         return (
-            "RecordConfig(\nrecord_name=%s,\ntracks=%s,\nscene_index=%s,\nbar_length=%s\nrecords_midi=%s,\nprocessor_config=%s"
+            "RecordConfig(\nrecord_name=%s,\ntracks=%s,\nscene_index=%s,\nbar_length=%s\nrecords_midi=%s,\n"
             % (
                 self.record_name,
                 self.tracks,
                 self.scene_index,
                 self.bar_length,
                 self.records_midi,
-                self._processor_config,
             )
         )

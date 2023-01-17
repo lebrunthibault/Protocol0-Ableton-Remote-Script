@@ -12,7 +12,7 @@ from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationSer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.RecordService import RecordService
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -29,7 +29,7 @@ class ActionGroupMain(ActionGroupInterface):
         def record_track(record_type):
             # type: (RecordTypeEnum) -> Optional[Sequence]
             return self._container.get(RecordService).record_track(
-                SongFacade.current_track(), record_type
+                Song.current_track(), record_type
             )
 
         # TAP tempo encoder
@@ -44,7 +44,7 @@ class ActionGroupMain(ActionGroupInterface):
         self.add_encoder(
             identifier=2,
             name="smooth selected clip velocities",
-            on_scroll=lambda: SongFacade.selected_clip(MidiClip).scale_velocities,
+            on_scroll=lambda: Song.selected_clip(MidiClip).scale_velocities,
         )
 
         # AUTOmation encoder
@@ -56,8 +56,8 @@ class ActionGroupMain(ActionGroupInterface):
             ).select_or_sync_automation,
             on_long_press=partial(self._container.get(TrackAutomationService).show_automation, go_next=True),
             on_scroll=lambda: partial(
-                SongFacade.selected_clip().automation.scroll_envelopes,
-                SongFacade.selected_track().devices.parameters,
+                Song.selected_clip().automation.scroll_envelopes,
+                Song.selected_track().devices.parameters,
             ),
         )
 
@@ -77,12 +77,18 @@ class ActionGroupMain(ActionGroupInterface):
             on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_FULL),
         )
 
+        def switch_monitoring():
+            # type: () -> None
+            assert hasattr(Song.current_track(), "monitoring_state")
+            Song.current_track().monitoring_state.switch()
+
         # MONitor encoder
         self.add_encoder(
             identifier=8,
             name="monitor",
             filter_active_tracks=True,
-            on_press=lambda: SongFacade.current_track().monitoring_state.switch,
+            on_press=switch_monitoring,
+            # on_press=lambda: SongFacade.current_track().monitoring_state.switch,
         )
 
         # RECord normal encoder

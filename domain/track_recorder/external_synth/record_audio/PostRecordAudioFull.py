@@ -1,14 +1,14 @@
 from functools import partial
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import \
     ExternalSynthTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.RecordProcessorInterface import RecordProcessorInterface
 from protocol0.domain.track_recorder.config.RecordConfig import RecordConfig
 from protocol0.domain.track_recorder.external_synth.record_audio.PostRecordAudio import \
     PostRecordAudio
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class PostRecordAudioFull(RecordProcessorInterface):
@@ -21,7 +21,7 @@ class PostRecordAudioFull(RecordProcessorInterface):
 
     def _edit_loop(self, audio_clip, bar_length):
         # type: (AudioClip, int) -> None
-        audio_clip.loop.end = bar_length * SongFacade.signature_numerator()
+        audio_clip.loop.end = bar_length * Song.signature_numerator()
         audio_clip.loop.start_marker = 0
-        audio_clip.loop.start = (bar_length / 2) * SongFacade.signature_numerator()
+        audio_clip.loop.start = (bar_length / 2) * Song.signature_numerator()
         audio_clip.looping = True

@@ -5,7 +5,7 @@ from typing import Optional, Callable
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.SceneWindow import SceneWindow
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -20,7 +20,7 @@ class SceneCrudComponent(object):
     def create_scene(self, scene_index=None):
         # type: (Optional[int]) -> Sequence
         seq = Sequence()
-        scenes_count = len(SongFacade.scenes())
+        scenes_count = len(Song.scenes())
         seq.add(partial(self._create_scene, scene_index or scenes_count))
         seq.wait_for_event(ScenesMappedEvent)
         seq.defer()
@@ -42,7 +42,7 @@ class SceneCrudComponent(object):
         seq.add(partial(self.duplicate_scene, scene))
         seq.add(partial(start_window.apply_to_scene, scene.clips))
         seq.defer()
-        seq.add(lambda: end_window.apply_to_scene(SongFacade.selected_scene().clips))
+        seq.add(lambda: end_window.apply_to_scene(Song.selected_scene().clips))
 
         return seq.done()
 
@@ -52,13 +52,13 @@ class SceneCrudComponent(object):
         seq = Sequence()
         seq.add(partial(self.duplicate_scene, scene))
         seq.defer()
-        seq.add(lambda: window.apply_to_scene(SongFacade.selected_scene().clips))
+        seq.add(lambda: window.apply_to_scene(Song.selected_scene().clips))
 
         return seq.done()
 
     def delete_scene(self, scene):
         # type: (Scene) -> Optional[Sequence]
-        if len(SongFacade.scenes()) == 1:
+        if len(Song.scenes()) == 1:
             Logger.warning("Cannot delete last scene")
             return None
 

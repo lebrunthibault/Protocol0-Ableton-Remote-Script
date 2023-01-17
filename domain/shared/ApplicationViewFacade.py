@@ -3,7 +3,7 @@ from typing import Optional
 
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
 from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class ApplicationViewFacade(object):
@@ -62,12 +62,12 @@ class ApplicationViewFacade(object):
     def focus_current_track(cls):
         # type: () -> None
         """Moves the focus to the detail view."""
-        selected_track = SongFacade.selected_track()
-        is_visible = SongFacade.selected_track().is_visible
-        if SongFacade.selected_track().group_track:
-            SongFacade.selected_track().group_track.is_folded = False
+        selected_track = Song.selected_track()
+        is_visible = Song.selected_track().is_visible
+        if Song.selected_track().group_track:
+            Song.selected_track().group_track.is_folded = False
             # NB : unfolding parent classes will select them
-            if SongFacade.selected_track() != selected_track:
+            if Song.selected_track() != selected_track:
                 selected_track.select()
 
             if not is_visible:

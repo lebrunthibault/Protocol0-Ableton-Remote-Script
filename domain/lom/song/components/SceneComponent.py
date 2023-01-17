@@ -7,7 +7,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class SceneComponent(object):
@@ -22,8 +22,8 @@ class SceneComponent(object):
     def _on_record_started_event(self, event):
         # type: (RecordStartedEvent) -> None
         self.looping_scene_toggler.reset()
-        if event.scene_index != SongFacade.selected_scene().index:
-            self.select_scene(SongFacade.scenes()[event.scene_index])
+        if event.scene_index != Song.selected_scene().index:
+            self.select_scene(Song.scenes()[event.scene_index])
 
     def select_scene(self, scene):
         # type: (Scene) -> None
@@ -34,7 +34,7 @@ class SceneComponent(object):
         # have the scroller work the other way around
         go_next = not go_next
         next_scene = ValueScroller.scroll_values(
-            SongFacade.scenes(), SongFacade.selected_scene(), go_next, rotate=False
+            Song.scenes(), Song.selected_scene(), go_next, rotate=False
         )
         self.select_scene(next_scene)
 
@@ -43,12 +43,12 @@ class SceneComponent(object):
         """Event is fired *before* the scene starts playing"""
         # Stop the previous scene : quantized or immediate
         try:
-            previous_selected_scene = SongFacade.scenes()[event.selected_scene_index]
+            previous_selected_scene = Song.scenes()[event.selected_scene_index]
         except IndexError:
             return
 
         if (
-            previous_selected_scene != SongFacade.selected_scene()
+            previous_selected_scene != Song.selected_scene()
             and ApplicationViewFacade.is_clip_view_visible()
         ):
             self.select_scene(previous_selected_scene)

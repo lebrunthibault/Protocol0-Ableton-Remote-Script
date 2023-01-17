@@ -4,7 +4,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.shared.utils.utils import previous_power_of_2
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -22,7 +22,7 @@ class SceneLength(object):
     def length(self):
         # type: () -> float
         clip_length = self.longest_clip.length if self.longest_clip else 0.0
-        numerator = SongFacade.signature_numerator()
+        numerator = Song.signature_numerator()
 
         if clip_length % numerator != 0:
             return clip_length
@@ -33,10 +33,10 @@ class SceneLength(object):
     @property
     def bar_length(self):
         # type: () -> int
-        if self.length % SongFacade.signature_numerator() != 0:
+        if self.length % Song.signature_numerator() != 0:
             # can happen when changing the longest clip length
             Logger.warning("%s invalid length: %s" % (self, self.length))
-        return int(self.length / SongFacade.signature_numerator())
+        return int(self.length / Song.signature_numerator())
 
     @property
     def longest_clip(self):

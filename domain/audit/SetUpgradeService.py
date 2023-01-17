@@ -10,7 +10,7 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -53,7 +53,7 @@ class SetUpgradeService(object):
         # type: () -> Iterator[Tuple[SimpleTrack, Device]]
         tracks = [
             track
-            for track in SongFacade.all_simple_tracks()
+            for track in Song.all_simple_tracks()
             if not isinstance(track, SimpleDummyTrack)
         ]
 

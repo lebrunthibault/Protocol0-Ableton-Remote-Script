@@ -19,7 +19,7 @@ from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -42,16 +42,16 @@ class DeviceService(object):
         seq.add(track.select)
         if device_enum.is_instrument:
             seq.add(self._track_crud_component.create_midi_track)
-            seq.add(lambda: setattr(SongFacade.selected_track(), "name", device_enum.value))
+            seq.add(lambda: setattr(Song.selected_track(), "name", device_enum.value))
 
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
 
         if (
             device_enum.default_parameter is not None
-            and SongFacade.selected_clip(raise_if_none=False) is not None
+            and Song.selected_clip(raise_if_none=False) is not None
             and ApplicationViewFacade.is_clip_view_visible()
         ):
-            seq.add(partial(self._create_default_automation, SongFacade.selected_clip()))
+            seq.add(partial(self._create_default_automation, Song.selected_clip()))
 
         return seq.done()
 
@@ -64,7 +64,7 @@ class DeviceService(object):
         if len(devices) == 0 or device_enum.is_instrument:
             return self.load_device(enum_name)
 
-        if track.devices.selected in devices and SongFacade.selected_track() != track:
+        if track.devices.selected in devices and Song.selected_track() != track:
             next_device = track.devices.selected
         else:
             next_device = ValueScroller.scroll_values(devices, track.devices.selected, True)
@@ -74,7 +74,7 @@ class DeviceService(object):
 
     def _track_to_select(self, device_enum):
         # type: (DeviceEnum) -> SimpleTrack
-        track = SongFacade.selected_track()
+        track = Song.selected_track()
 
         # only case when we want to select the midi track of an ext track
         if isinstance(track, SimpleMidiExtTrack) and device_enum == DeviceEnum.REV2_EDITOR:
@@ -89,14 +89,14 @@ class DeviceService(object):
     def _on_device_loaded_event(self, _):
         # type: (DeviceLoadedEvent) -> None
         """Select the default parameter if it exists"""
-        device = SongFacade.selected_track().devices.selected
+        device = Song.selected_track().devices.selected
         if device.enum.default_parameter is not None:
             parameter = device.get_parameter_by_name(device.enum.default_parameter)
             self._device_component.selected_parameter = parameter
 
     def _create_default_automation(self, clip):
         # type: (Clip) -> None
-        device = SongFacade.selected_track().devices.selected
+        device = Song.selected_track().devices.selected
         assert device.enum.default_parameter, "Loaded device has no default parameter"
         parameter = device.get_parameter_by_name(device.enum.default_parameter)
         assert parameter is not None, "parameter not found"
@@ -104,7 +104,7 @@ class DeviceService(object):
 
     def scroll_selected_parameter(self, go_next):
         # type: (bool) -> None
-        param = SongFacade.selected_parameter()
+        param = Song.selected_parameter()
         if param is None:
             raise Protocol0Warning("There is no selected parameter")
 
@@ -114,7 +114,7 @@ class DeviceService(object):
         if param.name == DeviceParameterEnum.SATURATOR_DRIVE.parameter_name:
             device = find_if(
                 lambda d: param in d.parameters,
-                SongFacade.selected_track().devices.get_from_enum(DeviceEnum.SATURATOR),
+                Song.selected_track().devices.get_from_enum(DeviceEnum.SATURATOR),
             )
             saturator_output = device.get_parameter_by_name(DeviceParameterEnum.SATURATOR_OUTPUT)
 

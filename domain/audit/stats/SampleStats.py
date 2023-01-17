@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 SAMPLE_LOAD_TIME = 24  # ms
 
@@ -27,11 +27,11 @@ class DrumRackStats(object):
 class SampleStats(object):
     def __init__(self):
         # type: () -> None
-        instruments = filter(None, [track.instrument for track in SongFacade.simple_tracks()])
+        instruments = filter(None, [track.instrument for track in Song.simple_tracks()])
         self.drum_racks = [i.device for i in instruments if isinstance(i.device, DrumRackDevice)]
         self.drum_rack_stats = [
             DrumRackStats(track.name, track.instrument.device)
-            for track in SongFacade.simple_tracks()
+            for track in Song.simple_tracks()
             if track.instrument and isinstance(track.instrument.device, DrumRackDevice)
         ]
         self.drum_rack_stats.sort(key=lambda x: x.sample_count, reverse=True)

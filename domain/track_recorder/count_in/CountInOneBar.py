@@ -4,7 +4,7 @@ from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackCompo
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -32,7 +32,7 @@ class CountInOneBar(CountInInterface):
     def _stop_count_in(self, playback_component, track):
         # type: (PlaybackComponent, AbstractTrack) -> None
         if (
-            len([clip for clip in SongFacade.selected_scene().clips if not clip.muted]) >= 1
+            len([clip for clip in Song.selected_scene().clips if not clip.muted]) >= 1
             and not track.solo
         ):
             playback_component.metronome = False

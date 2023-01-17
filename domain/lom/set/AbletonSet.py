@@ -26,7 +26,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
 )
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -82,8 +82,8 @@ class AbletonSet(object):
 
     def to_dict(self):
         # type: () -> Dict
-        room_eq = SongFacade.master_track() and SongFacade.master_track().room_eq
-        muted = SongFacade.master_track() is not None and SongFacade.master_track().muted
+        room_eq = Song.master_track() and Song.master_track().room_eq
+        muted = Song.master_track() is not None and Song.master_track().muted
 
         return {
             "id": self._id,
@@ -91,10 +91,10 @@ class AbletonSet(object):
             "path": self._path,
             "title": self._title,
             "muted": muted,
-            "current_track_name": SongFacade.current_track().name,
-            "current_track_is_grouped": SongFacade.current_track().group_track is not None,
+            "current_track_name": Song.current_track().name,
+            "current_track_is_grouped": Song.current_track().group_track is not None,
             "drum_rack_visible": isinstance(
-                SongFacade.selected_track().instrument, InstrumentDrumRack
+                Song.selected_track().instrument, InstrumentDrumRack
             ),
             "room_eq_enabled": room_eq is not None and room_eq.is_active,
         }
@@ -124,7 +124,7 @@ class AbletonSet(object):
         self._path = res["path"]
 
         if not self.is_unknown:
-            abstract_track_names = [t.name for t in SongFacade.abstract_tracks()]
+            abstract_track_names = [t.name for t in Song.abstract_tracks()]
             orphan_tracks = [t for t in self._saved_tracks if t not in abstract_track_names]
 
             if len(orphan_tracks):

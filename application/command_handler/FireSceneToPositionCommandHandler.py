@@ -3,7 +3,7 @@ from protocol0.application.command.FireSceneToPositionCommand import FireSceneTo
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class FireSceneToPositionCommandHandler(CommandHandlerInterface):
@@ -17,11 +17,11 @@ class FireSceneToPositionCommandHandler(CommandHandlerInterface):
         other number : we fire the selected scene at the selected bar position
         """
         fire_to_position = self._container.get(ScenePlaybackService).fire_scene_to_position
-        selected_scene = SongFacade.selected_scene()
+        selected_scene = Song.selected_scene()
         bar_length = command.bar_length
 
         if bar_length is None:
-            fire_to_position(SongFacade.last_manually_started_scene())
+            fire_to_position(Song.last_manually_started_scene())
             return
 
         recent_command = CommandBus.get_recent_command(
@@ -39,7 +39,7 @@ class FireSceneToPositionCommandHandler(CommandHandlerInterface):
             # Launching the last bar almost always means we don't want to loop
             if (
                 bar_length == selected_scene.bar_length - 1
-                and selected_scene == SongFacade.looping_scene()
+                and selected_scene == Song.looping_scene()
             ):
                 self._container.get(SceneComponent).looping_scene_toggler.reset()
 

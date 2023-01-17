@@ -42,12 +42,7 @@ from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudCom
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
-from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
-from protocol0.domain.lom.track.TrackRepository import TrackRepository
 from protocol0.domain.lom.track.TrackService import TrackService
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackClipSynchronizerService import (
-    ExternalSynthTrackClipSynchronizerService,
-)
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -65,7 +60,7 @@ from protocol0.infra.midi.MidiService import MidiService
 from protocol0.infra.persistence.SongDataService import SongDataService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickScheduler import TickScheduler
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -130,11 +125,9 @@ class Container(ContainerInterface):
         device_service = DeviceService(track_crud_component, device_component, browser_service)
         drum_rack_service = DrumRackService(browser_service)
         track_factory = TrackFactory(track_crud_component, browser_service, drum_rack_service)
-        track_repository = TrackRepository()
         track_automation_service = TrackAutomationService(track_factory)
         track_mapper_service = TrackMapperService(live_song, track_factory)
         track_service = TrackService()
-        track_player_service = TrackPlayerService(playback_component, track_repository)
         track_recorder_service = RecordService(
             playback_component,
             scene_crud_component,
@@ -157,7 +150,7 @@ class Container(ContainerInterface):
             track_component,
             set_fixer_service,
         )
-        SongFacade(
+        Song(
             live_song,
             clip_component,
             device_component,
@@ -172,7 +165,6 @@ class Container(ContainerInterface):
             track_recorder_service,
             session_to_arrangement_service,
         )
-        ExternalSynthTrackClipSynchronizerService()
 
         song_service = SongInitService(playback_component)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
@@ -212,7 +204,6 @@ class Container(ContainerInterface):
         self._register(track_automation_service)
         self._register(track_mapper_service)
         self._register(track_service)
-        self._register(track_player_service)
 
         self._register(scene_service)
         self._register(scene_playback_service)

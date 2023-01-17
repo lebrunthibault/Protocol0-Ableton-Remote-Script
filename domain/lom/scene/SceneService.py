@@ -19,7 +19,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -62,7 +62,7 @@ class SceneService(SlotManager):
         previous_live_scenes_ids = self._live_scene_id_to_scene.keys()
 
         self._generate_scenes()
-        for scene in SongFacade.scenes():
+        for scene in Song.scenes():
             if len(previous_live_scenes_ids) and scene.live_id not in previous_live_scenes_ids:
                 Scheduler.defer(scene.on_added)
 
@@ -85,13 +85,13 @@ class SceneService(SlotManager):
         # type: () -> None
         # save playing scene
         playing_live_scene = (
-            SongFacade.playing_scene()._scene if SongFacade.playing_scene() else None
+            Song.playing_scene()._scene if Song.playing_scene() else None
         )
         self._clean_deleted_scenes()
 
         # mapping cs should be done before generating the scenes
         tracks = chain(
-            SongFacade.simple_tracks(), SongFacade.abstract_tracks()
+            Song.simple_tracks(), Song.abstract_tracks()
         )  # type: Iterator[AbstractTrack]
         for track in collections.OrderedDict.fromkeys(tracks):
             track.on_scenes_change()
@@ -106,7 +106,7 @@ class SceneService(SlotManager):
 
         # restore playing scene
         if playing_live_scene is not None:
-            playing_scene = find_if(lambda s: s._scene == playing_live_scene, SongFacade.scenes())
+            playing_scene = find_if(lambda s: s._scene == playing_live_scene, Song.scenes())
             PlayingSceneFacade.set(playing_scene)
 
     def _clean_deleted_scenes(self):
@@ -116,7 +116,7 @@ class SceneService(SlotManager):
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
             scene.disconnect()
-            if scene == SongFacade.playing_scene():
+            if scene == Song.playing_scene():
                 PlayingSceneFacade.set(None)
 
             # refresh the mapping
@@ -140,7 +140,7 @@ class SceneService(SlotManager):
         # type: (TrackAddedEvent) -> Sequence
         empty_scenes = []
         seq = Sequence()
-        for scene in list(reversed(SongFacade.scenes()))[1:]:
+        for scene in list(reversed(Song.scenes()))[1:]:
             # nb : scene.length == 0 would suppress the template dummy clip
             if len(scene.clips.all) == 0:
                 empty_scenes.append(scene)

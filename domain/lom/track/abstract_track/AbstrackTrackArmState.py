@@ -2,7 +2,7 @@ import Live
 from typing import Optional
 
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -23,14 +23,9 @@ class AbstractTrackArmState(Observable):
         # type: (bool) -> None
         pass
 
-    @property
-    def is_partially_armed(self):
-        # type: () -> bool
-        return self.is_armed
-
     def toggle(self):
         # type: () -> Optional[Sequence]
-        if not SongFacade.selected_track().IS_ACTIVE:
+        if not Song.selected_track().IS_ACTIVE:
             return None
         if self.is_armed:
             self.unarm()

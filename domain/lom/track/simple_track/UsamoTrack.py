@@ -1,22 +1,22 @@
 from typing import Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import \
     ExternalSynthTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmedEvent import (
-    ExternalSynthTrackArmedEvent,
+from protocol0.domain.lom.track.group_track.ext_track.ExtArmedEvent import (
+    ExtArmedEvent,
 )
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingEndedEvent import (
-    ExternalSynthAudioRecordingEndedEvent,
+from protocol0.domain.track_recorder.external_synth.ExtAudioRecordingEndedEvent import (
+    ExtAudioRecordingEndedEvent,
 )
-from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import (
-    ExternalSynthAudioRecordingStartedEvent,
+from protocol0.domain.track_recorder.external_synth.ExtAudioRecordingStartedEvent import (
+    ExtAudioRecordingStartedEvent,
 )
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class UsamoTrack(SimpleMidiTrack):
@@ -36,14 +36,14 @@ class UsamoTrack(SimpleMidiTrack):
 
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
         DomainEventBus.subscribe(
-            ExternalSynthTrackArmedEvent, self._on_external_synth_track_armed_event
+            ExtArmedEvent, self._on_external_synth_track_armed_event
         )
         DomainEventBus.subscribe(
-            ExternalSynthAudioRecordingStartedEvent,
+            ExtAudioRecordingStartedEvent,
             self._on_external_synth_audio_recording_started_event,
         )
         DomainEventBus.subscribe(
-            ExternalSynthAudioRecordingEndedEvent,
+            ExtAudioRecordingEndedEvent,
             self._on_external_synth_audio_recording_ended_event,
         )
 
@@ -57,14 +57,14 @@ class UsamoTrack(SimpleMidiTrack):
 
     def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> None
-        track = SongFacade.simple_track_from_live_track(event.live_track)
+        track = Song.simple_track_from_live_track(event.live_track)
         if isinstance(track.abstract_track, ExternalSynthTrack):
             return None
 
         self.inactivate()
 
     def _on_external_synth_track_armed_event(self, event):
-        # type: (ExternalSynthTrackArmedEvent) -> None
+        # type: (ExtArmedEvent) -> None
         if event.arm:
             # noinspection PyUnresolvedReferences
             self.input_routing.track = event.track.abstract_track.midi_track
@@ -73,9 +73,9 @@ class UsamoTrack(SimpleMidiTrack):
             self.inactivate()
 
     def _on_external_synth_audio_recording_started_event(self, _):
-        # type: (ExternalSynthAudioRecordingStartedEvent) -> None
+        # type: (ExtAudioRecordingStartedEvent) -> None
         self.activate()
 
     def _on_external_synth_audio_recording_ended_event(self, _):
-        # type: (ExternalSynthAudioRecordingEndedEvent) -> None
+        # type: (ExtAudioRecordingEndedEvent) -> None
         self.inactivate()

@@ -18,7 +18,7 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -43,13 +43,13 @@ class DrumRackService(object):
             seq.add(partial(self._browser_service.load_device_from_enum, DeviceEnum.DRUM_RACK))
             seq.add(partial(self._populate_drum_rack, sample_category))
 
-        seq.add(partial(setattr, SongFacade.selected_track(), "name", sample_category.name))
+        seq.add(partial(setattr, Song.selected_track(), "name", sample_category.name))
         seq.add(partial(DomainEventBus.emit, DrumRackLoadedEvent()))
         return seq.done()
 
     def _assert_valid_rack_or_populate(self, drum_category):
         # type: (SampleCategory) -> Optional[Sequence]
-        device = cast(DrumRackDevice, SongFacade.selected_track().instrument.device)
+        device = cast(DrumRackDevice, Song.selected_track().instrument.device)
         preset_names = [p.name for p in drum_category.live_presets]
 
         if not device.pad_names_equal(preset_names):
@@ -68,9 +68,9 @@ class DrumRackService(object):
 
     def _populate_drum_rack(self, drum_category):
         # type: (SampleCategory) -> Sequence
-        device = cast(DrumRackDevice, SongFacade.selected_track().devices.selected)
+        device = cast(DrumRackDevice, Song.selected_track().devices.selected)
         assert isinstance(device, DrumRackDevice), "device is not a drum rack"
-        assert device == list(SongFacade.selected_track().devices)[0], "device is not the first device"
+        assert device == list(Song.selected_track().devices)[0], "device is not the first device"
         assert len(device.filled_drum_pads) == 0, "device has drum pads"
         presets = drum_category.presets
         drum_pads = [d for d in device.drum_pads if d.note >= DrumPad.INITIAL_NOTE][: len(presets)]
@@ -93,7 +93,7 @@ class DrumRackService(object):
         device = cast(DrumRackDevice, track.instrument.device)
         if not isinstance(device, DrumRackDevice):
             raise Protocol0Warning("Selected device should be a drum rack")
-        assert track == SongFacade.selected_track(), "track should already be selected"
+        assert track == Song.selected_track(), "track should already be selected"
 
         pitches = list(
             set(note.pitch for clip in track.clips for note in cast(MidiClip, clip).get_notes())
@@ -124,7 +124,7 @@ class DrumRackService(object):
 
     def _from_drum_rack_to_simpler_notes(self):
         # type: () -> None
-        for clip in cast(SimpleMidiTrack, SongFacade.selected_track()).clips:
+        for clip in cast(SimpleMidiTrack, Song.selected_track()).clips:
             notes = clip.get_notes()
             for note in notes:
                 note.pitch = 60
@@ -135,7 +135,7 @@ class DrumRackService(object):
         # type: () -> None
         seq = Sequence()
 
-        for track in SongFacade.simple_tracks():
+        for track in Song.simple_tracks():
             if not isinstance(track.instrument, InstrumentDrumRack):
                 continue
 

@@ -6,7 +6,7 @@ from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowed
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.event.RecordEndedEvent import RecordEndedEvent
 from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -20,7 +20,7 @@ class RecordingComponent(object):
 
     def _on_record_started_event(self, event):
         # type: (RecordStartedEvent) -> None
-        recording_scene = SongFacade.scenes()[event.scene_index]
+        recording_scene = Song.scenes()[event.scene_index]
         recording_scene.fire()
         seq = Sequence()
         if event.has_count_in:

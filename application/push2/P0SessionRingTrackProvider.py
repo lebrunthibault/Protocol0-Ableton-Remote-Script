@@ -5,7 +5,7 @@ from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackCh
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class P0SessionRingTrackProvider(SessionRingTrackProvider):
@@ -57,15 +57,15 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
 
     def _sync_session_to_selected_scene(self):
         # type: () -> None
-        self.scene_offset = SongFacade.selected_scene().index
+        self.scene_offset = Song.selected_scene().index
 
     @property
     def session_tracks(self):
         # type: () -> List[AbstractTrack]
         """Only scene tracks + current tracks. Should be cached"""
-        tracks = set(SongFacade.selected_scene().abstract_tracks)
-        if SongFacade.current_track() != SongFacade.master_track():
-            tracks.add(SongFacade.current_track())
+        tracks = set(Song.selected_scene().abstract_tracks)
+        if Song.current_track() != Song.master_track():
+            tracks.add(Song.current_track())
 
         return sorted(tracks, key=lambda t: t.index)
 

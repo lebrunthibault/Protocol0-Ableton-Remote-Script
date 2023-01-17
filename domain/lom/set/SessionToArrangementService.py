@@ -15,7 +15,8 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.utils.list import find_if
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -87,29 +88,32 @@ class SessionToArrangementService(object):
         self._tempo_component.tempo = 750
         self._recorded_bar_length = 0
 
-        for track in SongFacade.external_synth_tracks():
-            if track.external_device.is_enabled:
+        for track in Song.external_synth_tracks():
+            ext_device = find_if(
+                lambda d: d.enum.is_external_device, list(track.midi_track.devices)
+            )
+            if ext_device.is_enabled:
                 Backend.client().show_warning(
-                    "Disabling external device of %s (for audio " "export)" % track
+                    "Disabling external device of %s (for audio export)" % track
                 )
-                track.external_device.is_enabled = False
+                ext_device.is_enabled = False
 
     def _reset_automation(self):
         # type: () -> None
         """
-            In the (rare) case automated parameters are not at their default
-            we set them back
-            Glitch can happen if an parameter automated in a following clip but not in the first
-            has its value changed.
-            The script does not fix up this case
-            but does when the parameter is automated in the next clip
+        In the (rare) case automated parameters are not at their default
+        we set them back
+        Glitch can happen if an parameter automated in a following clip but not in the first
+        has its value changed.
+        The script does not fix up this case
+        but does when the parameter is automated in the next clip
         """
-        for track in SongFacade.abstract_group_tracks():
+        for track in Song.abstract_group_tracks():
             track.dummy_group.reset_all_automation()
 
     def _pre_fire_first_scene(self):
         # type: () -> Sequence
-        scene = SongFacade.scenes()[0]
+        scene = Song.scenes()[0]
         scene.fire()
         self._playback_component.stop_playing()
         seq = Sequence()
@@ -121,9 +125,9 @@ class SessionToArrangementService(object):
         """Stop the song when the last scene finishes"""
         self._scene_component.looping_scene_toggler.reset()
         seq = Sequence()
-        seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
-        seq.add(SongFacade.last_scene().stop)
-        if SongFacade.last_scene().bar_length > 1:
+        seq.wait_for_event(SceneLastBarPassedEvent, Song.last_scene()._scene)
+        seq.add(Song.last_scene().stop)
+        if Song.last_scene().bar_length > 1:
             seq.wait_for_event(BarChangedEvent)
         seq.add(self._validate_recording_duration)
         seq.wait_bars(4)  # leaving some space for tails

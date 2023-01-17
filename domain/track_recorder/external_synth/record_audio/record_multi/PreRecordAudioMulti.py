@@ -1,15 +1,15 @@
 from typing import List
 
 from protocol0.domain.lom.scene.Scene import Scene
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.config.RecordConfig import RecordConfig
 from protocol0.domain.track_recorder.RecordProcessorInterface import RecordProcessorInterface
-from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import (
-    ExternalSynthAudioRecordingStartedEvent,
+from protocol0.domain.track_recorder.external_synth.ExtAudioRecordingStartedEvent import (
+    ExtAudioRecordingStartedEvent,
 )
 from protocol0.domain.track_recorder.external_synth.record_audio.PreRecordAudio import \
     PreRecordAudio
@@ -31,7 +31,7 @@ class PreRecordAudioMulti(RecordProcessorInterface):
         if midi_clip.loop.start != 0:
             Backend.client().show_warning("Cropping midi clip")
             midi_clip.crop()
-        DomainEventBus.emit(ExternalSynthAudioRecordingStartedEvent(track))
+        DomainEventBus.emit(ExtAudioRecordingStartedEvent(track))
 
         scene_clip_bar_length_mismatch = False
         for scene in self._recording_scenes(track, config)[:-1]:

@@ -18,7 +18,6 @@ class InstrumentMinitaur(InstrumentInterface):
         "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     )
     PRESET_OFFSET = 1
-    HAS_PROTECTED_MODE = False
     PRESET_INITIALIZER = PresetInitializerGroupTrackName
 
     def set_default_preset(self):

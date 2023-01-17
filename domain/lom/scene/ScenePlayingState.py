@@ -2,7 +2,7 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneLength import SceneLength
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class ScenePlayingState(object):
@@ -33,7 +33,7 @@ class ScenePlayingState(object):
 
             return True
 
-        return SongFacade.is_playing() and any(
+        return Song.is_playing() and any(
             _is_clip_playing(clip) for clip in self._clips
         )
 
@@ -48,7 +48,7 @@ class ScenePlayingState(object):
     @property
     def bar_position(self):
         # type: () -> float
-        return self.position / SongFacade.signature_numerator()
+        return self.position / Song.signature_numerator()
 
     @property
     def current_bar(self):

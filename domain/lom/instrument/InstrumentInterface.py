@@ -26,29 +26,29 @@ from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializer
 )
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 def _get_insert_instrument_track(instrument_cls):
-    # type: (Type["InstrumentInterface"]) -> AbstractTrack
+    # type: (Type["InstrumentInterface"]) -> SimpleTrack
     """Current track or last instrument track or last track"""
     target_color = instrument_cls.TRACK_COLOR.value
 
-    if SongFacade.current_track().color == target_color:
-        return SongFacade.current_track()
+    if Song.current_track().color == target_color:
+        return Song.current_track().base_track
 
     instrument_tracks = [
         t
-        for t in SongFacade.simple_tracks()
+        for t in Song.simple_tracks()
         if t.group_track is None and t.color == target_color
     ]
 
-    last_track = list(SongFacade.top_tracks())[-1]
+    last_track = list(Song.top_tracks())[-1]
 
     return next(reversed(instrument_tracks), last_track)
 
@@ -75,7 +75,6 @@ class InstrumentInterface(SlotManager):
     PRESETS_PATH = ""
     PRESET_EXTENSION = ""
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
-    HAS_PROTECTED_MODE = True
     DEFAULT_NOTE = 60
     PRESET_OFFSET = 0  # if we store presets not at the beginning of the list
     PRESET_CHANGER = ProgramChangePresetChanger  # type: Type[PresetChangerInterface]

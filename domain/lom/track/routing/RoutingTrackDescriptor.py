@@ -5,7 +5,7 @@ from protocol0.domain.lom.track.P0TrackInterface import P0TrackInterface
 from protocol0.domain.lom.track.routing.TrackRoutingInterface import TrackRoutingInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -25,12 +25,12 @@ class RoutingTrackDescriptor(object):
         # type: (TrackRoutingInterface, Type) -> Optional[SimpleTrack]
         track = getattr(track_routing.live_track, self.routing_attribute_name).attached_object
         if track:
-            return SongFacade.simple_track_from_live_track(track)
+            return Song.simple_track_from_live_track(track)
         elif (
             track_routing.live_track.output_routing_type.category
             == Live.Track.RoutingTypeCategory.parent_group_track
         ):
-            return SongFacade.simple_track_from_live_track(track_routing.live_track.group_track)
+            return Song.simple_track_from_live_track(track_routing.live_track.group_track)
         else:
             return None
 

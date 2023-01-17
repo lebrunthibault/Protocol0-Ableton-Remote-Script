@@ -5,7 +5,7 @@ from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.infra.persistence.SongDataEnum import SongDataEnum
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class SongDataElement(object):
@@ -28,13 +28,13 @@ class SongDataService(object):
 
         self._elements = {
             SongDataEnum.SELECTED_SCENE_INDEX: SongDataElement(
-                lambda: SongFacade.selected_scene().index
+                lambda: Song.selected_scene().index
             ),
             SongDataEnum.SELECTED_SCENE_POSITION: SongDataElement(
-                lambda: SongFacade.selected_scene().position_scroller.current_value
+                lambda: Song.selected_scene().position_scroller.current_value
             ),
             SongDataEnum.SELECTED_TRACK_INDEX: SongDataElement(
-                lambda: SongFacade.selected_track().index
+                lambda: Song.selected_track().index
             ),
         }
 
@@ -59,8 +59,8 @@ class SongDataService(object):
     def _restore_set_state(self):
         # type: () -> None
         selected_scene_index = self._elements.get(SongDataEnum.SELECTED_SCENE_INDEX).saved_value
-        if selected_scene_index is not None and selected_scene_index < len(SongFacade.scenes()):
-            selected_scene = SongFacade.scenes()[selected_scene_index]
+        if selected_scene_index is not None and selected_scene_index < len(Song.scenes()):
+            selected_scene = Song.scenes()[selected_scene_index]
             self._scene_component.select_scene(selected_scene)
 
             selected_scene_position = self._elements.get(SongDataEnum.SELECTED_SCENE_POSITION).saved_value
@@ -69,7 +69,7 @@ class SongDataService(object):
 
         selected_track_index = self._elements.get(SongDataEnum.SELECTED_TRACK_INDEX).saved_value
         if selected_track_index is not None and selected_track_index < len(
-            list(SongFacade.all_simple_tracks())
+            list(Song.all_simple_tracks())
         ):
-            selected_track = list(SongFacade.all_simple_tracks())[selected_track_index]
+            selected_track = list(Song.all_simple_tracks())[selected_track_index]
             selected_track.select()

@@ -13,7 +13,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleA
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.utils.timing import debounce
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -75,7 +75,7 @@ class SceneClips(Observable):
         # type: () -> None
         self._clip_tracks = []
 
-        for track in SongFacade.simple_tracks():
+        for track in Song.simple_tracks():
             clip_slot = track.clip_slots[self.index]
             clip_slot.register_observer(self)
             clip = clip_slot.clip

@@ -9,7 +9,7 @@ from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGr
 from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class SampleCategory(object):
@@ -76,21 +76,21 @@ class SampleCategory(object):
                 return matched_track.index + 1
 
         # we clicked on a track means : we add to the right
-        if self._parent_track in SongFacade.selected_track().group_tracks:
-            return index_from_track(SongFacade.selected_track())
+        if self._parent_track in Song.selected_track().group_tracks:
+            return index_from_track(Song.selected_track())
         else:
             return index_from_track(self._parent_track.sub_tracks[0].base_track)
 
     @property
     def _parent_track(self):
         # type: () -> Optional[AbstractGroupTrack]
-        if self._category == SampleCategoryEnum.VOCALS and SongFacade.vocals_track() is None:
+        if self._category == SampleCategoryEnum.VOCALS and Song.vocals_track() is None:
             Backend.client().show_warning(
                 "Couldn't find %s track. Using drums track instead" % VocalsTrack.TRACK_NAME
             )
-            return SongFacade.drums_track()
+            return Song.drums_track()
 
         return {
-                SampleCategoryEnum.DRUMS: SongFacade.drums_track(),
-                SampleCategoryEnum.VOCALS: SongFacade.vocals_track(),
+                SampleCategoryEnum.DRUMS: Song.drums_track(),
+                SampleCategoryEnum.VOCALS: Song.vocals_track(),
             }[self._category]

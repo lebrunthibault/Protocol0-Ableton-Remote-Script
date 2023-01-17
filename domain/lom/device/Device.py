@@ -119,11 +119,6 @@ class Device(SlotManager):
         return self._device.is_active
 
     @property
-    def is_external_device(self):
-        # type: () -> bool
-        return self.name in ("Ext. Audio Effect", "Ext. Instrument")
-
-    @property
     def is_collapsed(self):
         # type: () -> bool
         return self._view.is_collapsed
@@ -133,7 +128,3 @@ class Device(SlotManager):
         # type: (bool) -> None
         self._view.is_collapsed = is_collapsed  # noqa
 
-    def copy_to(self, device):
-        # type: (Device) -> None
-        for source_param, dest_param in zip(self.parameters, device.parameters):
-            dest_param.value = source_param.value

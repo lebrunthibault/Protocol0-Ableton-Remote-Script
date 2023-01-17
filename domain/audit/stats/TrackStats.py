@@ -3,21 +3,21 @@ import collections
 from typing import Dict
 
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class TrackStats(object):
     def __init__(self):
         # type: () -> None
-        self.count = len(list(SongFacade.simple_tracks()))
+        self.count = len(list(Song.simple_tracks()))
         self.abstract_track_count = len(
             [
                 track
-                for track in SongFacade.abstract_tracks()
+                for track in Song.abstract_tracks()
                 if not isinstance(track, NormalGroupTrack)
             ]
         )
-        self.ext_synth_track_count = len(list(SongFacade.external_synth_tracks()))
+        self.ext_synth_track_count = len(list(Song.external_synth_tracks()))
 
     def to_dict(self):
         # type: () -> Dict

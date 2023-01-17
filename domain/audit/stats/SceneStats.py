@@ -3,15 +3,15 @@ import collections
 from typing import Dict, Any
 
 from protocol0.domain.shared.utils.utils import get_minutes_legend
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class SceneStats(object):
     def __init__(self):
         # type: () -> None
-        beat_duration = float(60) / SongFacade.tempo()
+        beat_duration = float(60) / Song.tempo()
 
-        current_scene = SongFacade.scenes()[0]
+        current_scene = Song.scenes()[0]
         scenes = [current_scene]
 
         while current_scene.next_scene and current_scene.next_scene != current_scene:

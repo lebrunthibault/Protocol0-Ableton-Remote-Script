@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Optional, List, cast, Type
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.types import T
 
 if TYPE_CHECKING:
@@ -25,14 +24,13 @@ if TYPE_CHECKING:
 
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
-    from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (  # noqa
+    from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (  # noqa
         ExternalSynthTrack,
     )
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
     from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
     from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
-    from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
     from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip
@@ -43,10 +41,10 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 
 
-class SongFacade(object):
+class Song(object):
     """Read only facade for accessing song properties"""
 
-    _INSTANCE = None  # type: Optional[SongFacade]
+    _INSTANCE = None  # type: Optional[Song]
 
     def __init__(
         self,
@@ -65,7 +63,7 @@ class SongFacade(object):
         session_to_arrangement_service,  # type: SessionToArrangementService
     ):
         # type: (...) -> None
-        SongFacade._INSTANCE = self
+        Song._INSTANCE = self
 
         self.__live_song = live_song
 
@@ -128,12 +126,12 @@ class SongFacade(object):
     @classmethod
     def current_external_synth_track(cls):
         # type: () -> ExternalSynthTrack
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (  # noqa
+        from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (  # noqa
             ExternalSynthTrack,
         )
 
-        if isinstance(SongFacade.current_track(), ExternalSynthTrack):
-            return cast(ExternalSynthTrack, SongFacade.current_track())
+        if isinstance(Song.current_track(), ExternalSynthTrack):
+            return cast(ExternalSynthTrack, Song.current_track())
         else:
             raise Protocol0Warning("current track is not an ExternalSynthTrack")
 
@@ -204,7 +202,7 @@ class SongFacade(object):
     @classmethod
     def external_synth_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (  # noqa
+        from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (  # noqa
             ExternalSynthTrack,
         )
 
@@ -228,11 +226,6 @@ class SongFacade(object):
         return (track for track in cls.abstract_tracks() if track.arm_state.is_armed)
 
     @classmethod
-    def partially_armed_tracks(cls):
-        # type: () -> Iterator[AbstractTrack]
-        return (track for track in cls.abstract_tracks() if track.arm_state.is_partially_armed)
-
-    @classmethod
     def drums_track(cls):
         # type: () -> Optional[DrumsTrack]
         return cls._INSTANCE._track_mapper_service._drums_track
@@ -250,13 +243,6 @@ class SongFacade(object):
             raise Protocol0Warning("Cannot find reference track")
 
         return track
-
-    @classmethod
-    def resampling_track(cls):
-        # type: () -> Optional[ResamplingTrack]
-        from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
-
-        return find_if(lambda t: isinstance(t, ResamplingTrack), cls.simple_tracks())
 
     @classmethod
     def master_track(cls):
@@ -335,7 +321,7 @@ class SongFacade(object):
 
         clip = cls.selected_clip_slot() and cls.selected_clip_slot().clip
         if clip is None:
-            clip = cls.selected_track().clip_slots[SongFacade.selected_scene().index].clip
+            clip = cls.selected_track().clip_slots[Song.selected_scene().index].clip
 
         if clip is None and raise_if_none:
             raise Protocol0Warning("no selected clip")
@@ -362,7 +348,7 @@ class SongFacade(object):
     @classmethod
     def selected_device(cls):
         # type: () -> Optional[Device]
-        return cls.selected_track().devices.selected
+        return cls.selected_track().devices.selected  # type: ignore[has-type]
 
     @classmethod
     def is_playing(cls):
@@ -372,9 +358,7 @@ class SongFacade(object):
     @classmethod
     def is_track_recording(cls):
         # type: () -> bool
-        return cls._INSTANCE._track_recorder_service.is_recording and (
-            cls.resampling_track() is None or not cls.resampling_track().is_recording
-        )
+        return cls._INSTANCE._track_recorder_service.is_recording
 
     @classmethod
     def is_bouncing(cls):

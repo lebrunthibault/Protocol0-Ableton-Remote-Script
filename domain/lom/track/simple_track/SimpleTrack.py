@@ -5,6 +5,7 @@ from _Framework.SubjectSlot import subject_slot
 from typing import cast, List, Optional, Dict
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip.ClipTail import ClipTail
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
@@ -14,17 +15,24 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
+from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmState import SimpleTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import \
+    SimpleTrackMonitoringState
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.ui.ColorEnum import ColorEnum
 from protocol0.domain.shared.utils.forward_to import ForwardTo
+from protocol0.domain.shared.utils.utils import volume_to_db, db_to_volume
 from protocol0.shared.Config import Config
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
+from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -34,7 +42,6 @@ class SimpleTrack(AbstractTrack):
     # we act only on active tracks
     IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
-    REMOVE_CLIPS_ON_ADDED = True
 
     def __init__(self, live_track, index):
         # type: (Live.Track.Track, int) -> None
@@ -64,6 +71,11 @@ class SimpleTrack(AbstractTrack):
         self.devices.register_observer(self)
         self.devices.build()
 
+        self.monitoring_state = SimpleTrackMonitoringState(self)
+
+        self.input_routing = TrackInputRouting(self._track)
+        self.output_routing = TrackOutputRouting(self._track)
+
         self.arm_state = SimpleTrackArmState(live_track)
         self.arm_state.register_observer(self)
 
@@ -92,7 +104,7 @@ class SimpleTrack(AbstractTrack):
             self.group_track = None
             return None
 
-        self.group_track = SongFacade.simple_track_from_live_track(self._track.group_track)
+        self.group_track = Song.simple_track_from_live_track(self._track.group_track)
         self.group_track.add_or_replace_sub_track(self)
         if self.group_track.color != self.color:
             Scheduler.defer(partial(setattr, self, "color", self.group_track.color))
@@ -101,6 +113,17 @@ class SimpleTrack(AbstractTrack):
     def clip_slots(self):
         # type: () -> List[ClipSlot]
         return list(self._clip_slots)
+
+    @property
+    def clips(self):
+        # type: () -> List[Clip]
+        return [
+            clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip
+        ]
+
+    def clear_clips(self):
+        # type: () -> Sequence
+        return Sequence().add([clip.delete for clip in self.clips]).done()
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -159,14 +182,29 @@ class SimpleTrack(AbstractTrack):
         self._clip_slots.set_instrument(instrument)
 
     @property
-    def is_playing(self):
-        # type: () -> bool
-        return any(clip_slot.is_playing for clip_slot in self.clip_slots)
+    def instrument_track(self):
+        # type: () -> SimpleTrack
+        assert self.instrument, "track has not instrument"
+        return self.base_track
 
     @property
-    def playing_clip(self):
-        # type: () -> Optional[Clip]
-        return self._clip_slots.playing_clip
+    def is_foldable(self):
+        # type: () -> bool
+        return self._track and self._track.is_foldable
+
+    @property
+    def is_folded(self):
+        # type: () -> bool
+        return bool(self._track.fold_state) if self.is_foldable and self._track else True
+
+    @is_folded.setter
+    def is_folded(self, is_folded):
+        # type: (bool) -> None
+        if not is_folded:
+            for group_track in self.group_tracks:
+                group_track.base_track.is_folded = False
+        if self._track and self.is_foldable:
+            self._track.fold_state = int(is_folded)
 
     @property
     def is_triggered(self):
@@ -174,18 +212,53 @@ class SimpleTrack(AbstractTrack):
         return any(clip_slot.is_triggered for clip_slot in self.clip_slots)
 
     @property
-    def is_recording(self):
-        # type: () -> bool
-        return any(clip for clip in self.clips if clip and clip.is_recording)
+    def volume(self):
+        # type: () -> float
+        volume = self._track.mixer_device.volume.value if self._track else 0
+        return volume_to_db(volume)
+
+    @volume.setter
+    def volume(self, volume):
+        # type: (float) -> None
+        volume = db_to_volume(volume)
+        if self._track:
+            Scheduler.defer(
+                partial(
+                    DeviceParameter.set_live_device_parameter,
+                    self._track.mixer_device.volume,
+                    volume,
+                )
+            )
+
+    @property
+    def color(self):
+        # type: () -> int
+        return self.appearance.color
+
+    @color.setter
+    def color(self, color_index):
+        # type: (int) -> None
+        self.appearance.color = color_index
+        for clip in self.clips:
+            clip.color = color_index
+
+    def select_clip_slot(self, clip_slot):
+        # type: (ClipSlot) -> None
+        assert clip_slot in [cs for cs in self.clip_slots], "clip slot inconsistency"
+        self.is_folded = False
+        DomainEventBus.emit(ClipSlotSelectedEvent(clip_slot._clip_slot))
+
+    def fire(self, scene_index):
+        # type: (int) -> None
+        clip = self.clip_slots[scene_index].clip
+        if clip is not None:
+            clip.fire()
 
     def stop(self, scene_index=None, next_scene_index=None, immediate=False):
         # type: (Optional[int], Optional[int], bool) -> None
-        """
-        Will stop the track immediately or quantized
-        the scene_index is useful for fine tuning the stop of abstract group tracks
-        """
         if scene_index is None:
-            return super(SimpleTrack, self).stop(scene_index, next_scene_index, immediate)
+            self._track.stop_all_clips(not immediate)  # noqa
+            return
 
         # let tail play
         clip = self.clip_slots[scene_index].clip
@@ -212,11 +285,48 @@ class SimpleTrack(AbstractTrack):
             for param in clip.automation.get_automated_parameters(self.devices.parameters)
         }
 
+    def scroll_volume(self, go_next):
+        # type: (bool) -> None
+        """Editing directly the mixer device volume"""
+        volume = self._track.mixer_device.volume.value
+        volume += 0.01 if go_next else -0.01
+        volume = min(volume, 1)
+
+
+        seq = Sequence()
+        seq.defer()
+        seq.add(
+            partial(
+                DeviceParameter.set_live_device_parameter,
+                self._track.mixer_device.volume,
+                volume,
+            )
+        )
+        seq.add(lambda: StatusBar.show_message("Track volume: %.1f dB" % self.volume))
+        seq.done()
+
     def reset_mixer(self):
         # type: () -> None
         self.volume = 0
         for param in self.devices.mixer_device.parameters:
             param.value = param.default_value
+
+    def focus(self):
+        # type: () -> Sequence
+        # track can disappear out of view if this is done later
+        self.color = ColorEnum.FOCUSED.int_value
+        seq = Sequence()
+        #
+        # if show_browser and not ApplicationViewFacade.is_browser_visible():
+        #     ApplicationViewFacade.show_browser()
+        #     seq.defer()
+        #
+        #     # trick
+        #     if SongFacade.selected_track() == self.base_track:
+        #         seq.add(next(SongFacade.simple_tracks()).select)
+
+        seq.add(self.select)
+        return seq.done()
 
     def save(self):
         # type: () -> Sequence
@@ -227,16 +337,36 @@ class SimpleTrack(AbstractTrack):
 
         track_color = self.color
         seq = Sequence()
-        seq.add(partial(self.focus, show_browser=True))
+        seq.add(self.focus)
         seq.add(Backend.client().save_track_to_sub_tracks)
-        seq.wait_for_backend_event("track_saved")
+        seq.wait_for_backend_event("track_focused")
         seq.add(partial(setattr, self, "color", track_color))
+        seq.wait_for_backend_event("track_saved")
 
+        return seq.done()
+
+    def flatten(self):
+        # type: () -> Sequence
+        # this is needed to have flattened clip of the right length
+        Song._live_song().stop_playing()
+        for clip in self.clips:
+            clip.looping = False
+
+        track_color = self.color
+
+        seq = Sequence()
+        seq.add(self.focus)
+        seq.defer()
+        seq.add(Backend.client().flatten_track)
+        seq.wait_for_backend_event("track_focused")
+        seq.add(partial(setattr, self, "color", track_color))
+        seq.wait_for_backend_event("track_flattened")
+        seq.defer()
         return seq.done()
 
     def isolate_clip_tail(self):
         # type: () -> Sequence
-        clip = SongFacade.selected_clip()
+        clip = Song.selected_clip()
         assert clip.has_tail, "clip has no tail"
         assert len(self.clip_slots) > clip.index + 1, "No next clip slot"
 

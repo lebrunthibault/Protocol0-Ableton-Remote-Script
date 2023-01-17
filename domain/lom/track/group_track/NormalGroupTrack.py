@@ -36,7 +36,6 @@ class NormalGroupTrack(AbstractGroupTrack):
     @defer
     def _solo_listener(self):
         # type: () -> None
-        super(NormalGroupTrack, self)._solo_listener()
         if self.solo:
             for sub_track in self.sub_tracks:
                 sub_track.solo = True

@@ -2,10 +2,11 @@ from _Framework.SessionComponent import SessionComponent
 from typing import Optional, Callable
 
 from protocol0.domain.lom.clip.ClipCreatedOrDeletedEvent import ClipCreatedOrDeletedEvent
+from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class SessionService(SessionServiceInterface):
@@ -30,21 +31,25 @@ class SessionService(SessionServiceInterface):
             self._hide_session_ring()
 
         try:
-            if not SongFacade.selected_track().IS_ACTIVE:
+            if not Song.selected_track().IS_ACTIVE:
                 return
         except IndexError:
             return
 
-        total_tracks = SongFacade.current_track().get_all_simple_sub_tracks()
+        total_tracks = []
+        current_track = Song.current_track()
+        if isinstance(current_track, AbstractGroupTrack):
+            total_tracks = current_track.get_all_simple_sub_tracks()
+
         num_tracks = len([track for track in total_tracks if track.is_visible])
         track_offset = self._session_track_offset
 
         with self._component_guard():
             self._session = SessionComponent(num_tracks=num_tracks, num_scenes=8)
         self._session.set_offsets(
-            track_offset=track_offset, scene_offset=SongFacade.selected_scene().index
+            track_offset=track_offset, scene_offset=Song.selected_scene().index
         )
-        if track_offset != len(list(SongFacade.visible_tracks())) - 1:
+        if track_offset != len(list(Song.visible_tracks())) - 1:
             self._set_highlighting_session_component(self._session)
 
     def _hide_session_ring(self):
@@ -57,6 +62,6 @@ class SessionService(SessionServiceInterface):
     def _session_track_offset(self):
         # type: () -> int
         try:
-            return list(SongFacade.visible_tracks()).index(SongFacade.current_track().base_track)
+            return list(Song.visible_tracks()).index(Song.current_track().base_track)
         except ValueError:
             return self._session.track_offset() if self._session else 0

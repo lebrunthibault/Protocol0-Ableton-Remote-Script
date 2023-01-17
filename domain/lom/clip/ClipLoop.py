@@ -1,15 +1,10 @@
-from functools import partial
-
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional, Dict
 
-from protocol0.domain.lom.clip.ClipLoopChangedEvent import ClipLoopChangedEvent
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
-from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
@@ -21,8 +16,6 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (Live.Clip.Clip) -> None
         super(ClipLoop, self).__init__()
         self._clip = clip
-
-        self._events_disabled = False
 
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
@@ -57,11 +50,6 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         self.start = loop_data["start"]
         self.end = loop_data["end"]
 
-    def disable_events(self):
-        # type: () -> None
-        self._events_disabled = True
-        Scheduler.defer(partial(setattr, self, "_events_disabled", False))
-
     @subject_slot("loop_start")
     def _loop_start_listener(self):
         # type: () -> None
@@ -83,8 +71,6 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
             self._loop_end = self._clip.loop_end
 
         self.notify_observers()
-        if not self._clip.is_recording and not self._events_disabled:
-            DomainEventBus.emit(ClipLoopChangedEvent(self._clip))
 
     @property
     def looping(self):
@@ -196,12 +182,12 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @property
     def bar_length(self):
         # type: () -> float
-        return int(self.length / SongFacade.signature_numerator())
+        return int(self.length / Song.signature_numerator())
 
     @bar_length.setter
     def bar_length(self, bar_length):
         # type: (float) -> None
-        self.length = bar_length * SongFacade.signature_numerator()
+        self.length = bar_length * Song.signature_numerator()
 
     def match(self, loop):
         # type: (ClipLoop) -> None

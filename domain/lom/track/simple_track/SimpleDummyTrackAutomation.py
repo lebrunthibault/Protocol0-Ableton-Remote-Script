@@ -18,7 +18,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -76,15 +76,15 @@ class SimpleDummyTrackAutomation(object):
 
     def insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
-        if SongFacade.template_dummy_clip_slot() is None:
+        if Song.template_dummy_clip_slot() is None:
             raise Protocol0Error("Template dummy clip does not exists")
 
-        assert SongFacade.template_dummy_clip_slot().clip, "Cannot find template dummy clip"
+        assert Song.template_dummy_clip_slot().clip, "Cannot find template dummy clip"
 
         seq = Sequence()
         seq.add(
             partial(
-                SongFacade.template_dummy_clip_slot().duplicate_clip_to, self._clip_slots.selected
+                Song.template_dummy_clip_slot().duplicate_clip_to, self._clip_slots.selected
             )
         )
         seq.add(self._configure_dummy_clip)
@@ -95,8 +95,8 @@ class SimpleDummyTrackAutomation(object):
         # type: () -> None
         clip = cast(DummyClip, self._clip_slots.clips[0])
         clip.muted = False
-        if SongFacade.selected_scene().bar_length:
-            clip.bar_length = SongFacade.selected_scene().bar_length
+        if Song.selected_scene().bar_length:
+            clip.bar_length = Song.selected_scene().bar_length
         clip.show_loop()
         clip.loop.looping = True
         ApplicationViewFacade.show_clip()
@@ -126,5 +126,5 @@ class SimpleDummyTrackAutomation(object):
             )
 
         clip.automation.select_or_create_envelope(automated_parameter)
-        if SongFacade.is_playing():
+        if Song.is_playing():
             clip.fire()

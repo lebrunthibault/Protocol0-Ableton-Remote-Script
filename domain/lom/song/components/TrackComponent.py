@@ -17,7 +17,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class TrackComponent(SlotManager):
@@ -40,21 +40,25 @@ class TrackComponent(SlotManager):
 
     def _on_abstract_track_selected_event(self, event):
         # type: (AbstractTrackSelectedEvent) -> None
-        abstract_track = SongFacade.simple_track_from_live_track(event.live_track)
-        if abstract_track.group_track:
-            abstract_track.group_track.is_folded = False
-        if SongFacade.selected_track() != abstract_track.base_track:
-            self._song_view.selected_track = abstract_track._track
+        track = Song.simple_track_from_live_track(event.live_track)
+        if track.group_track:
+            track.group_track.is_folded = False
+        if Song.selected_track() != track.base_track:
+            self._song_view.selected_track = track._track
+
+        scrollable_tracks = list(Song.scrollable_tracks())
+        if len(scrollable_tracks) != 0 and track == scrollable_tracks[-1]:
+            ApplicationViewFacade.focus_current_track()
 
     def _on_simple_track_armed_event(self, _):
         # type: (SimpleTrackArmedEvent) -> None
-        if not SongFacade.is_track_recording():
+        if not Song.is_track_recording():
             self.un_focus_all_tracks()
 
     @property
     def abstract_tracks(self):
         # type: () -> Iterator[AbstractTrack]
-        for track in SongFacade.simple_tracks():
+        for track in Song.simple_tracks():
             # if type(track) == InstrumentBusTrack:
             #     continue
             if track.abstract_group_track:
@@ -73,7 +77,7 @@ class TrackComponent(SlotManager):
             # when a group track is unfolded, will directly select the first sub_track
             if (
                 isinstance(track, NormalGroupTrack)
-                and not track.is_folded
+                and not track.base_track.is_folded
                 and isinstance(track.sub_tracks[0], SimpleTrack)
             ):
                 continue
@@ -86,26 +90,26 @@ class TrackComponent(SlotManager):
 
     def _un_arm_all_tracks(self, including_current):
         # type: (bool) -> None
-        for t in SongFacade.partially_armed_tracks():
-            if not including_current and t.abstract_track == SongFacade.current_track():
+        for t in Song.armed_tracks():
+            if not including_current and t.abstract_track == Song.current_track():
                 continue
             t.arm_state.unarm()
 
     def _un_solo_all_tracks(self, including_current):
         # type: (bool) -> None
-        for track in SongFacade.abstract_tracks():
-            if not including_current and track == SongFacade.current_track():
+        for track in Song.abstract_tracks():
+            if not including_current and track == Song.current_track():
                 continue
             track.solo = False
 
     def scroll_tracks(self, go_next):
         # type: (bool) -> None
-        if not SongFacade.selected_track().IS_ACTIVE:
-            next(SongFacade.simple_tracks()).select()
+        if not Song.selected_track().IS_ACTIVE:
+            next(Song.simple_tracks()).select()
             return None
 
         next_track = ValueScroller.scroll_values(
-            SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False
+            Song.scrollable_tracks(), Song.current_track(), go_next, rotate=False
         )
         if next_track:
             next_track.select()

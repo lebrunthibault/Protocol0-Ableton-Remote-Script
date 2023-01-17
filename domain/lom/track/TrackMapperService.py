@@ -12,7 +12,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
@@ -26,7 +26,7 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -58,19 +58,19 @@ class TrackMapperService(SlotManager):
         # type: () -> None
         self._clean_tracks()
 
-        previous_simple_track_count = len(list(SongFacade.all_simple_tracks()))
-        has_added_tracks = 0 < previous_simple_track_count < len(list(SongFacade.live_tracks()))
+        previous_simple_track_count = len(list(Song.all_simple_tracks()))
+        has_added_tracks = 0 < previous_simple_track_count < len(list(Song.live_tracks()))
 
         self._generate_simple_tracks()
         self._generate_abstract_group_tracks()
 
-        for scene in SongFacade.scenes():
+        for scene in Song.scenes():
             scene.on_tracks_change()
 
         Logger.info("mapped tracks")
 
         seq = Sequence()
-        if has_added_tracks and SongFacade.selected_track():
+        if has_added_tracks and Song.selected_track():
             seq.add(partial(DomainEventBus.defer_emit, TrackAddedEvent()))
             seq.add(self._on_track_added)
 
@@ -81,7 +81,7 @@ class TrackMapperService(SlotManager):
 
     def _clean_tracks(self):
         # type: () -> None
-        existing_track_ids = [track._live_ptr for track in list(SongFacade.live_tracks())]
+        existing_track_ids = [track._live_ptr for track in list(Song.live_tracks())]
         deleted_ids = []
 
         for track_id, simple_track in self._live_track_id_to_simple_track.items():
@@ -110,18 +110,18 @@ class TrackMapperService(SlotManager):
 
         self._sort_simple_tracks()
 
-        for track in SongFacade.simple_tracks():
+        for track in Song.simple_tracks():
             track.on_tracks_change()
 
     def _get_special_tracks(self):
         # type: () -> None
-        simple_tracks = list(SongFacade.simple_tracks())
+        simple_tracks = list(Song.simple_tracks())
 
         self._usamo_track = find_if(lambda t: isinstance(t, UsamoTrack), simple_tracks)
         self._instrument_bus_track = find_if(
             lambda t: isinstance(t, InstrumentBusTrack), simple_tracks
         )
-        abgs = list(SongFacade.abstract_group_tracks())
+        abgs = list(Song.abstract_group_tracks())
 
         self._drums_track = find_if(lambda t: isinstance(t, DrumsTrack), abgs)
         self._reference_track = find_if(lambda t: isinstance(t, ReferenceTrack), abgs)
@@ -134,13 +134,13 @@ class TrackMapperService(SlotManager):
 
     def _on_track_added(self):
         # type: () -> Optional[Sequence]
-        if not SongFacade.selected_track().IS_ACTIVE:
+        if not Song.selected_track().IS_ACTIVE:
             return None
         UndoFacade.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()
-        added_track = SongFacade.selected_track()
-        if SongFacade.selected_track() == SongFacade.current_track().base_track:
-            added_track = SongFacade.current_track()
+        added_track = Song.selected_track()
+        if Song.selected_track() == Song.current_track().base_track:
+            added_track = Song.current_track()
         seq.defer()
         seq.add(added_track.on_added)
 
@@ -160,18 +160,18 @@ class TrackMapperService(SlotManager):
         if track.group_track is not None:
             sibling_tracks = track.group_track.sub_tracks
         else:
-            sibling_tracks = list(SongFacade.abstract_tracks())
+            sibling_tracks = list(Song.abstract_tracks())
 
         index = sibling_tracks.index(track)
         previous_track = sibling_tracks[index - 1]
 
-        return track.has_same_clips(previous_track)
+        return type(track) == type(previous_track) and track.has_same_clips(previous_track)  # noqa
 
     def _on_simple_track_created_event(self, event):
         # type: (SimpleTrackCreatedEvent) -> None
         """So as to be able to generate simple tracks with the abstract group track aggregate"""
         # handling replacement of a SimpleTrack by another
-        previous_simple_track = SongFacade.optional_simple_track_from_live_track(event.track._track)
+        previous_simple_track = Song.optional_simple_track_from_live_track(event.track._track)
         if previous_simple_track and previous_simple_track != event.track:
             self._replace_simple_track(previous_simple_track, event.track)
 
@@ -184,7 +184,7 @@ class TrackMapperService(SlotManager):
         previous_simple_track.disconnect()
 
         if previous_simple_track.group_track:
-            previous_simple_track.group_track.add_or_replace_sub_track(
+            previous_simple_track.group_track.abstract_group_track.add_or_replace_sub_track(
                 new_simple_track, previous_simple_track
             )
 
@@ -196,14 +196,14 @@ class TrackMapperService(SlotManager):
     def _sort_simple_tracks(self):
         # type: () -> None
         sorted_dict = collections.OrderedDict()
-        for track in SongFacade.live_tracks():
-            sorted_dict[track._live_ptr] = SongFacade.simple_track_from_live_track(track)
+        for track in Song.live_tracks():
+            sorted_dict[track._live_ptr] = Song.simple_track_from_live_track(track)
         self._live_track_id_to_simple_track = sorted_dict
 
     def _generate_abstract_group_tracks(self):
         # type: () -> None
         # 2nd pass : instantiate AbstractGroupTracks
-        for track in SongFacade.simple_tracks():
+        for track in Song.simple_tracks():
             if not track.is_foldable:
                 continue
 

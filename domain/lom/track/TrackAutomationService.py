@@ -6,7 +6,7 @@ from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -15,7 +15,7 @@ from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -28,12 +28,12 @@ class TrackAutomationService(object):
 
     def show_automation(self, go_next):
         # type: (bool) -> Sequence
-        selected_parameter = SongFacade.selected_parameter()
+        selected_parameter = Song.selected_parameter()
         seq = Sequence()
 
         # adds the dummy clip if none is present
-        if isinstance(SongFacade.selected_track(), SimpleDummyTrack) and SongFacade.selected_clip_slot().clip is None:
-            seq.add(partial(SongFacade.template_dummy_clip_slot().duplicate_clip_to, SongFacade.selected_clip_slot()))
+        if isinstance(Song.selected_track(), SimpleDummyTrack) and Song.selected_clip_slot().clip is None:
+            seq.add(partial(Song.template_dummy_clip_slot().duplicate_clip_to, Song.selected_clip_slot()))
 
         if selected_parameter is not None:
             seq.add(partial(self._show_selected_parameter_automation, selected_parameter))
@@ -45,17 +45,17 @@ class TrackAutomationService(object):
     def _show_selected_parameter_automation(self, selected_parameter):
         # type: (DeviceParameter) -> Optional[Sequence]
         # check if its a return or not
-        current_track = SongFacade.current_track()
-        selected_track = SongFacade.selected_track()
+        current_track = Song.current_track()
+        selected_track = Song.selected_track()
 
         # simple access
         if not isinstance(current_track, AbstractGroupTrack) or isinstance(
             selected_track, SimpleMidiExtTrack
         ):
             try:
-                SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
+                Song.selected_clip().automation.show_parameter_envelope(selected_parameter)
             except Exception as e:
-                Logger.info((SongFacade.selected_clip(), SongFacade.selected_clip()._clip, liveobj_valid(SongFacade.selected_clip()._clip), selected_parameter))
+                Logger.info((Song.selected_clip(), Song.selected_clip()._clip, liveobj_valid(Song.selected_clip()._clip), selected_parameter))
                 raise e
             return None
 
@@ -70,7 +70,7 @@ class TrackAutomationService(object):
         if not isinstance(selected_track, SimpleDummyTrack):
             Backend.client().show_warning("Can only show automation on dummy tracks")
 
-        selected_clip = selected_track.clip_slots[SongFacade.selected_scene().index].clip
+        selected_clip = selected_track.clip_slots[Song.selected_scene().index].clip
         if selected_clip is None:
             clip = "dummy return clip" if selected_parameter.is_mixer_parameter else "dummy clip"
             raise Protocol0Warning("Selected scene has no %s" % clip)
@@ -83,8 +83,8 @@ class TrackAutomationService(object):
     def _scroll_automated_parameters(self, go_next):
         # type: (bool) -> Sequence
         """Scroll the automated parameters of the dummy clips"""
-        current_track = SongFacade.current_track()
-        index = SongFacade.selected_scene().index
+        current_track = Song.current_track()
+        index = Song.selected_scene().index
         automated_parameters = current_track.get_automated_parameters(index)
         if len(automated_parameters.items()) == 0:
             raise Protocol0Warning("No automated parameters")
@@ -109,24 +109,24 @@ class TrackAutomationService(object):
         Either we have a midi clip focused and we sync the automation (rev2) layers
         Or we create a new automation lane for the selected parameter
         """
-        current_track = SongFacade.current_track()
-        selected_track = SongFacade.selected_track()
+        current_track = Song.current_track()
+        selected_track = Song.selected_track()
 
         if (
             isinstance(current_track, ExternalSynthTrack)
             and selected_track == current_track.midi_track
         ):
-            SongFacade.selected_clip(MidiClip).synchronize_automation_layers(
-                SongFacade.selected_track().devices.parameters
+            Song.selected_clip(MidiClip).synchronize_automation_layers(
+                Song.selected_track().devices.parameters
             )
         else:
             self._create_automation_from_selected_parameter()
 
     def _create_automation_from_selected_parameter(self):
         # type: () -> Sequence
-        selected_track = SongFacade.selected_track()
-        selected_clip = selected_track.selected_clip_slot.clip
-        selected_parameter = SongFacade.selected_parameter()
+        selected_track = Song.selected_track()
+        selected_clip = selected_track.clip_slots[Song.selected_scene().index].clip
+        selected_parameter = Song.selected_parameter()
 
         if selected_parameter is None:
             raise Protocol0Warning("No selected parameter")
@@ -139,7 +139,7 @@ class TrackAutomationService(object):
                 raise Protocol0Warning("No selected clip")
 
         seq.add(
-            lambda: SongFacade.selected_clip().automation.select_or_create_envelope(
+            lambda: Song.selected_clip().automation.select_or_create_envelope(
                 cast(DeviceParameter, selected_parameter)
             )
         )

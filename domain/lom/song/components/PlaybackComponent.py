@@ -12,7 +12,7 @@ from protocol0.domain.track_recorder.event.RecordCancelledEvent import (
 )
 from protocol0.domain.track_recorder.event.RecordEndedEvent import RecordEndedEvent
 from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -54,12 +54,12 @@ class PlaybackComponent(SlotManager):
 
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
-        scene = SongFacade.selected_scene()
+        scene = Song.selected_scene()
         if scene.position_scroller.current_value == 0:
             beat_offset = 0.0
         else:
             beat_offset = (
-                scene.position_scroller.current_value * SongFacade.signature_numerator()
+                                  scene.position_scroller.current_value * Song.signature_numerator()
             ) - scene.playing_state.position
             # to catch the first beat transient
             beat_offset -= 0.5
@@ -108,7 +108,7 @@ class PlaybackComponent(SlotManager):
         self.stop_playing()
 
         seq = Sequence()
-        if SongFacade.is_playing():
+        if Song.is_playing():
             seq.wait_for_event(SongStoppedEvent)
         return seq.done()
 

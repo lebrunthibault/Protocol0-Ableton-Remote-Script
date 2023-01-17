@@ -9,7 +9,7 @@ from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
@@ -21,7 +21,7 @@ from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -35,7 +35,7 @@ class TrackFactory(object):
     def create_simple_track(self, track, index, cls=None):
         # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
         # checking first on existing tracks
-        existing_simple_track = SongFacade.optional_simple_track_from_live_track(track)
+        existing_simple_track = Song.optional_simple_track_from_live_track(track)
         if existing_simple_track and (cls is None or isinstance(existing_simple_track, cls)):
             # reindexing tracks
             existing_simple_track._index = index
@@ -51,7 +51,7 @@ class TrackFactory(object):
 
             for special_track in special_tracks:
                 if track.name == special_track.TRACK_NAME:  # type: ignore[attr-defined]
-                    cls = special_track
+                    cls = special_track  # type: ignore[assignment]
 
             if cls is None:
                 raise Protocol0Error("Unknown track type")
@@ -77,7 +77,7 @@ class TrackFactory(object):
 
     def add_sample_track(self, category, sample_sub_category):
         # type: (SampleCategoryEnum, str) -> Sequence
-        sample_group_track = SongFacade.drums_track()
+        sample_group_track = Song.drums_track()
         if sample_group_track is None:
             raise Protocol0Warning("Sample group track doesn't exist")
 
@@ -86,14 +86,14 @@ class TrackFactory(object):
 
         sample_category = SampleCategory(category, sample_sub_category)
 
-        sample_group_track.is_folded = False
+        sample_group_track.base_track.is_folded = False
 
         seq = Sequence()
         seq.add(
             partial(self._track_crud_component.create_midi_track, sample_category.create_track_index)
         )
-        seq.add(lambda: setattr(SongFacade.selected_track(), "volume", -15))
-        seq.add(lambda: setattr(SongFacade.selected_track(), "color", sample_category.color))
+        seq.add(lambda: setattr(Song.selected_track(), "volume", -15))
+        seq.add(lambda: setattr(Song.selected_track(), "color", sample_category.color))
 
         # not creating clip here
         seq.add(partial(self._drum_rack_service.load_category_drum_rack, sample_category))

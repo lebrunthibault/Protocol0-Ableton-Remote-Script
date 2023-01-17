@@ -1,5 +1,5 @@
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class LOMAnalyzerService(object):
@@ -7,7 +7,7 @@ class LOMAnalyzerService(object):
 
     def check_tracks_tree_consistency(self):
         # type: () -> None
-        for simple_track in SongFacade.simple_tracks():
+        for simple_track in Song.simple_tracks():
             # 1st layer checks
             if simple_track.group_track:
                 assert simple_track in simple_track.group_track.sub_tracks, (

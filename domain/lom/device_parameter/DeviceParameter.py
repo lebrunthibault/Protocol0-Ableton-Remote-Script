@@ -137,29 +137,6 @@ class DeviceParameter(object):
         value = self.value + step if go_next else self.value - step
         self.value = clamp(value, self.min, self.max)
 
-    def touch(self, value):
-        # type:(Any) -> None
-        """
-            Modify the parameter the most slightly possible
-            so as to have live record the value as the base one if the automation stops
-            This is a solution to the partial automation problem in session view
-            When preparing clip automation on start, touching the parameter at the very end of the clip
-            will make live stay on the value instead of folding back to an old value
-        """
-        # only for continuous parameters
-        if self.is_quantized:
-            return None
-
-        # sets the value or a slightly different one if it's the same
-        if value == self.value:
-            increment = 0.01
-            if value == self.max:
-                value -= increment
-            else:
-                value = min(self.max, value + increment)
-
-        self.value = value
-
     def reset(self):
         # type: () -> None
         if self.name == "Device On":

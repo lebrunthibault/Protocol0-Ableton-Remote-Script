@@ -11,7 +11,7 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Config import Config
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 
 
 class ClipComponent(SlotManager):
@@ -34,7 +34,7 @@ class ClipComponent(SlotManager):
             return
 
         try:
-            detail_clip = SongFacade.selected_clip(MidiClip)
+            detail_clip = Song.selected_clip(MidiClip)
         except Protocol0Error:
             return
 
@@ -47,7 +47,7 @@ class ClipComponent(SlotManager):
 
         # workaround to refocus the selected clip slot
         if event.live_clip_slot == self._view.highlighted_clip_slot:
-            other_track = find_if(lambda t: t != SongFacade.selected_track(), SongFacade.simple_tracks())
+            other_track = find_if(lambda t: t != Song.selected_track(), Song.simple_tracks())
             if other_track is None:
                 return
             self._view.highlighted_clip_slot = other_track.clip_slots[0]._clip_slot
@@ -59,7 +59,7 @@ class ClipComponent(SlotManager):
     @property
     def selected_clip(self):
         # type: () -> Optional[Clip]
-        return SongFacade.selected_clip()
+        return Song.selected_clip()
 
     @property
     def draw_mode(self):

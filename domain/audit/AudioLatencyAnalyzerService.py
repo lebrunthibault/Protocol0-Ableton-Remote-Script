@@ -12,7 +12,7 @@ from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import (
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
@@ -21,7 +21,7 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.RecordService import RecordService
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -41,7 +41,7 @@ class AudioLatencyAnalyzerService(object):
 
     def test_audio_latency(self, track):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
-        tempo = SongFacade.tempo()
+        tempo = Song.tempo()
         self._tempo_component.tempo = 120  # easier to see jitter
 
         seq = Sequence()
@@ -57,7 +57,7 @@ class AudioLatencyAnalyzerService(object):
 
     def _set_up_track_for_record(self):
         # type: () -> None
-        track = SongFacade.current_external_synth_track()
+        track = Song.current_external_synth_track()
 
         track.name = "Test USAMO"
 
@@ -69,9 +69,8 @@ class AudioLatencyAnalyzerService(object):
 
     def _create_audio_test_clip(self):
         # type: () -> Sequence
-        track = SongFacade.current_external_synth_track()
+        track = Song.current_external_synth_track()
         # switching to test preset
-        track.REMOVE_CLIPS_ON_ADDED = False
         seq = Sequence()
         seq.add(track.midi_track.clip_slots[0].create_clip)
         seq.add(self._generate_test_notes)
@@ -79,7 +78,7 @@ class AudioLatencyAnalyzerService(object):
 
     def _generate_test_notes(self):
         # type: () -> Sequence
-        track = SongFacade.current_external_synth_track()
+        track = Song.current_external_synth_track()
         pitch = 84
         if isinstance(track.instrument, InstrumentMinitaur):
             pitch += 24
@@ -93,7 +92,7 @@ class AudioLatencyAnalyzerService(object):
 
     def _record_test_clip(self):
         # type: () -> Sequence
-        track = SongFacade.current_external_synth_track()
+        track = Song.current_external_synth_track()
         seq = Sequence()
         seq.add(
             partial(self._track_recorder_service.record_track, track, RecordTypeEnum.AUDIO)
@@ -107,7 +106,7 @@ class AudioLatencyAnalyzerService(object):
 
     def _analyze_jitter(self):
         # type: () -> Sequence
-        track = SongFacade.current_external_synth_track()
+        track = Song.current_external_synth_track()
         audio_clip = track.audio_track.clips[0]
         seq = Sequence()
         seq.add(partial(audio_clip.quantize, depth=0))

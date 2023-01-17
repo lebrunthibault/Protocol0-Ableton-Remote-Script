@@ -11,7 +11,7 @@ from protocol0.domain.lom.set.AbletonSetChangedEvent import AbletonSetChangedEve
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -105,7 +105,7 @@ class MultiEncoder(SlotManager):
             if not action:
                 return None
 
-            selected_track = SongFacade.selected_track()
+            selected_track = Song.selected_track()
             if self._filter_active_tracks and (
                 selected_track is None or not selected_track.IS_ACTIVE
             ):

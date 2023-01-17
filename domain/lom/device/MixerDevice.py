@@ -32,11 +32,6 @@ class MixerDevice(SlotManager):
         # type: () -> List[DeviceParameter]
         return self._parameters
 
-    def copy_to(self, mixer_device):
-        # type: (MixerDevice) -> None
-        for source_param, dest_param in zip(self.parameters, mixer_device.parameters):
-            dest_param.value = source_param.value
-
     def reset(self):
         # type: () -> None
         for param in self.parameters:
