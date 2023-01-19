@@ -2,7 +2,7 @@ from collections import namedtuple
 
 import Live
 from _Framework.SubjectSlot import Subject
-from typing import cast, List
+from typing import cast, List, Any
 
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.shared.Song import Song
@@ -72,9 +72,17 @@ class AbletonTrack(Subject):
         if track_type == TrackType.AUDIO:
             self.has_audio_input = True
 
+    def get_data(self, _, __):
+        # type: (Any, Any) -> None
+        pass
+
+    def set_data(self, _, __):
+        # type: (Any, Any) -> None
+        pass
+
     def __repr__(self):
         # type: () -> str
-        return "%s - %s (%s)" % (self.__class__.__name__, self.track_type, self._live_ptr)
+        return "%s - %s" % (self.track_type, self.name)
 
 
 def add_track(track_type):

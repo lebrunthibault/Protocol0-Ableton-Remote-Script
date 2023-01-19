@@ -40,7 +40,7 @@ class TrackComponent(SlotManager):
 
     def _on_abstract_track_selected_event(self, event):
         # type: (AbstractTrackSelectedEvent) -> None
-        track = Song.simple_track_from_live_track(event.live_track)
+        track = Song.live_track_to_simple_track(event.live_track)
         if track.group_track:
             track.group_track.is_folded = False
         if Song.selected_track() != track.base_track:

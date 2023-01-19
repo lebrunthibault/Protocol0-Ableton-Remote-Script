@@ -87,9 +87,7 @@ class InstrumentInterface(SlotManager):
         super(InstrumentInterface, self).__init__()
         self._track_name = track_name
         self.device = device
-        # setting to True will keep the editor shown for the next time only.
-        # used when duplicating a track
-        self.force_show = False
+
         preset_importer = PresetImporterFactory.create_importer(
             device, self.PRESETS_PATH, self.PRESET_EXTENSION
         )

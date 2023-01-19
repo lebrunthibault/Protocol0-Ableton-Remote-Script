@@ -1,9 +1,7 @@
 from typing import Optional
 
 from protocol0 import EmptyModule
-from protocol0.application.CommandBus import CommandBus
 from protocol0.application.Protocol0 import Protocol0
-from protocol0.application.command.ReloadScriptCommand import ReloadScriptCommand
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.song.SongInitService import SongInitService
@@ -29,7 +27,6 @@ def make_protocol0():
     monkey_patch_static()
     p0 = Protocol0(EmptyModule(name="c_instance", is_false=False))
     monkey_patch_p0(live_song)
-    CommandBus.dispatch(ReloadScriptCommand())
     Scheduler.wait = wait
     return p0
 

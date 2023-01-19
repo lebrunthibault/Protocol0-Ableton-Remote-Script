@@ -4,7 +4,6 @@ from typing import Any, Optional
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -17,6 +16,16 @@ class AudioClipSlot(ClipSlot):
         # type: (Any, Any) -> None
         super(AudioClipSlot, self).__init__(*a, **k)
         self.clip = self.clip  # type: Optional[AudioClip]
+
+
+    def duplicate_clip_to(self, clip_slot):
+        # type: (AudioClipSlot) -> Sequence
+        seq = Sequence()
+        seq.add(partial(super(AudioClipSlot, self).duplicate_clip_to, clip_slot))
+        # keep the midi hash while duplicating
+        seq.add(lambda: setattr(clip_slot.clip, "midi_hash", self.clip.midi_hash))
+        return seq.done()
+
 
     def replace_clip_sample(self, source_cs=None, file_path=""):
         # type: (Optional[AudioClipSlot], Optional[str]) -> Optional[Sequence]
@@ -49,13 +58,3 @@ class AudioClipSlot(ClipSlot):
     def _assert_clip_file_path(self, clip, file_path):
         # type: (AudioClip, str) -> None
         assert clip.file_path == file_path, "file path not replaced for %s" % clip
-
-    def matches(self, clip_slot):
-        # type: (AudioClipSlot) -> bool
-        if not liveobj_valid(clip_slot.clip._clip):
-            return False
-
-        if clip_slot == self:
-            return False
-
-        return clip_slot.clip.file_path == self.clip.file_path

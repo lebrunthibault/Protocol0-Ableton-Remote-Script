@@ -6,16 +6,15 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtArmState import ExtArmState
-from protocol0.domain.lom.track.group_track.ext_track.ExtDummyGroup import ExtDummyGroup
 from protocol0.domain.lom.track.group_track.ext_track.ExtMatchingTrack import ExtMatchingTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import ExtMonitoringState
 from protocol0.domain.lom.track.group_track.ext_track.ExtSoloState import ExtSoloState
 from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
@@ -33,9 +32,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
         audio_track = base_group_track.sub_tracks[1]
         self.audio_track = SimpleAudioExtTrack(audio_track._track, audio_track.index)
         self.link_sub_track(self.audio_track)
+        # fixes having the ext track instead of simple tracks
+        self.base_track.sub_tracks = self.sub_tracks
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
-        self.dummy_group = ExtDummyGroup(self)  # type: ExtDummyGroup
         self.matching_track = ExtMatchingTrack(self.base_track)
 
         # sub tracks are now handled by self
@@ -91,7 +91,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         midi_track = base_group_track.sub_tracks[0]
         if not isinstance(midi_track, SimpleMidiTrack):
-            return False
+            return False  # type: ignore[unreachable]
         if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
             return False
 

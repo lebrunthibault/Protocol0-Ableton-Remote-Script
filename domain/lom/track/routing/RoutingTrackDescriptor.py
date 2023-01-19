@@ -25,12 +25,12 @@ class RoutingTrackDescriptor(object):
         # type: (TrackRoutingInterface, Type) -> Optional[SimpleTrack]
         track = getattr(track_routing.live_track, self.routing_attribute_name).attached_object
         if track:
-            return Song.simple_track_from_live_track(track)
+            return Song.live_track_to_simple_track(track)
         elif (
             track_routing.live_track.output_routing_type.category
             == Live.Track.RoutingTypeCategory.parent_group_track
         ):
-            return Song.simple_track_from_live_track(track_routing.live_track.group_track)
+            return Song.live_track_to_simple_track(track_routing.live_track.group_track)
         else:
             return None
 

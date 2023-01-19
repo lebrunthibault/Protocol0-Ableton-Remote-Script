@@ -39,9 +39,9 @@ class SongDataService(object):
         }
 
         self._restore()
-        DomainEventBus.subscribe(SceneFiredEvent, lambda _: self.save())
+        DomainEventBus.subscribe(SceneFiredEvent, lambda _: self._save())
 
-    def save(self):
+    def _save(self):
         # type: () -> None
         """Save watched elements in the set data"""
         for enum, element in self._elements.items():

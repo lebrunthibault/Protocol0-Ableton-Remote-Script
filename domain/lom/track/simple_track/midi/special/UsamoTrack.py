@@ -57,7 +57,7 @@ class UsamoTrack(SimpleMidiTrack):
 
     def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> None
-        track = Song.simple_track_from_live_track(event.live_track)
+        track = Song.live_track_to_simple_track(event.live_track)
         if isinstance(track.abstract_track, ExternalSynthTrack):
             return None
 

@@ -14,9 +14,6 @@ from protocol0.domain.track_recorder.external_synth.OnRecordEndClipTail import O
 from protocol0.domain.track_recorder.external_synth.record_audio.PostRecordAudio import (
     PostRecordAudio,
 )
-from protocol0.domain.track_recorder.external_synth.record_audio.PostRecordAudioBroadcastClip import (
-    PostRecordAudioBroadcastClip,
-)
 from protocol0.domain.track_recorder.external_synth.record_audio.PostRecordAudioFull import (
     PostRecordAudioFull,
 )
@@ -90,12 +87,10 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         audio_processor_config = RecordProcessors(
             pre_record=PreRecordAudio(),
             on_record_end=OnRecordEndClipTail(),
-            post_record=PostRecordAudioBroadcastClip(PostRecordAudio()),
+            post_record=PostRecordAudio(),
         )
         audio_full_processor_config = audio_processor_config.copy()
-        audio_full_processor_config.post_record = PostRecordAudioBroadcastClip(
-            PostRecordAudioFull()
-        )
+        audio_full_processor_config.post_record = PostRecordAudioFull()
 
         audio_processor_config_multi = RecordProcessors(
             pre_record=PreRecordAudioMulti(),

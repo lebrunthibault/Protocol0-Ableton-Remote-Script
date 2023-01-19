@@ -132,6 +132,7 @@ class RecordService(object):
         if processors.on_record_end is not None:
             seq.add(partial(processors.on_record_end.process, track, config))
 
+        seq.defer()
         seq.add(partial(DomainEventBus.emit, RecordEndedEvent()))
 
         # POST RECORD

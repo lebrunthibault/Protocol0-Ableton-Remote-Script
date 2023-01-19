@@ -1,10 +1,9 @@
 from functools import partial
 
-from typing import List, cast, Any
+from typing import List, cast
 
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiMatchingTrack import SimpleMidiMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -14,12 +13,6 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 class SimpleMidiTrack(SimpleTrack):
     CLIP_SLOT_CLASS = MidiClipSlot
-
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SimpleMidiTrack, self).__init__(*a, **k)
-        self.matching_track = SimpleMidiMatchingTrack(self)
-        self.arm_state.register_observer(self.matching_track)
 
     @property
     def clip_slots(self):

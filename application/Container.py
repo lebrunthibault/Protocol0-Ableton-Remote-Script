@@ -58,6 +58,7 @@ from protocol0.infra.interface.session.SessionService import SessionService
 from protocol0.infra.logging.LoggerService import LoggerService
 from protocol0.infra.midi.MidiService import MidiService
 from protocol0.infra.persistence.SongDataService import SongDataService
+from protocol0.infra.persistence.TrackData import TrackData
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickScheduler import TickScheduler
 from protocol0.shared.Song import Song

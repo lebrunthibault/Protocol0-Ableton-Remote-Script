@@ -19,6 +19,9 @@ class PostRecordMidi(RecordProcessorInterface):
         Scheduler.wait_ms(50, partial(midi_clip.post_record, config.bar_length))
 
         audio_clip = track.audio_track.clip_slots[config.scene_index].clip
+        assert audio_clip, "No recorded audio clip"
+
         audio_clip.clip_name.update("")
+        track.audio_track.set_clip_midi_hash(audio_clip, midi_clip.hash)
         audio_clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.int_value
 

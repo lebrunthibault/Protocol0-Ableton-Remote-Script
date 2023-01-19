@@ -3,6 +3,7 @@ from functools import partial
 from typing import cast
 
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import (
     ExtMonitoringState,
@@ -35,6 +36,7 @@ class ExtMatchingTrack(AbstractMatchingTrack):
         if len(list(self._base_track.devices)) != 0:
             raise Protocol0Warning("Please move devices to audio track")
 
+        self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         seq = Sequence()
 
         if self._track is None:
@@ -53,14 +55,12 @@ class ExtMatchingTrack(AbstractMatchingTrack):
             seq.add(self._init)  # connect to the matching track
 
             seq.add(self._copy_clips_from_base_track)
-
         else:
-            # clips = self._audio_track.clips
-            seq.add(self._base_track.save)
+            # seq.add(self._base_track.save)
             seq.add(self._audio_track.flatten)
 
         # seq.add(self._base_track.delete)
-        seq.add(partial(Backend.client().show_success, "Track bounced"))
+        # seq.add(partial(Backend.client().show_success, "Track bounced"))
 
         return seq.done()
 

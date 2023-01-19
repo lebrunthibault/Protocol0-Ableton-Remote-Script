@@ -1,3 +1,4 @@
+from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
@@ -168,15 +169,16 @@ class LogService(object):
             )
 
         if Song.selected_clip_slot().clip is not None:
+            selected_clip = Song.selected_clip()
             Logger.info()
             Logger.info("********* SELECTED_CLIP *************")
             Logger.info()
-            Logger.info("song.selected_clip: %s" % Song.selected_clip_slot().clip)
+            Logger.info("song.selected_clip: %s" % selected_clip)
             Logger.info()
-            Logger.info("song.selected_clip.length: %s" % Song.selected_clip().length)
+            Logger.info("song.selected_clip.length: %s" % selected_clip.length)
             Logger.info()
-            Logger.info("song.selected_clip.loop_start: %s" % Song.selected_clip().loop.start)
-            Logger.info("song.selected_clip.loop_end: %s" % Song.selected_clip().loop.end)
+            if isinstance(selected_clip, AudioClip):
+                Logger.info("song.selected_clip.midi_hash: %s" % selected_clip.midi_hash)
 
         Logger.info()
         Logger.info("********* ABLETON_SET *************")

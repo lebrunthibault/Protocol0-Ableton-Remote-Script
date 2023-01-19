@@ -9,8 +9,10 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrackClips import (
+    SimpleAudioTrackClips,
+)
 from protocol0.domain.shared.LiveObject import liveobj_valid
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.domain.shared.utils.timing import defer
@@ -63,6 +65,7 @@ class AbstractMatchingTrack(SlotManager):
 
         return find_if(
             lambda t: t != self._base_track
+            and t.index != self._base_track.index  # when multiple objects for the same track
             and not t.is_foldable
             and t.name == self._base_track.name,
             Song.simple_tracks(SimpleAudioTrack),
@@ -88,8 +91,8 @@ class AbstractMatchingTrack(SlotManager):
     def connect_base_track_routing(self):
         # type: () -> None
         self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT  # type: ignore[has-type]
-        self._base_track.output_routing.track = self._track  # type: ignore[has-type]
+        self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT  # type: ignore
+        self._base_track.output_routing.track = self._track  # type: ignore
 
     def _activate_base_track(self):
         # type: () -> None
@@ -116,7 +119,18 @@ class AbstractMatchingTrack(SlotManager):
 
     def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
-        raise Protocol0Warning("Unbouncable %s" % self)
+        raise NotImplementedError
+
+    def broadcast_clips(self, clip_infos, source_track = None):
+        # type: (SimpleAudioTrackClips, SimpleAudioTrack) -> Optional[Sequence]
+        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+
+        source_track = source_track or self._base_track
+        assert isinstance(source_track, SimpleAudioTrack), "can only broadcast audio clips"
+        if self._track is None:
+            return None
+
+        return clip_infos.broadcast_to_track(source_track, self._track)
 
     @defer
     def disconnect(self):
@@ -129,8 +143,5 @@ class AbstractMatchingTrack(SlotManager):
         ):
             return
 
-        if (
-            len([t for t in Song.simple_tracks() if t.output_routing.track == self._track])  # type: ignore[has-type]
-            == 0
-        ):
+        if len([t for t in Song.simple_tracks() if t.output_routing.track == self._track]) == 0:  # type: ignore
             self._activate_base_track()

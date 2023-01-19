@@ -111,7 +111,7 @@ class Song(object):
 
         track_cls = track_cls or SimpleTrack
 
-        track = cls.simple_track_from_live_track(cls._live_song().view.selected_track)
+        track = cls.live_track_to_simple_track(cls._live_song().view.selected_track)
 
         if not isinstance(track, track_cls):
             raise Protocol0Warning("track is not a %s" % track_cls.__name__)
@@ -146,7 +146,7 @@ class Song(object):
         return [t for t in cls.abstract_tracks() if t.group_track is None]
 
     @classmethod
-    def simple_track_from_live_track(cls, live_track):
+    def live_track_to_simple_track(cls, live_track):
         # type: (Live.Track.Track) -> SimpleTrack
         """we use the live ptr instead of the track to be able to access outdated simple tracks on deletion"""
         track_mapping = cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track

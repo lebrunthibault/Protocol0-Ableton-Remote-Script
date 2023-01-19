@@ -197,7 +197,7 @@ class TrackMapperService(SlotManager):
         # type: () -> None
         sorted_dict = collections.OrderedDict()
         for track in Song.live_tracks():
-            sorted_dict[track._live_ptr] = Song.simple_track_from_live_track(track)
+            sorted_dict[track._live_ptr] = Song.live_track_to_simple_track(track)
         self._live_track_id_to_simple_track = sorted_dict
 
     def _generate_abstract_group_tracks(self):

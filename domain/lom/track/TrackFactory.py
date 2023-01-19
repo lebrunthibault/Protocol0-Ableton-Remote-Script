@@ -51,7 +51,7 @@ class TrackFactory(object):
 
             for special_track in special_tracks:
                 if track.name == special_track.TRACK_NAME:  # type: ignore[attr-defined]
-                    cls = special_track  # type: ignore[assignment]
+                    cls = special_track  # type: ignore
 
             if cls is None:
                 raise Protocol0Error("Unknown track type")

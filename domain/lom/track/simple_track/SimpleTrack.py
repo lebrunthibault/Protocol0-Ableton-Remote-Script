@@ -17,13 +17,15 @@ from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
+from protocol0.domain.lom.track.simple_track.SimpleMatchingTrack import SimpleMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmState import SimpleTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
-from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import \
-    SimpleTrackMonitoringState
+from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
+    SimpleTrackMonitoringState,
+)
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -47,7 +49,9 @@ class SimpleTrack(AbstractTrack):
         # type: (Live.Track.Track, int) -> None
         self._track = live_track  # type: Live.Track.Track
         self._index = index
+
         super(SimpleTrack, self).__init__(self)
+
         self.live_id = live_track._live_ptr  # type: int
         DomainEventBus.emit(SimpleTrackCreatedEvent(self))
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
@@ -79,6 +83,9 @@ class SimpleTrack(AbstractTrack):
         self.arm_state = SimpleTrackArmState(live_track)
         self.arm_state.register_observer(self)
 
+        self.matching_track = SimpleMatchingTrack(self)
+        self.arm_state.register_observer(self.matching_track)
+
         self._output_meter_level_listener.subject = None
 
     device_insert_mode = cast(int, ForwardTo("_view", "device_insert_mode"))
@@ -104,7 +111,7 @@ class SimpleTrack(AbstractTrack):
             self.group_track = None
             return None
 
-        self.group_track = Song.simple_track_from_live_track(self._track.group_track)
+        self.group_track = Song.live_track_to_simple_track(self._track.group_track)
         self.group_track.add_or_replace_sub_track(self)
         if self.group_track.color != self.color:
             Scheduler.defer(partial(setattr, self, "color", self.group_track.color))
@@ -118,7 +125,9 @@ class SimpleTrack(AbstractTrack):
     def clips(self):
         # type: () -> List[Clip]
         return [
-            clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip
+            clip_slot.clip
+            for clip_slot in self.clip_slots
+            if clip_slot.has_clip and clip_slot.clip is not None
         ]
 
     def clear_clips(self):
@@ -291,7 +300,6 @@ class SimpleTrack(AbstractTrack):
         volume = self._track.mixer_device.volume.value
         volume += 0.01 if go_next else -0.01
         volume = min(volume, 1)
-
 
         seq = Sequence()
         seq.defer()

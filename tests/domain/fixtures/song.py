@@ -4,7 +4,7 @@ from _Framework.SubjectSlot import Subject
 from typing import List, Any
 
 from protocol0.tests.domain.fixtures.scene import AbletonScene
-from protocol0.tests.domain.fixtures.simple_track import AbletonTrack
+from protocol0.tests.domain.fixtures.simple_track import AbletonTrack, TrackType
 from protocol0.tests.domain.fixtures.song_view import AbletonSongView
 
 
@@ -28,16 +28,23 @@ class AbletonSong(Subject):
         self.tempo = 120
         self.signature_numerator = 4
 
-        self.tracks = [AbletonTrack()]
+        first_track = AbletonTrack()
+        first_track.name = "First"
+        self.tracks = [first_track]
         self.visible_tracks = self.tracks
         self.return_tracks = []  # type: List[AbletonTrack]
-        self.master_track = AbletonTrack()  # type: ignore
+        self.master_track = AbletonTrack(track_type=TrackType.AUDIO)
+        self.master_track.name = "Master"
         self.scenes = [AbletonScene()]
         self.clip_trigger_quantization = 0
 
         self.view.selected_track = self.tracks[0]
         self.view.selected_scene = self.scenes[0]
         self.is_playing = False
+
+    def __repr__(self):
+        # type: () -> str
+        return
 
     def stop_playing(self):
         # type: () -> None

@@ -27,11 +27,9 @@ class SongInitService(object):
 
         return seq.done()
 
-
     def _check_sound_id_device(self):
         # type: () -> None
-        sound_id_device = Song.master_track().devices.get_one_from_enum(DeviceEnum.SOUNDID_REFERENCE_PLUGIN)
+        sound_id_device = Song.master_track().devices.get_one_from_enum(DeviceEnum.SOUNDID_REFERENCE_PLUGIN)  # type: ignore
 
         if sound_id_device is not None and not sound_id_device.is_enabled:
             Backend.client().show_warning("The SoundID Reference plugin is disabled", centered=True)
-

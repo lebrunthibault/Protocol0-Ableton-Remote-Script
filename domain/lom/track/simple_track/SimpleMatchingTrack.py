@@ -1,23 +1,18 @@
 from functools import partial
 
-from typing import Any, cast, Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractMatchingTrack import AbstractMatchingTrack
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
-class SimpleMidiMatchingTrack(AbstractMatchingTrack):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SimpleMidiMatchingTrack, self).__init__(*a, **k)
-        from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 
-        self._base_track = cast(SimpleMidiTrack, self._base_track)
-
+class SimpleMatchingTrack(AbstractMatchingTrack):
     def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
         assert all(clip.looping for clip in self._base_track.clips), "Some clips are not looped"
@@ -27,11 +22,14 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
 
         seq = Sequence()
         if self._track is None:
-            mixer_data = self._base_track.devices.mixer_device.to_dict()
+            mixer_data = self._base_track.devices.mixer_device.to_dict()  # type: ignore[has-type]
             self._base_track.reset_mixer()
 
         seq.add(self._base_track.flatten)
         seq.add(partial(self._post_flatten, mixer_data))
+        # not for midi clips because we didn't broadcast clips
+        if isinstance(self._base_track, SimpleAudioTrack):
+            seq.add(self._base_track.delete)
         seq.add(partial(Backend.client().show_success, "Track bounced"))
 
         return seq.done()
@@ -41,7 +39,7 @@ class SimpleMidiMatchingTrack(AbstractMatchingTrack):
         flattened_track = Song.selected_track(SimpleAudioTrack)
 
         if mixer_data is not None:
-            flattened_track.devices.mixer_device.update_from_dict(mixer_data)
+            flattened_track.devices.mixer_device.update_from_dict(mixer_data)  # type: ignore[has-type]
 
         if self._track is not None:
-            Song.selected_track().output_routing.track = self._track.output_routing.track  # type: ignore[assignment]
+            Song.selected_track().output_routing.track = self._track.output_routing.track  # type: ignore

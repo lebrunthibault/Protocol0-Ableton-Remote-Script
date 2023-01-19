@@ -6,7 +6,9 @@ from typing import List, Type, Optional, Iterator
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.domain.lom.clip_slot.ClipSlotHasClipEvent import ClipSlotHasClipEvent
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.domain.shared.utils.timing import defer
@@ -96,8 +98,10 @@ class SimpleTrackClipSlots(SlotManager, Observable):
     @defer
     def _has_clip_listener(self, clip_slot):
         # type: (Live.ClipSlot.ClipSlot) -> None
-        if clip_slot.clip:
-            clip_slot.clip.color_index = self._live_track.color_index
+        DomainEventBus.emit(ClipSlotHasClipEvent(self._live_track))
+        pass
+        # if clip_slot.clip:
+        #     clip_slot.clip.color_index = self._live_track.color_index
 
     def disconnect(self):
         # type: () -> None

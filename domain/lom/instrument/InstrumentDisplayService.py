@@ -39,29 +39,27 @@ class InstrumentDisplayService(object):
 
     def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> Optional[Sequence]
-        track = Song.simple_track_from_live_track(event.live_track)
+        track = Song.live_track_to_simple_track(event.live_track)
 
         current_track = Song.current_track()
         if (
             not isinstance(current_track, (ExternalSynthTrack, SimpleTrack))
-            or current_track.instrument is not None
+            or current_track.instrument is None
             or current_track.instrument_track != track
         ):
             return None
 
         if not track.instrument or not track.instrument.needs_exclusive_activation:
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev("no extclisve act")
             return None
 
         seq = Sequence()
         seq.add(
-            partial(self.activate_plugin_window, track, force_activate=track.instrument.force_show)
+            partial(self.activate_plugin_window, track)
         )
-        # todo: remove
         seq.add(Backend.client().hide_plugins)
 
-        # if not track.instrument.force_show:
-        #     seq.add(Backend.client().hide_plugins)
-        # track.instrument.force_show = False
         return seq.done()
 
     def _on_instrument_selected_event(self, _):
