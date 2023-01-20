@@ -10,7 +10,7 @@ from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import 
 )
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
-from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
@@ -39,7 +39,7 @@ class ExtMatchingTrack(AbstractMatchingTrack):
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         seq = Sequence()
 
-        if self._track is None:
+        if self._track is None or not liveobj_valid(self._track._track):
             mixer_data = self._base_track.devices.mixer_device.to_dict()
             self._base_track.reset_mixer()
             seq.add(self._base_track.save)

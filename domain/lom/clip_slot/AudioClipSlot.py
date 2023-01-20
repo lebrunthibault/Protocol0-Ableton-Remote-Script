@@ -1,4 +1,5 @@
 from functools import partial
+from os.path import basename
 
 from typing import Any, Optional
 
@@ -27,28 +28,34 @@ class AudioClipSlot(ClipSlot):
         return seq.done()
 
 
-    def replace_clip_sample(self, source_cs=None, file_path=""):
-        # type: (Optional[AudioClipSlot], Optional[str]) -> Optional[Sequence]
+    def replace_clip_sample(self, source_cs=None, file_path=None):
+        # type: (Optional["AudioClipSlot"], Optional[str]) -> Optional[Sequence]
         if not self._clip_slot:
             return None
 
         assert self.clip is not None, "no clip"
+        assert source_cs is not None or file_path is not None, "provide clip_slot or file path"
 
         loop_data = self.clip.loop.to_dict()
         clip_name = self.clip.name
+        previous_file_path = self.clip.file_path
+        midi_hash = self.clip.midi_hash
+
         seq = Sequence()
 
         if source_cs is not None:
             Logger.info("Replacing %s with %s" % (self.clip, source_cs.clip))
             seq.add(partial(source_cs.duplicate_clip_to, self))
+            seq.add(lambda: setattr(self.clip, "previous_file_path", previous_file_path))
             seq.defer()
         else:
             # 'manual' replacement
-            assert file_path is not None, "provide clip_slot or file path"
             seq.add(self.select)
             seq.add(partial(Backend.client().set_clip_file_path, file_path))
             seq.wait_for_backend_event("file_path_updated")
             seq.add(lambda: self._assert_clip_file_path(self.clip, file_path))  # type: ignore[arg-type]
+            seq.add(lambda: setattr(self.clip, "midi_hash", midi_hash))
+            seq.add(lambda: setattr(self.clip, "previous_file_path", previous_file_path))
 
         # restore loop (the clip object has potentially been replaced)
         seq.add(lambda: self.clip.loop.update_from_dict(loop_data))

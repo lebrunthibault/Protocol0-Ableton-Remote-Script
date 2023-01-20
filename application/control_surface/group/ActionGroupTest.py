@@ -48,8 +48,8 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        from protocol0.shared.logging.Logger import Logger
         if isinstance(Song.selected_clip(), AudioClip):
             Logger.dev(Song.selected_clip().midi_hash)
+            Logger.dev(Song.selected_clip().previous_file_path)
         else:
             Logger.dev(Song.selected_clip().hash)

@@ -18,6 +18,7 @@ class AudioClip(Clip):
 
         # associate the clip with a midi content
         self.midi_hash = None  # type: Optional[int]
+        self.previous_file_path = None  # type: Optional[str]
 
     def to_dict(self):
         # type: () -> Dict
@@ -49,7 +50,6 @@ class AudioClip(Clip):
     def file_path(self):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
-
 
     def focus(self):
         # type: () -> None

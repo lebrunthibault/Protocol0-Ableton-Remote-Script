@@ -50,8 +50,6 @@ class InstrumentDisplayService(object):
             return None
 
         if not track.instrument or not track.instrument.needs_exclusive_activation:
-            from protocol0.shared.logging.Logger import Logger
-            Logger.dev("no extclisve act")
             return None
 
         seq = Sequence()

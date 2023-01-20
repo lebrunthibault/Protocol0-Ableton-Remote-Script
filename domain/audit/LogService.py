@@ -179,6 +179,7 @@ class LogService(object):
             Logger.info()
             if isinstance(selected_clip, AudioClip):
                 Logger.info("song.selected_clip.midi_hash: %s" % selected_clip.midi_hash)
+                Logger.info("song.selected_clip.previous_file_path: %s" % selected_clip.previous_file_path)
 
         Logger.info()
         Logger.info("********* ABLETON_SET *************")
