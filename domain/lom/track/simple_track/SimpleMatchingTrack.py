@@ -25,21 +25,28 @@ class SimpleMatchingTrack(AbstractMatchingTrack):
             mixer_data = self._base_track.devices.mixer_device.to_dict()  # type: ignore[has-type]
             self._base_track.reset_mixer()
 
+        seq.add(self._base_track.save)
         seq.add(self._base_track.flatten)
         seq.add(partial(self._post_flatten, mixer_data))
-        # not for midi clips because we didn't broadcast clips
-        if isinstance(self._base_track, SimpleAudioTrack):
-            seq.add(self._base_track.delete)
-        seq.add(partial(Backend.client().show_success, "Track bounced"))
+        # if self._base_track.matching_track._track is not None:
+        #     seq.add(self._base_track.delete)
+
+        if self._track is None:
+            seq.add(partial(Backend.client().show_success, "Track bounced"))
 
         return seq.done()
 
     def _post_flatten(self, mixer_data):
         # type: (Optional[Dict]) -> None
+        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+
         flattened_track = Song.selected_track(SimpleAudioTrack)
 
         if mixer_data is not None:
             flattened_track.devices.mixer_device.update_from_dict(mixer_data)  # type: ignore[has-type]
 
         if self._track is not None:
-            Song.selected_track().output_routing.track = self._track.output_routing.track  # type: ignore
+            try:
+                Song.selected_track().output_routing.track = self._track.output_routing.track  # type: ignore
+            except Exception:  # noqa
+                pass

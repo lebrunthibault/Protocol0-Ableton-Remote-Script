@@ -8,9 +8,7 @@ from typing import List, cast, Any, Optional, Dict
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrackClips import (
-    SimpleAudioTrackClips,
-)
+from protocol0.domain.lom.track.simple_track.SimpleTrackClips import SimpleTrackClips
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
@@ -80,36 +78,21 @@ class SimpleAudioTrack(SimpleTrack):
         seq.wait_for_backend_event("track_focused")
         seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("matching_track_loaded")
-        seq.add(partial(Backend.client().show_success, "I LOVE YOU <3"))
+        seq.add(partial(Backend.client().show_success, "Track loaded"))
         return seq.done()
 
     def flatten(self):
         # type: () -> Sequence
-        clip_infos = SimpleAudioTrackClips.make_from_track(self)
 
         seq = Sequence()
         if self._needs_flattening:
             seq.add(super(SimpleAudioTrack, self).flatten)
-        seq.add(partial(self._post_flatten, clip_infos))
+        else:
+            clip_infos = SimpleTrackClips.make_from_track(self)
+
+            seq.add(partial(self._post_flatten, clip_infos))
 
         return seq.done()
-
-    def _post_flatten(self, clip_infos):
-        # type: (SimpleAudioTrackClips) -> Optional[Sequence]
-        flattened_track = Song.selected_track(SimpleAudioTrack)
-        flattened_track._needs_flattening = False
-
-        clip_info_by_index = {c.index: c for c in clip_infos}
-
-        clip_infos.hydrate(flattened_track.clips)
-
-        for clip in flattened_track.clips:
-            if clip.index in clip_info_by_index:
-                clip_info = clip_info_by_index[clip.index]
-                midi_hash = self.file_path_mapping.get(clip_info.file_path, None)
-                flattened_track.set_clip_midi_hash(clip, midi_hash)
-
-        return flattened_track.matching_track.broadcast_clips(clip_infos, self)
 
     def replace_clip_sample(self, dest_track, dest_cs, source_cs=None, file_path=None):
         # type: (SimpleAudioTrack, AudioClipSlot, AudioClipSlot, str) -> Optional[Sequence]

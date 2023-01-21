@@ -21,6 +21,7 @@ from protocol0.domain.lom.track.simple_track.SimpleMatchingTrack import SimpleMa
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmState import SimpleTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
+from protocol0.domain.lom.track.simple_track.SimpleTrackClips import SimpleTrackClips
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
@@ -338,11 +339,6 @@ class SimpleTrack(AbstractTrack):
 
     def save(self):
         # type: () -> Sequence
-        assert self.volume == 0, "track volume should be 0"
-        assert all(
-            p.value == p.default_value for p in self.devices.mixer_device.parameters
-        ), "send levels should be at zero"
-
         track_color = self.color
         seq = Sequence()
         seq.add(self.focus)
@@ -360,6 +356,7 @@ class SimpleTrack(AbstractTrack):
         for clip in self.clips:
             clip.looping = False
 
+        clip_infos = SimpleTrackClips.make_from_track(self)
         track_color = self.color
 
         seq = Sequence()
@@ -370,7 +367,27 @@ class SimpleTrack(AbstractTrack):
         seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("track_flattened")
         seq.defer()
+        seq.add(partial(self._post_flatten, clip_infos))
         return seq.done()
+
+
+    def _post_flatten(self, clip_infos):
+        # type: (SimpleTrackClips) -> Optional[Sequence]
+        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+
+        flattened_track = Song.selected_track(SimpleAudioTrack)
+        flattened_track._needs_flattening = False
+
+        clip_info_by_index = {c.index: c for c in clip_infos}
+
+        clip_infos.hydrate(flattened_track.clips)
+
+        for clip in flattened_track.clips:
+            if clip.index in clip_info_by_index:
+                clip_info = clip_info_by_index[clip.index]
+                flattened_track.set_clip_midi_hash(clip, clip_info.get_midi_hash(self))
+
+        return flattened_track.matching_track.broadcast_clips(clip_infos)
 
     def isolate_clip_tail(self):
         # type: () -> Sequence

@@ -9,9 +9,7 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrackClips import (
-    SimpleAudioTrackClips,
-)
+from protocol0.domain.lom.track.simple_track.SimpleTrackClips import SimpleTrackClips
 from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
@@ -53,6 +51,9 @@ class AbstractMatchingTrack(SlotManager):
         if isinstance(self._base_track, SimpleAudioTrack):
             self._base_track.file_path_mapping.update(self._track.file_path_mapping)
             self._track.file_path_mapping = self._base_track.file_path_mapping
+
+        # clean the mixer if necessary (e.g. when loading back a midi track for the 1st time)
+        self._base_track.reset_mixer()
 
         tracks = [self._base_track._track, self._track._track]
         self._solo_listener.replace_subjects(tracks)
@@ -129,7 +130,7 @@ class AbstractMatchingTrack(SlotManager):
         raise NotImplementedError
 
     def broadcast_clips(self, clip_infos, source_track = None):
-        # type: (SimpleAudioTrackClips, SimpleAudioTrack) -> Optional[Sequence]
+        # type: (SimpleTrackClips, SimpleAudioTrack) -> Optional[Sequence]
         from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
         source_track = source_track or self._base_track
