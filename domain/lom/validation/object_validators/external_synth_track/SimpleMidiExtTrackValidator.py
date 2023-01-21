@@ -4,11 +4,13 @@ from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRouting
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
+from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import \
     PropertyValueValidator
 from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import \
     SimpleTrackHasDeviceValidator
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
+from protocol0.shared.Config import Config
 
 
 class SimpleMidiExtTrackValidator(AggregateValidator):
@@ -17,7 +19,7 @@ class SimpleMidiExtTrackValidator(AggregateValidator):
         self._track = track
 
         validators = [
-            PropertyValueValidator(track, "volume", 0, name="midi track volume"),
+            PropertyValueValidator(track, "volume", Config.ZERO_DB_VOLUME, name="midi track volume"),
             SimpleTrackHasDeviceValidator(
                 track, DeviceEnum.EXTERNAL_AUDIO_EFFECT, browser_service
             ),
@@ -36,7 +38,7 @@ class SimpleMidiExtTrackValidator(AggregateValidator):
             PropertyValueValidator(
                 track.output_routing,
                 "type",
-                OutputRoutingTypeEnum.SENDS_ONLY,
+                track.group_track,
                 name="midi track output type",
             ),
         ]

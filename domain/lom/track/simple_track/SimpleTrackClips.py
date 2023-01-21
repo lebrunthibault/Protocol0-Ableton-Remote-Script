@@ -96,7 +96,7 @@ class ClipInfo(object):
     def broadcast_to_track(self, source_track, dest_track):
         # type: (SimpleAudioTrack, SimpleAudioTrack) -> Optional[Sequence]
         source_cs = source_track.clip_slots[self.index]
-        assert source_cs.clip is not None, "Couldn't find clip at index %s" % self.index
+        assert source_cs.clip is not None, "Couldn't find clip at index %s of %s" % (self.index, source_track)
 
         matching_clip_slots = [
             cs

@@ -3,9 +3,7 @@ from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyG
 from protocol0.domain.lom.track.group_track.ext_track.ExtArmState import (
     ExtArmState,
 )
-from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -37,43 +35,13 @@ class ExtMonitoringState(Observable):
 
     def monitor_midi(self):
         # type: () -> None
-        # midi track
-        self._un_mute_track(self._midi_track)
-
         # audio track
-        self._mute_track(self._audio_track)
+        self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._audio_track._output_meter_level_listener.subject = self._audio_track._track
-
-        # switch solo
-        if self._audio_track.solo:
-            self._midi_track.solo = True
-            self._audio_track.solo = False
 
     # noinspection DuplicatedCode
     def monitor_audio(self):
         # type: () -> None
-        # midi track
-        self._midi_track.muted = True
-        self._midi_track.current_monitoring_state = CurrentMonitoringStateEnum.OFF
-        self._midi_track.output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
-
         # audio track
-        self._un_mute_track(self._audio_track)
+        self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         self._audio_track._output_meter_level_listener.subject = None
-
-        # switch solo
-        if self._midi_track.solo:
-            self._audio_track.solo = True
-            self._midi_track.solo = False
-
-    def _mute_track(self, track):
-        # type: (SimpleTrack) -> None
-        track.muted = True
-        track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        track.output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
-
-    def _un_mute_track(self, track):
-        # type: (SimpleTrack) -> None
-        track.muted = False
-        track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-        track.output_routing.track = self._dummy_group.input_routing_track

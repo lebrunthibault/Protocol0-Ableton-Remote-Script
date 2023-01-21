@@ -49,6 +49,8 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(Song.selected_track().volume)
         if isinstance(Song.selected_clip(), AudioClip):
             Logger.dev(Song.selected_track(SimpleAudioTrack).file_path_mapping.get(Song.selected_clip().file_path, None))
             # Logger.dev("previous file path: %s" % (Song.selected_clip().previous_file_path is not None))

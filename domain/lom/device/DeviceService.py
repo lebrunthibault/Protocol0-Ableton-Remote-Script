@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import Optional, cast
+from typing import Optional
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
@@ -9,10 +9,9 @@ from protocol0.domain.lom.device.DeviceLoadedEvent import DeviceLoadedEvent
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
-from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyReturnTrack import SimpleDummyReturnTrack
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.ValueScroller import ValueScroller
@@ -74,17 +73,18 @@ class DeviceService(object):
 
     def _track_to_select(self, device_enum):
         # type: (DeviceEnum) -> SimpleTrack
-        track = Song.selected_track()
+        selected_track = Song.selected_track()
+        current_track = Song.current_track()
 
         # only case when we want to select the midi track of an ext track
-        if isinstance(track, SimpleMidiExtTrack) and device_enum == DeviceEnum.REV2_EDITOR:
-            return track
+        if isinstance(selected_track, SimpleMidiExtTrack) and device_enum == DeviceEnum.REV2_EDITOR:
+            return selected_track
 
         # we always want the group track except if it's the dummy track
-        elif isinstance(track, (SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleDummyReturnTrack)):
-            return cast(SimpleTrack, track.group_track)
+        elif isinstance(current_track, ExternalSynthTrack):
+            return current_track.audio_track
 
-        return track
+        return selected_track
 
     def _on_device_loaded_event(self, _):
         # type: (DeviceLoadedEvent) -> None
