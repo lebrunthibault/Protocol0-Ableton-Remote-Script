@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import Any, Optional, Dict
+from typing import Any, Optional
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.shared.backend.Backend import Backend
@@ -17,20 +17,7 @@ class AudioClip(Clip):
         Scheduler.defer(self.appearance.refresh)
 
         # associate the clip with a midi content
-        self.midi_hash = None  # type: Optional[int]
         self.previous_file_path = None  # type: Optional[str]
-
-    def to_dict(self):
-        # type: () -> Dict
-        return {
-            "index": self.index,
-            "midi_hash": self.midi_hash,
-            "file_path": self.file_path
-        }
-
-    def update_from_dict(self, clip_data):
-        # type: (Dict) -> None
-        self.midi_hash = clip_data["midi_hash"]
 
     def matches(self, other):
         # type: (AudioClip) -> bool

@@ -11,6 +11,7 @@ from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import 
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.LiveObject import liveobj_valid
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
@@ -28,6 +29,17 @@ class ExtMatchingTrack(AbstractMatchingTrack):
         # type: (Observable) -> None
         if isinstance(observable, ExtMonitoringState):
             self._track.monitoring_state.switch()
+
+    def _init(self):
+        # type: () -> None
+        super(ExtMatchingTrack, self)._init()
+
+        if self._track is None:
+            return
+
+        # merge the file path mapping in one
+        self._audio_track.file_path_mapping.update(self._track.file_path_mapping)
+        self._track.file_path_mapping = self._audio_track.file_path_mapping
 
     def bounce(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
@@ -56,11 +68,11 @@ class ExtMatchingTrack(AbstractMatchingTrack):
 
             seq.add(self._copy_clips_from_base_track)
         else:
-            # seq.add(self._base_track.save)
+            seq.add(self._base_track.save)
             seq.add(self._audio_track.flatten)
 
-        # seq.add(self._base_track.delete)
-        # seq.add(partial(Backend.client().show_success, "Track bounced"))
+        seq.add(self._base_track.delete)
+        seq.add(partial(Backend.client().show_success, "Track bounced"))
 
         return seq.done()
 

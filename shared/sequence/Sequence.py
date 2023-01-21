@@ -93,9 +93,12 @@ class Sequence(Observable):
             self._terminate()
 
     @classmethod
-    def reset(cls):
-        # type: () -> None
+    def reset(cls, name=None):
+        # type: (Optional[str]) -> None
         for seq in reversed(Sequence.RUNNING_SEQUENCES):
+            if name is not None and seq.name != name:
+                continue
+
             seq._cancel()
         Sequence.RUNNING_SEQUENCES = []
 

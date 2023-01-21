@@ -1,5 +1,4 @@
 from functools import partial
-from os.path import basename
 
 from typing import Any, Optional
 
@@ -23,8 +22,6 @@ class AudioClipSlot(ClipSlot):
         # type: (AudioClipSlot) -> Sequence
         seq = Sequence()
         seq.add(partial(super(AudioClipSlot, self).duplicate_clip_to, clip_slot))
-        # keep the midi hash while duplicating
-        seq.add(lambda: setattr(clip_slot.clip, "midi_hash", self.clip.midi_hash))
         return seq.done()
 
 
@@ -39,9 +36,10 @@ class AudioClipSlot(ClipSlot):
         loop_data = self.clip.loop.to_dict()
         clip_name = self.clip.name
         previous_file_path = self.clip.file_path
-        midi_hash = self.clip.midi_hash
 
-        seq = Sequence()
+        Sequence.reset("replace_clip_sample")  # close previous blocked sequence
+
+        seq = Sequence("replace_clip_sample")
 
         if source_cs is not None:
             Logger.info("Replacing %s with %s" % (self.clip, source_cs.clip))
@@ -54,7 +52,6 @@ class AudioClipSlot(ClipSlot):
             seq.add(partial(Backend.client().set_clip_file_path, file_path))
             seq.wait_for_backend_event("file_path_updated")
             seq.add(lambda: self._assert_clip_file_path(self.clip, file_path))  # type: ignore[arg-type]
-            seq.add(lambda: setattr(self.clip, "midi_hash", midi_hash))
             seq.add(lambda: setattr(self.clip, "previous_file_path", previous_file_path))
 
         # restore loop (the clip object has potentially been replaced)

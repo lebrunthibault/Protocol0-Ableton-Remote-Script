@@ -1,4 +1,5 @@
 from functools import partial
+from os.path import basename
 
 import Live
 from _Framework.CompoundElement import subject_slot_group
@@ -27,7 +28,10 @@ class SimpleAudioTrack(SimpleTrack):
         super(SimpleAudioTrack, self).__init__(*a, **k)
         # this mapping makes it possible to keep the midi hash of a clip
         # even when moving it around / duplicating
-        self._file_path_mapping = {}  # type: Dict[str, int]
+        # it is shared between with the mathing track
+        self.file_path_mapping = {}  # type: Dict[str, int]
+        # don't flatten when the track did not change since last flatten (used to retry on error)
+        self._needs_flattening = True
 
         self.data = TrackData(self)
         self.data.restore()
@@ -47,9 +51,7 @@ class SimpleAudioTrack(SimpleTrack):
     @subject_slot_group("has_clip")
     def _has_clip_listener(self, _):
         # type: (Live.ClipSlot.ClipSlot) -> None
-        for clip in self.clips:
-            if clip.midi_hash is None and clip.file_path in self._file_path_mapping:
-                self.set_clip_midi_hash(clip, self._file_path_mapping[clip.file_path])
+        self._needs_flattening = True
 
     def has_same_clips(self, track):
         # type: (SimpleAudioTrack) -> bool
@@ -57,8 +59,7 @@ class SimpleAudioTrack(SimpleTrack):
 
     def set_clip_midi_hash(self, clip, midi_hash):
         # type: (AudioClip, int) -> None
-        self._file_path_mapping[clip.file_path] = midi_hash
-        clip.midi_hash = midi_hash
+        self.file_path_mapping[clip.file_path] = midi_hash
         self.data.save()
 
     def load_full_track(self):
@@ -87,7 +88,8 @@ class SimpleAudioTrack(SimpleTrack):
         clip_infos = SimpleAudioTrackClips.make_from_track(self)
 
         seq = Sequence()
-        seq.add(super(SimpleAudioTrack, self).flatten)
+        if self._needs_flattening:
+            seq.add(super(SimpleAudioTrack, self).flatten)
         seq.add(partial(self._post_flatten, clip_infos))
 
         return seq.done()
@@ -95,23 +97,27 @@ class SimpleAudioTrack(SimpleTrack):
     def _post_flatten(self, clip_infos):
         # type: (SimpleAudioTrackClips) -> Optional[Sequence]
         flattened_track = Song.selected_track(SimpleAudioTrack)
+        flattened_track._needs_flattening = False
 
         clip_info_by_index = {c.index: c for c in clip_infos}
+
+        clip_infos.hydrate(flattened_track.clips)
 
         for clip in flattened_track.clips:
             if clip.index in clip_info_by_index:
                 clip_info = clip_info_by_index[clip.index]
-                flattened_track.set_clip_midi_hash(clip, clip_info.midi_hash)
+                midi_hash = self.file_path_mapping.get(clip_info.file_path, None)
+                flattened_track.set_clip_midi_hash(clip, midi_hash)
 
-        return flattened_track.matching_track.broadcast_clips(clip_infos)
+        return flattened_track.matching_track.broadcast_clips(clip_infos, self)
 
     def replace_clip_sample(self, dest_track, dest_cs, source_cs=None, file_path=None):
         # type: (SimpleAudioTrack, AudioClipSlot, AudioClipSlot, str) -> Optional[Sequence]
         assert source_cs is not None or file_path is not None, "provide clip_slot or file path"
 
         Logger.info(
-            "Replacing %s\n(%s)\n-> (%s)"
-            % (dest_track, dest_cs.clip.file_path, file_path or source_cs.clip.file_path)
+            "Replacing clip: %s-> %s"
+            % (basename(dest_cs.clip.file_path), basename(file_path or source_cs.clip.file_path))
         )
 
         device_params = dest_track.devices.parameters
@@ -121,11 +127,11 @@ class SimpleAudioTrack(SimpleTrack):
 
         # duplicate when no automation else manual action is needed
         if len(automated_params) == 0 and source_cs is not None:
-            dest_cs.replace_clip_sample(source_cs)
-            return None
+            return dest_cs.replace_clip_sample(source_cs)
         else:
             if source_cs is not None:
                 file_path = source_cs.clip.file_path
+
             return dest_cs.replace_clip_sample(None, file_path)
 
     def back_to_previous_clip_file_path(self, clip):
@@ -150,3 +156,9 @@ class SimpleAudioTrack(SimpleTrack):
         seq.add(partial(Backend.client().show_success, "file path restored"))
 
         return seq.done()
+
+    def disconnect(self):
+        # type: () -> None
+        self.data.save()
+
+        super(SimpleAudioTrack, self).disconnect()

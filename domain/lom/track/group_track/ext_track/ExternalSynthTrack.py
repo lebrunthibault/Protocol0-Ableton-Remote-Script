@@ -37,6 +37,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
         self.matching_track = ExtMatchingTrack(self.base_track)
+        self.audio_track.matching_track = self.matching_track
 
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:

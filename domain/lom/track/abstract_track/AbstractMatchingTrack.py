@@ -47,6 +47,13 @@ class AbstractMatchingTrack(SlotManager):
         if self._track is None:
             return
 
+        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+
+        # merge the file path mapping in one
+        if isinstance(self._base_track, SimpleAudioTrack):
+            self._base_track.file_path_mapping.update(self._track.file_path_mapping)
+            self._track.file_path_mapping = self._base_track.file_path_mapping
+
         tracks = [self._base_track._track, self._track._track]
         self._solo_listener.replace_subjects(tracks)
         self._name_listener.replace_subjects(tracks)
@@ -55,7 +62,7 @@ class AbstractMatchingTrack(SlotManager):
         # type: (Observable) -> None
         if isinstance(observable, AbstractTrackArmState) and self._track is not None:
             if observable.is_armed:
-                self.connect_base_track_routing()
+                self._connect_base_track_routing()
             else:
                 self._activate_base_track()
 
@@ -85,10 +92,10 @@ class AbstractMatchingTrack(SlotManager):
             return None
 
         self._base_track.color = self._track.color
-        self.connect_base_track_routing()
+        self._connect_base_track_routing()
         return None
 
-    def connect_base_track_routing(self):
+    def _connect_base_track_routing(self):
         # type: () -> None
         self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._track.input_routing.type = InputRoutingTypeEnum.NO_INPUT  # type: ignore
