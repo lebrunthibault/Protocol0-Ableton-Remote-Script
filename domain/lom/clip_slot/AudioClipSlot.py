@@ -55,7 +55,6 @@ class AudioClipSlot(ClipSlot):
         # restore loop (the clip object has potentially been replaced)
         seq.add(lambda: self.clip.loop.update_from_dict(loop_data))
         seq.add(lambda: setattr(self.clip, "name", clip_name))
-        seq.add(lambda: self.clip.blink())
         return seq.done()
 
     def _assert_clip_file_path(self, clip, file_path):

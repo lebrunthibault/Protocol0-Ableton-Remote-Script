@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, List
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
@@ -20,7 +20,7 @@ class ClipInfo(object):
             self.midi_hash = clip.midi_hash
         elif isinstance(clip, AudioClip):
             self.file_path = clip.file_path
-        self.clips_replaced_count = 0
+        self.replaced_clip_slots = []  # type: List[AudioClipSlot]
 
     def __repr__(self):
         # type: () -> str

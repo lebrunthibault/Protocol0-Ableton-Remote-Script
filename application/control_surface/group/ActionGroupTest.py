@@ -57,7 +57,6 @@ class ActionGroupTest(ActionGroupInterface):
             Logger.dev("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
         else:
             track = Song.selected_track(SimpleAudioTrack)
-            Logger.dev("mapping id : %s" % id(track.audio_to_midi_clip_mapping))
             Logger.dev(track.audio_to_midi_clip_mapping._file_path_mapping)
             midi_hash = track.audio_to_midi_clip_mapping._file_path_mapping[
                 Song.selected_clip(AudioClip).file_path

@@ -41,11 +41,13 @@ class MatchingTrackService(object):
         # type: (TrackAddedEvent) -> None
         matching_track = self._create_matching_track(Song.current_track())
 
-        if matching_track is not None:
-            Scheduler.defer(matching_track.router.connect_base_track_routing)
+        if matching_track is None:
+            return
 
-            if not Song.is_track_recording():
-                Song.current_track().arm_state.arm()
+        Scheduler.defer(matching_track.router.monitor_base_track)
+
+        if not Song.is_track_recording():
+            Song.current_track().arm_state.arm()
 
     def bounce_current_track(self):
         # type: () -> Sequence
@@ -117,3 +119,11 @@ class MatchingTrackService(object):
         if matching_track:
             matching_track.router.monitor_audio_track()
 
+    def match_clip_colors(self):
+        # type: () -> None
+        matching_track = self._create_matching_track(Song.current_track())
+
+        if matching_track is None:
+            return
+
+        matching_track.clip_color_manager.toggle_clip_colors()
