@@ -1,8 +1,11 @@
+from functools import partial
+
 import Live
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, List, cast
 
 from protocol0.domain.lom.clip.ClipAppearance import ClipAppearance
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
@@ -107,6 +110,12 @@ class Clip(SlotManager, Observable):
         self.selected = True
         self.notify_observers()
         self.selected = False
+
+    def blink(self):
+        # type: () -> None
+        color = self.color
+        self.color = ClipColorEnum.BLINK.value
+        Scheduler.wait_ms(1000, partial(setattr, self, "color", color))
 
     def stop(self, immediate=False, wait_until_end=False):
         # type: (bool, bool) -> None

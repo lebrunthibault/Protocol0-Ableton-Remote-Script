@@ -23,19 +23,20 @@ class MidiClip(Clip):
         super(MidiClip, self).__init__(*a, **k)
         self._cached_notes = []  # type: List[Note]
 
+        # tpm values to keep the audio clip link even on midi change
+        self.previous_midi_hash = self.midi_hash  # type: Optional[int]
         # select when a new midi clip is recorded
         if self.is_recording:
             Scheduler.defer(self.select)
 
-
     @property
-    def hash(self):
+    def midi_hash(self):
         # type: () -> int
         return hash(tuple(note.to_data() for note in self.get_notes()))
 
     def matches(self, other):
         # type: (MidiClip) -> bool
-        return self.hash == other.hash
+        return self.midi_hash == other.midi_hash
 
     @property
     def starts_at_1(self):

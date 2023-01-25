@@ -4,6 +4,7 @@ import Live
 
 from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.track_recorder.event.RecordEndedEvent import RecordEndedEvent
 from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
 from protocol0.shared.Song import Song
@@ -18,6 +19,7 @@ class RecordingComponent(object):
         DomainEventBus.subscribe(RecordStartedEvent, self._on_record_started_event)
         DomainEventBus.subscribe(RecordEndedEvent, self._on_record_ended_event)
 
+    @defer
     def _on_record_started_event(self, event):
         # type: (RecordStartedEvent) -> None
         recording_scene = Song.scenes()[event.scene_index]

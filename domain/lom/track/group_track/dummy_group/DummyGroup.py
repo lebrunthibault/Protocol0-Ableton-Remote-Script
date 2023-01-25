@@ -4,9 +4,10 @@ from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyReturnTrack import SimpleDummyReturnTrack
-from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyReturnTrack import \
+    SimpleDummyReturnTrack
+from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
 from protocol0.domain.lom.validation.object_validators.DummyGroupValidator import (
     DummyGroupValidator,
@@ -75,8 +76,8 @@ class DummyGroup(object):
         ):
             current_track = getattr(self, track_prop)
             if detected_track is not None:
-                if detected_track._track != getattr(current_track, "_track", None):
-                    current_track = cls(detected_track._track, detected_track.index)
+                if detected_track._audio_track != getattr(current_track, "_track", None):
+                    current_track = cls(detected_track._audio_track, detected_track.index)
                     setattr(self, track_prop, current_track)
                     self._track.add_or_replace_sub_track(current_track, detected_track)
                     self._track.link_sub_track(current_track)
@@ -85,7 +86,7 @@ class DummyGroup(object):
                 if current_track is not None:
                     current_track.disconnect()
 
-        Scheduler.wait(3, self._track.route_sub_tracks)
+        # Scheduler.wait(3, self._track.route_sub_tracks)
 
     def _get_tracks(self):
         # type: () -> Tuple[Optional[AbstractTrack], Optional[AbstractTrack]]
@@ -121,12 +122,6 @@ class DummyGroup(object):
         # type: () -> None
         for dummy_track in self._dummy_tracks:
             dummy_track.reset_all_automated_parameters()
-
-    @property
-    def input_routing_track(self):
-        # type: () -> SimpleTrack
-        """track to route tracks to"""
-        return self._dummy_track or self._track.base_track
 
     def get_view_track(self, scene_index):
         # type: (int) -> Optional[SimpleTrack]

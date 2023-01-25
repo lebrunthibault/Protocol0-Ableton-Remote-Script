@@ -4,6 +4,7 @@ from protocol0.application.control_surface.ActionGroupInterface import ActionGro
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.lom.clip.AudioClip import AudioClip
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
@@ -50,10 +51,16 @@ class ActionGroupTest(ActionGroupInterface):
     def action_test(self):
         # type: () -> None
         from protocol0.shared.logging.Logger import Logger
-        Logger.dev(Song.selected_track().volume)
-        if isinstance(Song.selected_clip(), AudioClip):
-            Logger.dev(Song.selected_track(SimpleAudioTrack).file_path_mapping.get(Song.selected_clip().file_path, None))
-            # Logger.dev("previous file path: %s" % (Song.selected_clip().previous_file_path is not None))
-            Logger.dev()
+
+        if isinstance(Song.selected_clip(), MidiClip):
+            Logger.dev("previous midi hash: %s" % Song.selected_clip(MidiClip).previous_midi_hash)
+            Logger.dev("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
         else:
-            Logger.dev(Song.selected_clip().hash)
+            track = Song.selected_track(SimpleAudioTrack)
+            Logger.dev("mapping id : %s" % id(track.audio_to_midi_clip_mapping))
+            Logger.dev(track.audio_to_midi_clip_mapping._file_path_mapping)
+            midi_hash = track.audio_to_midi_clip_mapping._file_path_mapping[
+                Song.selected_clip(AudioClip).file_path
+            ]
+            Logger.dev("midi hash: %s" % midi_hash)
+            Logger.dev("midi hash equivalences: %s" % track.audio_to_midi_clip_mapping._midi_hash_equivalences[midi_hash])

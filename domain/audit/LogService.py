@@ -33,9 +33,6 @@ class LogService(object):
         if isinstance(current_track, AbstractGroupTrack):
             Logger.info("current_track.dummy_group: %s" % current_track.dummy_group)
             Logger.info()
-        if hasattr(current_track, "matching_track"):
-            Logger.info("current_track.matching_track: %s" % current_track.matching_track)
-            Logger.info()
         Logger.info("current_track.instrument: %s" % current_track.instrument)
         if current_track.instrument:
             Logger.info()

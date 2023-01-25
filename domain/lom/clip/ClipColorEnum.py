@@ -4,6 +4,7 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 class ClipColorEnum(ColorEnumInterface, AbstractEnum):
     AUDIO_UN_QUANTIZED = 14
+    BLINK = 41
 
     @property
     def int_value(self):

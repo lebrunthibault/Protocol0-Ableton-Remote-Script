@@ -8,12 +8,11 @@ from protocol0.shared.observer.Observable import Observable
 
 
 class ExtMonitoringState(Observable):
-    def __init__(self, base_track, dummy_group):
-        # type: (SimpleAudioTrack, DummyGroup) -> None
+    def __init__(self, base_track):
+        # type: (SimpleAudioTrack) -> None
         super(ExtMonitoringState, self).__init__()
         self._midi_track = base_track.sub_tracks[0]
         self._audio_track = base_track.sub_tracks[1]
-        self._dummy_group = dummy_group
 
     def update(self, observable):
         # type: (Observable) -> None

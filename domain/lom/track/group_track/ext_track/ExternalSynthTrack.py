@@ -6,7 +6,6 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtArmState import ExtArmState
-from protocol0.domain.lom.track.group_track.ext_track.ExtMatchingTrack import ExtMatchingTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import ExtMonitoringState
 from protocol0.domain.lom.track.group_track.ext_track.ExtSoloState import ExtSoloState
 from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
@@ -36,8 +35,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.base_track.sub_tracks = self.sub_tracks
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
-        self.matching_track = ExtMatchingTrack(self.base_track)
-        self.audio_track.matching_track = self.matching_track
 
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:
@@ -45,11 +42,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.midi_track.devices.build()
 
-        self.monitoring_state = ExtMonitoringState(self.base_track, self.dummy_group)
-        self.monitoring_state.register_observer(self.matching_track)
+        self.monitoring_state = ExtMonitoringState(self.base_track)
 
         self.arm_state = ExtArmState(self.base_track, self.midi_track)
-        self.arm_state.register_observer(self.matching_track)
         self.arm_state.register_observer(self.monitoring_state)
 
         self._solo_state = ExtSoloState(self.base_track)

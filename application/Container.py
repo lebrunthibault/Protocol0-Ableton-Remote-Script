@@ -43,6 +43,9 @@ from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationSer
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.TrackService import TrackService
+from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackService import \
+    MatchingTrackService
+from protocol0.domain.lom.track.simple_track.SimpleTrackService import SimpleTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -58,7 +61,6 @@ from protocol0.infra.interface.session.SessionService import SessionService
 from protocol0.infra.logging.LoggerService import LoggerService
 from protocol0.infra.midi.MidiService import MidiService
 from protocol0.infra.persistence.SongDataService import SongDataService
-from protocol0.infra.persistence.TrackData import TrackData
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickScheduler import TickScheduler
 from protocol0.shared.Song import Song
@@ -134,6 +136,8 @@ class Container(ContainerInterface):
             scene_crud_component,
             quantization_component,
         )
+        SimpleTrackService()
+        matching_track_service = MatchingTrackService(track_crud_component)
         scene_service = SceneService(live_song, scene_crud_component)
         scene_playback_service = ScenePlaybackService(playback_component)
         PlayingSceneFacade(scene_component)
@@ -205,6 +209,7 @@ class Container(ContainerInterface):
         self._register(track_automation_service)
         self._register(track_mapper_service)
         self._register(track_service)
+        self._register(matching_track_service)
 
         self._register(scene_service)
         self._register(scene_playback_service)

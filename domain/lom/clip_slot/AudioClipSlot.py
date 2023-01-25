@@ -17,13 +17,11 @@ class AudioClipSlot(ClipSlot):
         super(AudioClipSlot, self).__init__(*a, **k)
         self.clip = self.clip  # type: Optional[AudioClip]
 
-
     def duplicate_clip_to(self, clip_slot):
         # type: (AudioClipSlot) -> Sequence
         seq = Sequence()
         seq.add(partial(super(AudioClipSlot, self).duplicate_clip_to, clip_slot))
         return seq.done()
-
 
     def replace_clip_sample(self, source_cs=None, file_path=None):
         # type: (Optional["AudioClipSlot"], Optional[str]) -> Optional[Sequence]
@@ -57,6 +55,7 @@ class AudioClipSlot(ClipSlot):
         # restore loop (the clip object has potentially been replaced)
         seq.add(lambda: self.clip.loop.update_from_dict(loop_data))
         seq.add(lambda: setattr(self.clip, "name", clip_name))
+        seq.add(lambda: self.clip.blink())
         return seq.done()
 
     def _assert_clip_file_path(self, clip, file_path):

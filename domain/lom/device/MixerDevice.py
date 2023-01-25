@@ -36,3 +36,8 @@ class MixerDevice(SlotManager):
         # type: () -> None
         for param in self.parameters:
             param.value = 0
+
+    @property
+    def is_default(self):
+        # type: () -> bool
+        return all(param.value == param.default_value for param in self.parameters)

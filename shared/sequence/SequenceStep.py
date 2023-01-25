@@ -3,6 +3,7 @@ import traceback
 from typing import Any, Callable, Optional
 
 from protocol0.domain.shared.errors.error_handler import handle_error
+from protocol0.domain.shared.utils.func import get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.HasSequenceState import HasSequenceState
@@ -40,6 +41,7 @@ class SequenceStep(Observable):
             self._execute()
         except Exception as e:
             self._error()
+            Logger.warning("Error on %s" % get_callable_repr(self._callable))
             Logger.warning(traceback.format_exc())
             raise e
 
@@ -73,7 +75,7 @@ class SequenceStep(Observable):
 
     def _terminate(self, res):
         # type: (Any) -> None
-        if self.state.cancelled or self.state.errored:
+        if self.state.cancelled or self.state.errored or self.state.terminated:
             return
         self.res = res
         self.state.change_to(SequenceStateEnum.TERMINATED)

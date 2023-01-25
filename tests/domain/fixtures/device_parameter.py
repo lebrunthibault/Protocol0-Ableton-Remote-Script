@@ -8,3 +8,5 @@ class AbletonDeviceParameter(Subject):
         self.name = name
         self.is_enabled = True
         self.default_value = 0
+        self.min = 0
+        self.max = 1

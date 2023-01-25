@@ -35,7 +35,8 @@ class ParallelSequence(SlotManager, Observable):
 
     def start(self):
         # type: () -> ParallelSequence
-        self.state.change_to(SequenceStateEnum.STARTED)
+        if not self.state.started and not self.state.terminated:
+            self.state.change_to(SequenceStateEnum.STARTED)
 
         if len(self._steps) == 0:
             self._check_for_parallel_step_completion()
@@ -48,7 +49,7 @@ class ParallelSequence(SlotManager, Observable):
 
     def _check_for_parallel_step_completion(self):
         # type: () -> None
-        if self._steps_terminated_count == len(self._steps):
+        if self._steps_terminated_count == len(self._steps) and not self.state.terminated:
             self.state.change_to(SequenceStateEnum.TERMINATED)
             self.notify_observers()
             self.disconnect()

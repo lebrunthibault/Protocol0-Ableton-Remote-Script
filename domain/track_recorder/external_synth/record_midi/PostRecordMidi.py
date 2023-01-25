@@ -1,6 +1,10 @@
 from functools import partial
 
+from typing import cast
+
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
+from protocol0.domain.lom.clip.ClipInfo import ClipInfo
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
@@ -14,7 +18,8 @@ class PostRecordMidi(RecordProcessorInterface):
         # type: (ExternalSynthTrack, RecordConfig) -> None
         track.monitoring_state.monitor_midi()
 
-        midi_clip = track.midi_track.clip_slots[config.scene_index].clip
+        midi_clip = cast(MidiClip, track.midi_track.clip_slots[config.scene_index].clip)
+        midi_clip.clip_name.update("")
         # deferring because the clip length is not accurate right now
         Scheduler.wait_ms(50, partial(midi_clip.post_record, config.bar_length))
 
@@ -22,6 +27,7 @@ class PostRecordMidi(RecordProcessorInterface):
         assert audio_clip, "No recorded audio clip"
 
         audio_clip.clip_name.update("")
-        track.audio_track.set_clip_midi_hash(audio_clip, midi_clip.hash)
+        track.audio_track.audio_to_midi_clip_mapping.register_file_path(
+            audio_clip.file_path, ClipInfo(midi_clip)
+        )
         audio_clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.int_value
-

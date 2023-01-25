@@ -1,12 +1,10 @@
 from functools import partial
 
-from typing import List, cast, Optional
+from typing import List, cast
 
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
-from protocol0.domain.lom.track.simple_track.SimpleTrackClips import SimpleTrackClips
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song

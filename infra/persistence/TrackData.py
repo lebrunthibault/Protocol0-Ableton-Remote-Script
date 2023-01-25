@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
+from protocol0.domain.lom.track.simple_track.AudioToMidiClipMapping import AudioToMidiClipMapping
 from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.infra.persistence.TrackDataEnum import TrackDataEnum
 
@@ -20,11 +21,18 @@ class TrackData(object):
         # type: () -> None
         if liveobj_valid(self._track._track):
             self._track._track.set_data(
-                TrackDataEnum.FILE_PATH_MAPPING.value, self._track.file_path_mapping
+                TrackDataEnum.AUDIO_TO_MIDI_CLIP_MAPPING.value,
+                self._track.audio_to_midi_clip_mapping.to_dict(),
             )
 
     def restore(self):
         # type: () -> None
-        self._track.file_path_mapping = self._track._track.get_data(
-            TrackDataEnum.FILE_PATH_MAPPING.value, {}
-        )
+        # noinspection PyTypeChecker
+        mapping_data = self._track._track.get_data(
+            TrackDataEnum.AUDIO_TO_MIDI_CLIP_MAPPING.value, None
+        )  # type: Dict
+
+        if mapping_data is not None:
+            self._track.audio_to_midi_clip_mapping = AudioToMidiClipMapping.from_dict(
+                self, mapping_data
+            )

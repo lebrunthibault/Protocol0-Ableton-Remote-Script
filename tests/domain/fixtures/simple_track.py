@@ -8,6 +8,7 @@ from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRouti
 from protocol0.shared.Song import Song
 from protocol0.tests.domain.fixtures.clip_slot import AbletonClipSlot
 from protocol0.tests.domain.fixtures.device import AbletonDevice
+from protocol0.tests.domain.fixtures.device_parameter import AbletonDeviceParameter
 
 
 class TrackType(object):
@@ -42,7 +43,7 @@ class AbletonTrack(Subject):
         self.name = track_type
         self.devices = []  # type: List[AbletonDevice]
         mixer_device = namedtuple("mixer_device", ["sends", "volume", "panning"])
-        self.mixer_device = mixer_device([], 0, 0)
+        self.mixer_device = mixer_device([], AbletonDeviceParameter("volume"), AbletonDeviceParameter("panning"))
         self.can_be_armed = True
         self.arm = False
         self.solo = False

@@ -17,13 +17,14 @@ from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
-from protocol0.domain.lom.track.simple_track.SimpleMatchingTrack import SimpleMatchingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmState import SimpleTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
-from protocol0.domain.lom.track.simple_track.SimpleTrackClips import SimpleTrackClips
+from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import \
+    SimpleTrackFlattenedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
     SimpleTrackMonitoringState,
 )
@@ -83,9 +84,6 @@ class SimpleTrack(AbstractTrack):
 
         self.arm_state = SimpleTrackArmState(live_track)
         self.arm_state.register_observer(self)
-
-        self.matching_track = SimpleMatchingTrack(self)
-        self.arm_state.register_observer(self.matching_track)
 
         self._output_meter_level_listener.subject = None
 
@@ -349,45 +347,29 @@ class SimpleTrack(AbstractTrack):
 
         return seq.done()
 
-    def flatten(self):
-        # type: () -> Sequence
+    def flatten(self, flatten_track=True):
+        # type: (bool) -> Sequence
         # this is needed to have flattened clip of the right length
         Song._live_song().stop_playing()
         for clip in self.clips:
             clip.looping = False
 
-        clip_infos = SimpleTrackClips.make_from_track(self)
+        clip_infos = [ClipInfo(clip) for clip in self.clips]
         track_color = self.color
 
         seq = Sequence()
-        seq.add(self.focus)
-        seq.defer()
-        seq.add(Backend.client().flatten_track)
-        seq.wait_for_backend_event("track_focused")
-        seq.add(partial(setattr, self, "color", track_color))
-        seq.wait_for_backend_event("track_flattened")
-        seq.defer()
-        seq.add(partial(self._post_flatten, clip_infos))
+
+        if flatten_track:
+            seq.add(self.focus)
+            seq.defer()
+            seq.add(Backend.client().flatten_track)
+            seq.wait_for_backend_event("track_focused")
+            seq.add(partial(setattr, self, "color", track_color))
+            seq.wait_for_backend_event("track_flattened")
+            seq.defer()
+
+        seq.add(partial(DomainEventBus.emit, SimpleTrackFlattenedEvent(clip_infos)))
         return seq.done()
-
-
-    def _post_flatten(self, clip_infos):
-        # type: (SimpleTrackClips) -> Optional[Sequence]
-        from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
-
-        flattened_track = Song.selected_track(SimpleAudioTrack)
-        flattened_track._needs_flattening = False
-
-        clip_info_by_index = {c.index: c for c in clip_infos}
-
-        clip_infos.hydrate(flattened_track.clips)
-
-        for clip in flattened_track.clips:
-            if clip.index in clip_info_by_index:
-                clip_info = clip_info_by_index[clip.index]
-                flattened_track.set_clip_midi_hash(clip, clip_info.get_midi_hash(self))
-
-        return flattened_track.matching_track.broadcast_clips(clip_infos)
 
     def isolate_clip_tail(self):
         # type: () -> Sequence

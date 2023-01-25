@@ -2,4 +2,4 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class TrackDataEnum(AbstractEnum):
-    FILE_PATH_MAPPING = "FILE_PATH_MAPPING"
+    AUDIO_TO_MIDI_CLIP_MAPPING = "AUDIO_TO_MIDI_CLIP_MAPPING"

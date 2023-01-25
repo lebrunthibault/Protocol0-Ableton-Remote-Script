@@ -1,5 +1,9 @@
 from functools import partial
 
+from typing import cast
+
+from protocol0.domain.lom.clip.ClipInfo import ClipInfo
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -16,7 +20,7 @@ class PostRecordAudio(RecordProcessorInterface):
         # type: (ExternalSynthTrack, RecordConfig) -> None
         DomainEventBus.emit(ExtAudioRecordingEndedEvent(track))
 
-        midi_clip = track.midi_track.clip_slots[config.scene_index].clip
+        midi_clip = cast(MidiClip, track.midi_track.clip_slots[config.scene_index].clip)
         audio_clip = track.audio_track.clip_slots[config.scene_index].clip
         assert audio_clip, "No recorded audio clip"
 
@@ -28,5 +32,12 @@ class PostRecordAudio(RecordProcessorInterface):
                 setattr, audio_clip.loop, "end", config.bar_length * Song.signature_numerator()
             ),
         )
-        track.audio_track.set_clip_midi_hash(audio_clip, midi_clip.hash)
+        if midi_clip.previous_midi_hash is not None:
+            track.audio_track.audio_to_midi_clip_mapping.register_midi_hash_equivalence(
+                midi_clip.previous_midi_hash, midi_clip.midi_hash
+            )
+        track.audio_track.audio_to_midi_clip_mapping.register_file_path(
+            audio_clip.file_path, ClipInfo(midi_clip)
+        )
+        midi_clip.previous_midi_hash = midi_clip.midi_hash
         audio_clip.clip_name.update(midi_clip.clip_name.base_name)

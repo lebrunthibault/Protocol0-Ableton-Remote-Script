@@ -5,6 +5,7 @@ from typing import Optional, List, cast, TYPE_CHECKING, Dict, Any
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
+from protocol0.domain.lom.track.TrackDisconnectedEvent import TrackDisconnectedEvent
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
     AbstractTrackAppearance,
@@ -13,9 +14,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import
     AbstractTrackSelectedEvent,
 )
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
-from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -50,12 +49,6 @@ class AbstractTrack(SlotManager):
         if self.group_track is not None:
             if self.group_track.color != self.color:
                 self.color = self.group_track.color
-
-        if hasattr(self, "matching_track"):
-            Scheduler.defer(self.matching_track.connect_base_track)
-
-            if not Song.is_track_recording():
-                return self.arm_state.arm()
 
         return None
 
@@ -181,5 +174,4 @@ class AbstractTrack(SlotManager):
         # type: () -> None
         super(AbstractTrack, self).disconnect()
         self.appearance.disconnect()
-        if hasattr(self, "matching_track"):
-            self.matching_track.disconnect()
+        DomainEventBus.emit(TrackDisconnectedEvent(self))
