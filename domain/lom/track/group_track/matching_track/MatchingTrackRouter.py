@@ -1,5 +1,3 @@
-from argparse import ArgumentError
-
 import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import SlotManager
@@ -9,6 +7,7 @@ from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import Abst
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.observer.Observable import Observable
 
@@ -34,15 +33,14 @@ class MatchingTrackRouter(SlotManager):
         # type: () -> None
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._audio_track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
-        self._base_track.output_routing.track = self._audio_track
+
+        if liveobj_valid(self._base_track._track):
+            self._base_track.output_routing.track = self._audio_track
 
     def monitor_audio_track(self):
         # type: () -> None
         """Restore the current monitoring state of the track"""
-        try:
-            self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-        except ArgumentError:
-            pass
+        self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
     @subject_slot_group("name")
     @defer

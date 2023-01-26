@@ -113,11 +113,9 @@ class Clip(SlotManager, Observable):
 
     def blink(self):
         # type: () -> None
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev("blink !")
         color = self.color
         self.color = ClipColorEnum.BLINK.value
-        Scheduler.wait_ms(1000, partial(setattr, self, "color", color))
+        Scheduler.wait_ms(2000, partial(setattr, self, "color", color))
 
     def stop(self, immediate=False, wait_until_end=False):
         # type: (bool, bool) -> None

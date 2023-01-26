@@ -3,11 +3,14 @@ from functools import partial
 from typing import Optional, List
 
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
+from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipsBroadcastEvent import \
+    MatchingTrackClipsBroadcastEvent
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackRouter import \
     MatchingTrackRouter
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.sequence.Sequence import Sequence
@@ -45,8 +48,11 @@ class MatchingTrackClipManager(object):
             message = "%s / %s clips replaced" % (len(replaced_cs), len(audio_track.clips))
             Backend.client().show_success(message)
 
+            DomainEventBus.emit(MatchingTrackClipsBroadcastEvent())
+
             self._router.monitor_audio_track()
-            Scheduler.wait_ms(1000, self._router.monitor_base_track)
+            # in case the base track is not already removed
+            Scheduler.wait_ms(2000, self._router.monitor_base_track)
 
             for cs in replaced_cs:
                 cs.clip.blink()
@@ -74,7 +80,7 @@ class MatchingTrackClipManager(object):
 
             assert dest_cs is not None, "Expected empty clip slot for new clip"
 
-            clip_info.replaced_clip_slots = dest_cs
+            clip_info.replaced_clip_slots = [dest_cs]
 
             return source_cs.duplicate_clip_to(dest_cs)
 

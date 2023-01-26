@@ -3,6 +3,8 @@ from typing import cast
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipColorManager import (
     MatchingTrackClipColorManager,
 )
+from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipsBroadcastEvent import \
+    MatchingTrackClipsBroadcastEvent
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterface import (
     MatchingTrackInterface,
 )
@@ -38,8 +40,10 @@ class ExtMatchingTrack(MatchingTrackInterface):
 
         seq = Sequence()
 
+        seq.add(self._base_track.abstract_track.arm_state.unarm)
         seq.add(self._base_track.save)
         seq.add(self._audio_sub_track.flatten)
+        seq.wait_for_event(MatchingTrackClipsBroadcastEvent)
         seq.add(self._base_track.delete)
 
         return seq.done()

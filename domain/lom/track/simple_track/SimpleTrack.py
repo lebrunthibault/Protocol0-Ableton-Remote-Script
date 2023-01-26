@@ -369,6 +369,8 @@ class SimpleTrack(AbstractTrack):
             seq.defer()
 
         seq.add(partial(DomainEventBus.emit, SimpleTrackFlattenedEvent(clip_infos)))
+        seq.defer()
+        seq.log("flattened")
         return seq.done()
 
     def isolate_clip_tail(self):

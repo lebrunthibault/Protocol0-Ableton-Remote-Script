@@ -1,0 +1,2 @@
+class MatchingTrackClipsBroadcastEvent(object):
+    pass

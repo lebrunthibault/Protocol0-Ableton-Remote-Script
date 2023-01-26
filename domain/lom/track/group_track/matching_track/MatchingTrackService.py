@@ -107,7 +107,6 @@ class MatchingTrackService(object):
                 # (in this case an exception will be raised)
                 flattened_track.audio_to_midi_clip_mapping.register_file_path(clip.file_path, clip_info)
 
-
         if matching_track is None:
             return None
 
