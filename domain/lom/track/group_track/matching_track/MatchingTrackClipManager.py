@@ -45,14 +45,18 @@ class MatchingTrackClipManager(object):
         def post_broadcast():
             # type: () -> None
             replaced_cs = [cs for c in clip_infos for cs in c.replaced_clip_slots]
-            message = "%s / %s clips replaced" % (len(replaced_cs), len(audio_track.clips))
-            Backend.client().show_success(message)
+
+            if len(replaced_cs) == 0:
+                Backend.client().show_warning("No clip replaced")
+            else:
+                message = "%s / %s clips replaced" % (len(replaced_cs), len(audio_track.clips))
+                Backend.client().show_success(message, centered=True)
 
             DomainEventBus.emit(MatchingTrackClipsBroadcastEvent())
 
             self._router.monitor_audio_track()
             # in case the base track is not already removed
-            Scheduler.wait_ms(2000, self._router.monitor_base_track)
+            Scheduler.wait_ms(1500, self._router.monitor_base_track)
 
             for cs in replaced_cs:
                 cs.clip.blink()
@@ -73,7 +77,8 @@ class MatchingTrackClipManager(object):
         clip_info.replaced_clip_slots = matching_clip_slots
 
         # new clip
-        if len(matching_clip_slots) == 0:
+        cs_already_bounced = any(clip_info.matches_clip_slot(audio_track, cs, False) for cs in audio_track.clip_slots)
+        if not cs_already_bounced:
             dest_cs = self._audio_track.clip_slots[source_cs.index]
             if dest_cs.clip is not None:
                 dest_cs = find_if(lambda c: c.clip is None, self._audio_track.clip_slots)  # type: ignore

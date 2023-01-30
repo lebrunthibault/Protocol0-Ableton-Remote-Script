@@ -26,17 +26,17 @@ class ClipInfo(object):
         # type: () -> str
         return "ClipInfo(name=%s)" % self.name
 
-    def matches_clip_slot(self, dest_track, dest_cs):
-        # type: (SimpleAudioTrack, AudioClipSlot) -> bool
+    def matches_clip_slot(self, dest_track, dest_cs, exclude_identity=True):
+        # type: (SimpleAudioTrack, AudioClipSlot, bool) -> bool
         dest_clip = dest_cs.clip
         if dest_clip is None:
             return False
 
         if self.midi_hash is not None:
             return dest_track.audio_to_midi_clip_mapping.hash_matches_file_path(
-                self.midi_hash, dest_clip.file_path
+                self.midi_hash, dest_clip.file_path, exclude_identity
             )
         else:
-            return dest_track.audio_to_midi_clip_mapping.file_path_matches_file_path(
-                cast(str, self.file_path), dest_clip.file_path
+            return dest_track.audio_to_midi_clip_mapping.file_path_updated_matches_file_path(
+                cast(str, self.file_path), dest_clip.file_path,exclude_identity
             )

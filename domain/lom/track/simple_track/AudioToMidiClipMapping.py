@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 class AudioToMidiClipMapping(object):
     """
-        Keep a reference to audio clips midi origin as a midi hash
-        to be able to update audio clips on midi clip change and rerecording
-        hash to file path is a many to many relationship
+    Keep a reference to audio clips midi origin as a midi hash
+    to be able to update audio clips on midi clip change and rerecording
+    hash to file path is a many to many relationship
     """
 
     _DEBUG = True
@@ -37,9 +37,8 @@ class AudioToMidiClipMapping(object):
         # type: () -> Dict
         return {
             "file_path_mapping": self._file_path_mapping,
-            "midi_hash_equivalences": self._midi_hash_equivalences
+            "midi_hash_equivalences": self._midi_hash_equivalences,
         }
-
 
     @classmethod
     def from_dict(cls, track_data, data):
@@ -55,7 +54,9 @@ class AudioToMidiClipMapping(object):
         for midi_hash, equivalences in other_mapping._midi_hash_equivalences.items():
             self._midi_hash_equivalences[midi_hash] += equivalences
             # keep unique values
-            self._midi_hash_equivalences[midi_hash] = list(set(self._midi_hash_equivalences[midi_hash]))
+            self._midi_hash_equivalences[midi_hash] = list(
+                set(self._midi_hash_equivalences[midi_hash])
+            )
 
     def register_file_path(self, file_path, clip_info):
         # type: (str, ClipInfo) -> None
@@ -83,16 +84,21 @@ class AudioToMidiClipMapping(object):
         self._midi_hash_equivalences[new_hash] = hash_list
         self._midi_hash_equivalences[existing_hash] = hash_list
 
-    def hash_matches_file_path(self, midi_hash, file_path):
-        # type: (int, str) -> bool
+    def hash_matches_file_path(self, midi_hash, file_path, exclude_identity=True):
+        # type: (int, str, bool) -> bool
         if file_path not in self._file_path_mapping:
             return False
 
         file_path_midi_hash = self._file_path_mapping[file_path]
+        if exclude_identity and midi_hash == file_path_midi_hash:
+            return False
+
         return midi_hash in self._midi_hash_equivalences[file_path_midi_hash]
 
-    def file_path_matches_file_path(self, file_path_1, file_path_2):
-        # type: (str, str) -> bool
+    def file_path_updated_matches_file_path(self, file_path_1, file_path_2, exclude_identity=True):
+        # type: (str, str, bool) -> bool
         midi_hash_1 = self._file_path_mapping.get(file_path_1, None)
 
-        return midi_hash_1 is not None and self.hash_matches_file_path(midi_hash_1, file_path_2)
+        return midi_hash_1 is not None and self.hash_matches_file_path(
+            midi_hash_1, file_path_2, exclude_identity
+        )

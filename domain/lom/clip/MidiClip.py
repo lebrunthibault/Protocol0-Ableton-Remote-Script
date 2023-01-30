@@ -76,6 +76,8 @@ class MidiClip(Clip):
 
     def on_added(self):
         # type: () -> Optional[Sequence]
+        self.previous_midi_hash = None
+
         if len(self.get_notes()) > 0 or self.is_recording:
             return None
 
