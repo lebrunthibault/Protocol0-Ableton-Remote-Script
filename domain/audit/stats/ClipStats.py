@@ -3,9 +3,7 @@ import collections
 from typing import Dict, Any
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
-    ExternalSynthTrack,
-)
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.shared.utils.utils import get_minutes_legend
 from protocol0.shared.Song import Song
 
@@ -15,11 +13,11 @@ class ClipStats(object):
         # type: () -> None
         self.clips = [clip for track in Song.simple_tracks() for clip in track.clips]
         self.abstract_clips = []
-        for track in Song.abstract_tracks():
-            if isinstance(track, ExternalSynthTrack):
-                self.abstract_clips += track.audio_track.clips
-            else:
-                self.abstract_clips += track.clips
+        for track in Song.simple_tracks():
+            if isinstance(track, SimpleMidiExtTrack):
+                continue
+
+            self.abstract_clips += track.clips
 
         self.audio_clips = [clip for clip in self.abstract_clips if isinstance(clip, AudioClip)]
         beat_duration = float(60) / Song.tempo()

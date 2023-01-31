@@ -12,7 +12,7 @@ class MixerDevice(SlotManager):
 
         parameters = live_mixer_device.sends + [live_mixer_device.volume, live_mixer_device.panning]
         self._parameters = [
-            DeviceParameter(parameter, is_mixer_parameter=True) for parameter in parameters
+            DeviceParameter(parameter) for parameter in parameters
         ]
 
     def to_dict(self):

@@ -8,10 +8,9 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class DeviceParameter(object):
-    def __init__(self, device_parameter, enum=None, is_mixer_parameter=False):
-        # type: (Live.DeviceParameter.DeviceParameter, Optional[DeviceParameterEnum], bool) -> None
+    def __init__(self, device_parameter, enum=None):
+        # type: (Live.DeviceParameter.DeviceParameter, Optional[DeviceParameterEnum]) -> None
         self._device_parameter = device_parameter  # type: Live.DeviceParameter.DeviceParameter
-        self._is_mixer_parameter = is_mixer_parameter
         self.device_name = ""
 
         try:
@@ -111,11 +110,6 @@ class DeviceParameter(object):
             return self._device_parameter.is_enabled
         else:
             return False
-
-    @property
-    def is_mixer_parameter(self):
-        # type: () -> bool
-        return self._is_mixer_parameter
 
     @classmethod
     def set_live_device_parameter(cls, param, value):

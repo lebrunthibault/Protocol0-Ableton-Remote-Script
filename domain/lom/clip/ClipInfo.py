@@ -1,15 +1,20 @@
+from os.path import basename
+
 from typing import TYPE_CHECKING, cast, List
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 
 
 class ClipInfo(object):
+    _DEBUG = True
+
     def __init__(self, clip):
         # type: (Clip) -> None
         self.index = clip.index
@@ -24,13 +29,19 @@ class ClipInfo(object):
 
     def __repr__(self):
         # type: () -> str
-        return "ClipInfo(name=%s)" % self.name
+        file_path = self.file_path and basename(self.file_path)
+
+        return "ClipInfo(name=%s,midi_hash=%s,file_path=%s)" % (self.name, self.midi_hash, file_path)
 
     def matches_clip_slot(self, dest_track, dest_cs, exclude_identity=True):
         # type: (SimpleAudioTrack, AudioClipSlot, bool) -> bool
         dest_clip = dest_cs.clip
+
         if dest_clip is None:
             return False
+
+        if self._DEBUG:
+            Logger.info("dest clip: %s -> %s" % (dest_clip, basename(dest_clip.file_path)))
 
         if self.midi_hash is not None:
             return dest_track.audio_to_midi_clip_mapping.hash_matches_file_path(

@@ -12,9 +12,6 @@ from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterfac
 from protocol0.domain.lom.validation.object_validators.DummyGroupValidator import (
     DummyGroupValidator,
 )
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils.list import find_if
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -143,20 +140,6 @@ class DummyGroup(object):
             automated_parameters.update(dummy_track.get_automated_parameters(scene_index))
 
         return automated_parameters
-
-    def get_selected_mixer_parameter(self, selected_parameter):
-        # type: (DeviceParameter) -> Tuple[SimpleDummyReturnTrack, DeviceParameter]
-        if self._dummy_return_track is None:
-            raise Protocol0Warning("Send parameters need a dummy return track")
-
-        selected_track = self._dummy_return_track
-        new_selected_parameter = find_if(
-            lambda p: p.is_mixer_parameter and p.name == selected_parameter.name,
-            self._dummy_return_track.devices.parameters,
-        )
-        assert new_selected_parameter is not None, "Cannot find selected mixer parameter"
-
-        return selected_track, new_selected_parameter
 
     def make_validator(self):
         # type: () -> ValidatorInterface

@@ -5,18 +5,13 @@ from typing import Optional, cast
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
-from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
-from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -28,7 +23,8 @@ class TrackAutomationService(object):
 
     def show_automation(self, go_next):
         # type: (bool) -> Sequence
-        selected_parameter = Song.selected_parameter()
+        selected_parameter = Song.selected_parameter() or self._last_selected_parameter
+
         seq = Sequence()
 
         # adds the dummy clip if none is present
@@ -43,42 +39,13 @@ class TrackAutomationService(object):
         return seq.done()
 
     def _show_selected_parameter_automation(self, selected_parameter):
-        # type: (DeviceParameter) -> Optional[Sequence]
-        # check if its a return or not
-        current_track = Song.current_track()
-        selected_track = Song.selected_track()
+        # type: (DeviceParameter) -> None
+        if selected_parameter not in Song.selected_track().devices.parameters:
+            self._last_selected_parameter = None
+            raise Protocol0Warning("parameter does not belong to selected track")
 
-        # simple access
-        if not isinstance(current_track, AbstractGroupTrack) or isinstance(
-            selected_track, SimpleMidiExtTrack
-        ):
-            try:
-                Song.selected_clip().automation.show_parameter_envelope(selected_parameter)
-            except Exception as e:
-                Logger.info((Song.selected_clip(), Song.selected_clip()._clip, liveobj_valid(Song.selected_clip()._clip), selected_parameter))
-                raise e
-            return None
-
-        # Special case if we clicked by mistake on a send parameter of any sub track
-        # consider we wanted to show the automation of the dummy return track instead
-        if selected_parameter.is_mixer_parameter:
-            (
-                selected_track,
-                selected_parameter,
-            ) = current_track.dummy_group.get_selected_mixer_parameter(selected_parameter)
-
-        if not isinstance(selected_track, SimpleDummyTrack):
-            Backend.client().show_warning("Can only show automation on dummy tracks")
-
-        selected_clip = selected_track.clip_slots[Song.selected_scene().index].clip
-        if selected_clip is None:
-            clip = "dummy return clip" if selected_parameter.is_mixer_parameter else "dummy clip"
-            raise Protocol0Warning("Selected scene has no %s" % clip)
-
-        seq = Sequence()
-        seq.add(selected_track.select)
-        seq.add(partial(selected_clip.automation.show_parameter_envelope, selected_parameter))
-        return seq.done()
+        self._last_selected_parameter = selected_parameter
+        Song.selected_clip().automation.show_parameter_envelope(selected_parameter)
 
     def _scroll_automated_parameters(self, go_next):
         # type: (bool) -> Sequence

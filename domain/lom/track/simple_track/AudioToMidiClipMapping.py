@@ -43,7 +43,9 @@ class AudioToMidiClipMapping(object):
     @classmethod
     def from_dict(cls, track_data, data):
         # type: (TrackData, Dict) -> AudioToMidiClipMapping
-        midi_hash_equivalences = {int(k): v for k, v in data["midi_hash_equivalences"].items()}
+        midi_hash_equivalences = {
+            int(k): v for k, v in data["midi_hash_equivalences"].items() if k.isdigit()
+        }
 
         return AudioToMidiClipMapping(track_data, data["file_path_mapping"], midi_hash_equivalences)
 

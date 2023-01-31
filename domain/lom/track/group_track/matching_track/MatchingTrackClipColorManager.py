@@ -21,26 +21,35 @@ class MatchingTrackClipColorManager(object):
         colors_on = any(c.color != self._clip_track.color for c in self._clip_track.clips)
 
         if colors_on:
-            self._router.monitor_base_track()
-            clips = self._clip_track.clips + self._audio_track.clips
-            if self._audio_track_2 is not None:
-                clips += self._audio_track_2.clips
+            self._revert_colouring()
+        else:
+            self._set_colours()
 
-            for clip in clips:
-                clip.color = self._clip_track.color
-            return
+    def _revert_colouring(self):
+        # type: () -> None
+        self._router.monitor_base_track()
+        clips = self._clip_track.clips + self._audio_track.clips
+        if self._audio_track_2 is not None:
+            clips += self._audio_track_2.clips
 
+        for clip in clips:
+            clip.color = self._clip_track.color
+
+    def _set_colours(self):
+        # type: () -> None
         self._router.monitor_audio_track()  # show clip colors
         color_index = 0
-        for clip in self._clip_track.clips:
-            clip.color = color_index
+
+        for base_clip in self._clip_track.clips:
+            base_clip.color = color_index
 
             clip_slots = self._audio_track.clip_slots
             if self._audio_track_2 is not None:
                 clip_slots += self._audio_track_2.clip_slots
 
+            clip_info = ClipInfo(base_clip)
             for cs in clip_slots:
-                if ClipInfo(clip).matches_clip_slot(self._audio_track, cs):
+                if clip_info.matches_clip_slot(self._audio_track, cs, exclude_identity=False):
                     cs.clip.color = color_index
 
             color_index += 1
