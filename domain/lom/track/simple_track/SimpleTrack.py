@@ -351,8 +351,6 @@ class SimpleTrack(AbstractTrack):
         # type: (bool) -> Sequence
         # this is needed to have flattened clip of the right length
         Song._live_song().stop_playing()
-        for clip in self.clips:
-            clip.looping = False
 
         clip_infos = [ClipInfo(clip) for clip in self.clips]
         track_color = self.color
@@ -360,9 +358,11 @@ class SimpleTrack(AbstractTrack):
         seq = Sequence()
 
         if flatten_track:
+            is_only_child = len(self.group_track.sub_tracks) == 1
+
             seq.add(self.focus)
             seq.defer()
-            seq.add(Backend.client().flatten_track)
+            seq.add(partial(Backend.client().flatten_track, is_only_child))
             seq.wait_for_backend_event("track_focused")
             seq.add(partial(setattr, self, "color", track_color))
             seq.wait_for_backend_event("track_flattened")

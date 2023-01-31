@@ -209,14 +209,14 @@ class DeviceEnum(AbstractEnum):
                 cls.UTILITY,
             ],
             [
-                DeviceEnumGroup("Comp", [cls.COMPRESSOR, cls.SSL_COMP]),
+                DeviceEnumGroup("Comp", [cls.SSL_COMP, cls.COMPRESSOR]),
                 DeviceEnumGroup("Limiter", [cls.LIMITER, cls.L1_LIMITER, cls.L1_ULTRAMAXIMIZER]),
                 cls.TRACK_SPACER,
             ],
             [
                 DeviceEnumGroup("Vol Mod", [cls.LFO_TOOL, cls.GATEKEEPER]),
-                DeviceEnumGroup("Delay", [cls.SUPER_TAP_2, cls.SUPER_TAP_6, cls.DELAY]),
                 DeviceEnumGroup("Satu", [cls.SATURN_2, cls.SATURATOR]),
+                DeviceEnumGroup("Delay", [cls.SUPER_TAP_2, cls.SUPER_TAP_6, cls.DELAY]),
             ],
             [
                 cls.DRUM_RACK,

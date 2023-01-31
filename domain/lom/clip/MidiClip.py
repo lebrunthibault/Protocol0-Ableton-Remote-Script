@@ -86,6 +86,7 @@ class MidiClip(Clip):
         seq = Sequence()
         seq.defer()
         seq.add(partial(setattr, self, "length", Song.selected_scene().length))
+        seq.add(partial(setattr, self._clip, "end_marker", Song.selected_scene().length))
         seq.add(self.show_loop)
 
         if isinstance(Song.selected_track().instrument, InstrumentSimpler):

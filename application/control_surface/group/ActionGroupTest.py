@@ -53,8 +53,8 @@ class ActionGroupTest(ActionGroupInterface):
         from protocol0.shared.logging.Logger import Logger
 
         if isinstance(Song.selected_clip(), MidiClip):
-            Logger.dev("previous midi hash: %s" % Song.selected_clip(MidiClip).previous_midi_hash)
             Logger.dev("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
+            Logger.dev("previous midi hash: %s" % Song.selected_clip(MidiClip).previous_midi_hash)
         else:
             track = Song.selected_track(SimpleAudioTrack)
             Logger.dev(track.audio_to_midi_clip_mapping._file_path_mapping)

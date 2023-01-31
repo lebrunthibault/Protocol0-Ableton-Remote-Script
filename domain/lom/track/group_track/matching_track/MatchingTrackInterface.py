@@ -9,6 +9,8 @@ from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackRouter i
     MatchingTrackRouter
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackSoloState import \
     MatchingTrackSoloState
+from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackTrackManager import \
+    MatchingTrackTrackManager
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
@@ -40,6 +42,7 @@ class MatchingTrackInterface(SlotManager):
         self.router = MatchingTrackRouter(base_track, self._audio_track)
         self._solo_state = MatchingTrackSoloState(base_track, self._audio_track)
         self.clip_manager = MatchingTrackClipManager(self.router, base_track, self._audio_track)
+        self.track_manager = MatchingTrackTrackManager(base_track, self._audio_track)
 
     def __repr__(self):
         # type: () -> str
