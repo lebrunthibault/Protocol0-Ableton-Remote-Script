@@ -8,4 +8,4 @@ class MixingService(object):
         for track in Song.abstract_tracks():
             if isinstance(track, NormalGroupTrack):
                 continue
-            track.scroll_volume(go_next)
+            track.base_track.scroll_volume(go_next)

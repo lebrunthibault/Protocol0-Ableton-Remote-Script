@@ -96,7 +96,7 @@ class SimpleTrackClipSlots(SlotManager, Observable):
 
     @subject_slot_group("has_clip")
     @defer
-    def _has_clip_listener(self, clip_slot):
+    def _has_clip_listener(self, _):
         # type: (Live.ClipSlot.ClipSlot) -> None
         DomainEventBus.emit(ClipSlotHasClipEvent(self._live_track))
         pass

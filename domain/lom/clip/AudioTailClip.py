@@ -12,14 +12,6 @@ class AudioTailClip(AudioClip):
         super(AudioClip, self).__init__(*a, **k)
         Scheduler.defer(partial(setattr, self.loop, "looping", False))
 
-    def post_record(self, bar_length):
-        # type: (int) -> None
-        super(AudioTailClip, self).post_record(bar_length)
-        if bar_length == 0:
-            return None
-
-        self.muted = True
-
     def fire(self):
         # type: () -> None
         # optimization to be able to play the set at high tempi

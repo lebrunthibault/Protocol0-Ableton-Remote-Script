@@ -47,6 +47,7 @@ class DeviceService(object):
 
         if (
             device_enum.default_parameter is not None
+            and Song.selected_clip_slot() is not None
             and Song.selected_clip(raise_if_none=False) is not None
             and ApplicationViewFacade.is_clip_view_visible()
         ):

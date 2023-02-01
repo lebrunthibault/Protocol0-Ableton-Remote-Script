@@ -79,8 +79,8 @@ class ActionGroupMain(ActionGroupInterface):
 
         def switch_monitoring():
             # type: () -> None
-            assert hasattr(Song.current_track(), "monitoring_state")
-            Song.current_track().monitoring_state.switch()
+            assert hasattr(Song.current_track(), "monitoring_state"), "current track cannot be monitored"
+            Song.current_track().monitoring_state.switch()  # noqa
 
         # MONitor encoder
         self.add_encoder(

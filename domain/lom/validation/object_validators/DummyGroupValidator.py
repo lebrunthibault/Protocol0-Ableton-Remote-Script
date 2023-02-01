@@ -28,7 +28,7 @@ class DummyGroupValidator(AggregateValidator):
             if not isinstance(sub_track, (SimpleDummyTrack, SimpleMidiExtTrack)):
                 validators.append(
                     PropertyValueValidator(
-                        sub_track.output_routing,
+                        sub_track.base_track.output_routing,
                         "track",
                         dummy_track or group_track.base_track,
                         name="track output routing",

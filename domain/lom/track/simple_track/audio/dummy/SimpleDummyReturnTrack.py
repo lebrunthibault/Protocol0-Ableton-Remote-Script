@@ -22,7 +22,7 @@ class SimpleDummyReturnTrack(SimpleDummyTrack):
             type(track) == SimpleAudioTrack
             and not track.base_track.is_foldable
             and track.instrument is None
-            and track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
+            and track.base_track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
         )
 
     def on_added(self):

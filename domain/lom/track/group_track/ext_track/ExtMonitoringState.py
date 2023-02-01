@@ -1,5 +1,4 @@
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.group_track.ext_track.ExtArmState import (
     ExtArmState,
 )
