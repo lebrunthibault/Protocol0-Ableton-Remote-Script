@@ -17,6 +17,7 @@ class DeviceEnum(AbstractEnum):
     AUTO_FILTER_LOW_PASS = "Auto Filter Low Pass"
     AUTO_PAN = "Auto Pan"
     BEAT_REPEAT = "Beat Repeat"
+    C1_COMP = "C1 comp Stereo"
     COMPRESSOR = "Compressor"
     DELAY = "Delay"
     DRUM_RACK = "Drum Rack"
@@ -30,6 +31,7 @@ class DeviceEnum(AbstractEnum):
     GATE = "Gate"
     GATEKEEPER = "Gatekeeper"
     GLUE_COMPRESSOR = "Glue Compressor"
+    H_COMP = "H-Comp Stereo"
     KONTAKT = "Kontakt 7"
     INSERT_DELAY = "Insert Delay"
     INSERT_DRY_WET = "Insert Dry Wet"
@@ -66,6 +68,7 @@ class DeviceEnum(AbstractEnum):
     USAMO = "usamo_x64"
     UTILITY = "Utility"
     VALHALLA_VINTAGE_VERB = "ValhallaVintageVerb"
+    VCOMP = "VComp Stereo"
     YOULEAN = "Youlean Loudness Meter 2"
 
     @property
@@ -209,7 +212,7 @@ class DeviceEnum(AbstractEnum):
                 cls.UTILITY,
             ],
             [
-                DeviceEnumGroup("Comp", [cls.SSL_COMP, cls.COMPRESSOR]),
+                DeviceEnumGroup("Comp", [cls.SSL_COMP, cls.COMPRESSOR, cls.H_COMP, cls.C1_COMP, cls.VCOMP]),
                 DeviceEnumGroup("Limiter", [cls.LIMITER, cls.L1_LIMITER, cls.L1_ULTRAMAXIMIZER]),
                 cls.TRACK_SPACER,
             ],

@@ -4,7 +4,6 @@ from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
-from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -13,10 +12,10 @@ class ClipTail(object):
         # type: (SimpleTrackClipSlots) -> None
         self.active = True
         self._track_clip_slots = track_clip_slots
-        DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
+        DomainEventBus.subscribe(BarChangedEvent, self._on_third_beat_passed_event)
 
     def _on_third_beat_passed_event(self, _):
-        # type: (ThirdBeatPassedEvent) -> None
+        # type: (BarChangedEvent) -> None
         """
         Handling clip tail for end clips having length < scene length
         """
