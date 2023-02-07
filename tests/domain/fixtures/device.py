@@ -15,3 +15,4 @@ class AbletonDevice(Subject):
         self.parameters = [AbletonDeviceParameter(DeviceParameterEnum.DEVICE_ON.parameter_name)]
         self.can_have_drum_pads = False
         self.can_have_chains = False
+        self.class_display_name = ""

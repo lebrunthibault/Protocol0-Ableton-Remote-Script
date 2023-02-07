@@ -67,6 +67,12 @@ class InstrumentFactory(object):
             )
 
             return InstrumentSimpler
+        elif device._device.class_display_name == "Sampler":
+            from protocol0.domain.lom.instrument.instrument.InstrumentSampler import (
+                InstrumentSampler,
+            )
+
+            return InstrumentSampler
 
         return None
 

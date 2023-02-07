@@ -47,6 +47,6 @@ class SimpleMatchingTrack(MatchingTrackInterface):
         seq.add(self._base_track.save)
         seq.add(self._base_track.flatten)
         seq.wait_for_event(MatchingTrackClipsBroadcastEvent)
-        seq.add(self._base_track.delete)
+        # seq.add(self._base_track.delete)
 
         return seq.done()

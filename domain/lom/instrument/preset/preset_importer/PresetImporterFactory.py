@@ -11,6 +11,8 @@ from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImpor
 from protocol0.domain.lom.instrument.preset.preset_importer.FilePresetImporter import (
     FilePresetImporter,
 )
+from protocol0.domain.lom.instrument.preset.preset_importer.NullPresetImporter import \
+    NullPresetImporter
 from protocol0.domain.lom.instrument.preset.preset_importer.PluginDevicePresetImporter import (
     PluginDevicePresetImporter,
 )
@@ -27,7 +29,9 @@ class PresetImporterFactory(object):
     @classmethod
     def create_importer(cls, device, preset_path, preset_extension):
         # type: (Optional[Device], str, str) -> PresetImportInterface
-        if isinstance(device, RackDevice):
+        if not preset_path or not preset_extension:
+            return NullPresetImporter()
+        elif isinstance(device, RackDevice):
             return RackDevicePresetImporter(device)
         elif isinstance(device, PluginDevice):
             return PluginDevicePresetImporter(device)

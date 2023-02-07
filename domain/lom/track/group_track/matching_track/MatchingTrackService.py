@@ -58,13 +58,10 @@ class MatchingTrackService(object):
 
         matching_track = self._create_matching_track(current_track)
 
-        if matching_track is not None and len(list(matching_track._audio_track.devices)) != 0:
+        if matching_track is not None:
             return matching_track.bounce()
 
         seq = Sequence()
-
-        if matching_track is not None:
-            seq.add(matching_track.track_manager.remove_audio_track)
 
         seq.add(self._create_matching_track_creator(current_track).bounce)
         return seq.done()

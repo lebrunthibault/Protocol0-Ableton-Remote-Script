@@ -102,7 +102,11 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (float) -> None
         looping = self.looping
         self.looping = True
-        self._clip.loop_start = start
+        try:
+            self._clip.loop_start = start
+        except RuntimeError:
+            pass
+
         self.looping = looping
 
     @property
@@ -131,7 +135,10 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (float) -> None
         looping = self.looping
         self.looping = True
-        self._clip.loop_end = end
+        try:
+            self._clip.loop_end = end
+        except RuntimeError:
+            pass
         self.looping = looping
 
     @property
@@ -176,7 +183,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (float) -> None
         try:
             self.end = self.start + length
-        except IndexError as e:
+        except Exception as e:
             Logger.warning("clip loop length error: %s" % e)
 
     @property

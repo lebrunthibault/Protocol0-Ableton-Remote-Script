@@ -26,6 +26,7 @@ class SimpleMatchingTrackCreator(MatchingTrackCreatorInterface):
 
         seq.add(self._base_track.save)
         seq.add(self._base_track.flatten)
+        seq.defer()
 
         seq.add(partial(self._post_bounce, mixer_data))
         seq.add(partial(Backend.client().show_success, "Track bounced"))

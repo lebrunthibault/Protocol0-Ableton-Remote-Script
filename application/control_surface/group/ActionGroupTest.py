@@ -58,8 +58,11 @@ class ActionGroupTest(ActionGroupInterface):
         else:
             track = Song.selected_track(SimpleAudioTrack)
             Logger.dev(track.audio_to_midi_clip_mapping._file_path_mapping)
-            midi_hash = track.audio_to_midi_clip_mapping._file_path_mapping[
-                Song.selected_clip(AudioClip).file_path
-            ]
+            midi_hash = track.audio_to_midi_clip_mapping._file_path_mapping.get(
+                Song.selected_clip(AudioClip).file_path, None
+            )
             Logger.dev("midi hash: %s" % midi_hash)
-            Logger.dev("midi hash equivalences: %s" % track.audio_to_midi_clip_mapping._midi_hash_equivalences[midi_hash])
+            Logger.dev(
+                "midi hash equivalences: %s"
+                % track.audio_to_midi_clip_mapping._midi_hash_equivalences.get(midi_hash, None)
+            )

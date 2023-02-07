@@ -169,7 +169,7 @@ class SimpleTrack(AbstractTrack):
         # type: (CurrentMonitoringStateEnum) -> None
         try:
             self._track.current_monitoring_state = monitoring_state.value  # noqa
-        except RuntimeError as e:
+        except Exception as e:
             Backend.client().show_warning(str(e))
 
     @property
@@ -321,7 +321,12 @@ class SimpleTrack(AbstractTrack):
     def focus(self):
         # type: () -> Sequence
         # track can disappear out of view if this is done later
+
+        # defensive : this will normally be done before
+        Scheduler.wait_ms(2000, partial(setattr, self, "color", self.color))
+
         self.color = ColorEnum.FOCUSED.int_value
+
         seq = Sequence()
         #
         # if show_browser and not ApplicationViewFacade.is_browser_visible():
@@ -353,24 +358,23 @@ class SimpleTrack(AbstractTrack):
         Song._live_song().stop_playing()
 
         clip_infos = [ClipInfo(clip) for clip in self.clips]
-        track_color = self.color
+        recolor_track = partial(setattr, self, "color", self.color)
 
         seq = Sequence()
 
         if flatten_track:
-            is_only_child = len(self.group_track.sub_tracks) == 1
+            is_only_child = self.group_track is not None and len(self.group_track.sub_tracks) == 1
 
             seq.add(self.focus)
             seq.defer()
             seq.add(partial(Backend.client().flatten_track, is_only_child))
             seq.wait_for_backend_event("track_focused")
-            seq.add(partial(setattr, self, "color", track_color))
+            seq.add(recolor_track)
             seq.wait_for_backend_event("track_flattened")
             seq.defer()
 
         seq.add(partial(DomainEventBus.emit, SimpleTrackFlattenedEvent(clip_infos)))
         seq.defer()
-        seq.log("flattened")
         return seq.done()
 
     def isolate_clip_tail(self):
