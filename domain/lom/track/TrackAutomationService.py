@@ -20,16 +20,13 @@ class TrackAutomationService(object):
         # type: (TrackFactory) -> None
         self._track_factory = track_factory
         self._last_selected_parameter = None  # type: Optional[DeviceParameter]
+        self._last_scrolled_parameter = None  # type: Optional[DeviceParameter]
 
     def show_automation(self, go_next):
         # type: (bool) -> Sequence
-        selected_parameter = Song.selected_parameter() or self._last_selected_parameter
+        selected_parameter = Song.selected_parameter() or self._last_scrolled_parameter
 
         seq = Sequence()
-
-        # adds the dummy clip if none is present
-        if isinstance(Song.selected_track(), SimpleDummyTrack) and Song.selected_clip_slot().clip is None:
-            seq.add(partial(Song.template_dummy_clip_slot().duplicate_clip_to, Song.selected_clip_slot()))
 
         if selected_parameter is not None:
             seq.add(partial(self._show_selected_parameter_automation, selected_parameter))
@@ -41,10 +38,10 @@ class TrackAutomationService(object):
     def _show_selected_parameter_automation(self, selected_parameter):
         # type: (DeviceParameter) -> None
         if selected_parameter not in Song.selected_track().devices.parameters:
-            self._last_selected_parameter = None
+            self._last_scrolled_parameter = None
             raise Protocol0Warning("parameter does not belong to selected track")
 
-        self._last_selected_parameter = selected_parameter
+        self._last_scrolled_parameter = selected_parameter
         Song.selected_clip().automation.show_parameter_envelope(selected_parameter)
 
     def _scroll_automated_parameters(self, go_next):
@@ -52,7 +49,9 @@ class TrackAutomationService(object):
         """Scroll the automated parameters of the dummy clips"""
         current_track = Song.current_track()
         index = Song.selected_scene().index
+
         automated_parameters = current_track.get_automated_parameters(index)
+
         if len(automated_parameters.items()) == 0:
             raise Protocol0Warning("No automated parameters")
 
@@ -60,6 +59,7 @@ class TrackAutomationService(object):
             automated_parameters.keys(), self._last_selected_parameter, go_next
         )
         track = automated_parameters[selected_parameter]
+
         seq = Sequence()
         seq.add(track.select)
         seq.add(

@@ -16,7 +16,7 @@ class ExtSoloState(SlotManager):
         # this is necessary to monitor the group track solo state
         self._un_soloed_at = time.time()  # type: float
 
-        self._solo_listener.subject = self._base_track
+        self._solo_listener.subject = self._base_track._track
 
     def update(self):
         # type: () -> None
