@@ -40,8 +40,9 @@ class ScenePlayingState(object):
     @property
     def position(self):
         # type: () -> float
-        if self._scene_length.longest_clip:
-            return self._scene_length.longest_clip.playing_position.position
+        longest_clip = self._scene_length.get_longest_clip(is_playing=True)
+        if longest_clip is not None:
+            return longest_clip.playing_position.position
         else:
             return 0
 

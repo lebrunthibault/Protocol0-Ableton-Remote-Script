@@ -19,9 +19,16 @@ class SceneLength(object):
         return "SceneLength(index=%s, length=%f)" % (self._scene_index, self.length)
 
     @property
+    def _is_playing(self):
+        # type: () -> bool
+        return any(clip.is_playing for clip in self._clips)
+
+    @property
     def length(self):
         # type: () -> float
-        clip_length = self.longest_clip.length if self.longest_clip else 0.0
+        longest_clip = self.get_longest_clip(
+            is_playing=True) if self._is_playing else self.get_longest_clip()
+        clip_length = longest_clip.length if longest_clip else 0.0
         numerator = Song.signature_numerator()
 
         if clip_length % numerator != 0:
@@ -38,9 +45,8 @@ class SceneLength(object):
             Logger.warning("%s invalid length: %s" % (self, self.length))
         return int(self.length / Song.signature_numerator())
 
-    @property
-    def longest_clip(self):
-        # type: () -> Optional[Clip]
+    def get_longest_clip(self, is_playing=False):
+        # type: (bool) -> Optional[Clip]
         """
             We take any clip except
             - dummy clips (that can spawn more than one scene)
@@ -55,8 +61,9 @@ class SceneLength(object):
             clip
             for clip in self._clips
             if (not clip.is_recording or float(clip.length).is_integer())
-            and not isinstance(clip, DummyClip)
-            and not clip.muted
+               and not is_playing or clip.is_playing
+               and not isinstance(clip, DummyClip)
+               and not clip.muted
         ]
         if len(clips) == 0:
             return None

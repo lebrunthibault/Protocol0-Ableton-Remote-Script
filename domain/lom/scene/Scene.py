@@ -82,6 +82,8 @@ class Scene(SlotManager):
     @property
     def next_scene(self):
         # type: () -> Scene
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("self.should_loop: %s" % self.should_loop)
         if self.should_loop:
             return self
         else:
@@ -131,8 +133,12 @@ class Scene(SlotManager):
         if Song.is_track_recording():
             return
 
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(self.playing_state.in_last_bar)
         if self.playing_state.in_last_bar:
             next_scene = self.next_scene
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev(next_scene)
 
             if next_scene != self:
                 next_scene.fire()  # do not fire same scene as it focus it again (can lose current parameter focus)
@@ -180,15 +186,9 @@ class Scene(SlotManager):
         # stop the previous scene in advance, using clip launch quantization
         DomainEventBus.emit(SceneFiredEvent(self.index))
 
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("firing %s" % self)
         self._scene.fire()
-        #
-        # # only way to start all clips together
-        # if not SongFacade.is_playing():
-        #     self._scene.fire()
-        # else:
-        #     # including usamo as we use empty clips to define the scene length sometimes
-        #     for track in SongFacade.abstract_tracks():
-        #         track.fire(self.index)
 
     def stop(self, next_scene=None, immediate=False):
         # type: (Optional[Scene], bool) -> None

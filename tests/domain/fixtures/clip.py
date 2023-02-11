@@ -29,6 +29,7 @@ class AbletonClip(Subject):
         self.playing_position = 0
         self.start_marker = 0
         self.is_audio_clip = False
+        self.is_playing = False
 
     # noinspection PyUnusedLocal
     def get_notes(self, *a, **k):

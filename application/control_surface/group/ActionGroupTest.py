@@ -38,6 +38,10 @@ class ActionGroupTest(ActionGroupInterface):
             identifier=4, name="test server duplication", on_press=Backend.client().test_duplication
         )
 
+        self.add_encoder(
+            identifier=5, name="log midi", on_press=self.action_log_midi
+        )
+
         # USAMo encoder
         self.add_encoder(
             identifier=13,
@@ -48,10 +52,8 @@ class ActionGroupTest(ActionGroupInterface):
             ),
         )
 
-    def action_test(self):
+    def action_log_midi(self):
         # type: () -> None
-        from protocol0.shared.logging.Logger import Logger
-
         if isinstance(Song.selected_clip(), MidiClip):
             Logger.dev("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
             Logger.dev("previous midi hash: %s" % Song.selected_clip(MidiClip).previous_midi_hash)
@@ -66,3 +68,7 @@ class ActionGroupTest(ActionGroupInterface):
                 "midi hash equivalences: %s"
                 % track.audio_to_midi_clip_mapping._midi_hash_equivalences.get(midi_hash, None)
             )
+
+    def action_test(self):
+        # type: () -> None
+        pass

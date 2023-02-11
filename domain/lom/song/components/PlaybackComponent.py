@@ -59,7 +59,7 @@ class PlaybackComponent(SlotManager):
             beat_offset = 0.0
         else:
             beat_offset = (
-                                  scene.position_scroller.current_value * Song.signature_numerator()
+                scene.position_scroller.current_value * Song.signature_numerator()
             ) - scene.playing_state.position
             # to catch the first beat transient
             beat_offset -= 0.5

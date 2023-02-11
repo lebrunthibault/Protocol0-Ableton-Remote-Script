@@ -59,6 +59,11 @@ class AbletonSet(object):
         return self._path is None
 
     @property
+    def is_test(self):
+        # type: () -> bool
+        return self._title == "Toto"
+
+    @property
     def _saved_tracks(self):
         # type: () -> List[str]
         assert self._path, "set path not set"

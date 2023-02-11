@@ -171,7 +171,7 @@ class Container(ContainerInterface):
             session_to_arrangement_service,
         )
 
-        song_service = SongInitService(playback_component)
+        song_service = SongInitService(playback_component, ableton_set)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService()
         interface_clicks_service = InterfaceClicksService()
