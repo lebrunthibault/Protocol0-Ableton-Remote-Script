@@ -87,6 +87,10 @@ class AbletonSet(object):
                 "name": Song.current_track().name,
                 "type": Song.current_track().__class__.__name__,
             },
+            "selected_track": {
+                "name": Song.selected_track().name,
+                "type": Song.selected_track().__class__.__name__,
+            },
             "drum_rack_visible": isinstance(
                 Song.selected_track().instrument, InstrumentDrumRack
             ),

@@ -7,6 +7,7 @@ from typing import List, cast, Any, Optional
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.simple_track.AudioToMidiClipMapping import AudioToMidiClipMapping
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
@@ -70,6 +71,8 @@ class SimpleAudioTrack(SimpleTrack):
         seq.wait_for_backend_event("track_focused")
         seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("matching_track_loaded")
+        seq.wait_for_event(TracksMappedEvent)
+        seq.add(Backend.client().close_tracks_window)
         seq.add(partial(Backend.client().show_success, "Track loaded"))
         return seq.done()
 
