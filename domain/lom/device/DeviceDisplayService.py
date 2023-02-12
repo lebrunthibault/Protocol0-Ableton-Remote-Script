@@ -9,6 +9,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -31,6 +32,7 @@ class DeviceDisplayService(object):
         parent_rack = self._find_parent_rack(track, device)
         seq = Sequence()
         seq.add(ApplicationViewFacade.show_device)
+        Scheduler.wait_ms(1000, Backend.client().show_plugins)  # because of the keyboard shortcut
         seq.defer()
 
         if not parent_rack:
@@ -52,10 +54,7 @@ class DeviceDisplayService(object):
         seq.add(
             lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
         )
-        if slow:
-            seq.wait(60)
-        else:
-            seq.wait(30)
+        seq.wait(60 if slow else 30)
         seq.add(partial(self._un_collapse_devices, devices_to_collapse))
 
         return seq.done()

@@ -55,20 +55,20 @@ class ActionGroupTest(ActionGroupInterface):
     def action_log_midi(self):
         # type: () -> None
         if isinstance(Song.selected_clip(), MidiClip):
-            Logger.dev("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
-            Logger.dev("previous midi hash: %s" % Song.selected_clip(MidiClip).previous_midi_hash)
+            Logger.info("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
+            Logger.info("previous midi hash: %s" % Song.selected_clip(MidiClip).previous_midi_hash)
         else:
             track = Song.selected_track(SimpleAudioTrack)
-            Logger.dev(track.audio_to_midi_clip_mapping._file_path_mapping)
+            Logger.info(track.audio_to_midi_clip_mapping._file_path_mapping)
             midi_hash = track.audio_to_midi_clip_mapping._file_path_mapping.get(
                 Song.selected_clip(AudioClip).file_path, None
             )
-            Logger.dev("midi hash: %s" % midi_hash)
-            Logger.dev(
+            Logger.info("midi hash: %s" % midi_hash)
+            Logger.info(
                 "midi hash equivalences: %s"
                 % track.audio_to_midi_clip_mapping._midi_hash_equivalences.get(midi_hash, None)
             )
 
     def action_test(self):
         # type: () -> None
-        pass
+        Backend.client().show_plugins()

@@ -64,7 +64,7 @@ class InstrumentDisplayService(object):
         # type: (InstrumentSelectedEvent) -> Optional[Sequence]
         return self.show_instrument(Song.current_track())
 
-    def activate_plugin_window(self, track, force_activate=False, slow=True):
+    def activate_plugin_window(self, track, force_activate=False, slow=False):
         # type: (SimpleTrack, bool, bool) -> Optional[Sequence]
         seq = Sequence()
         instrument = track.instrument
