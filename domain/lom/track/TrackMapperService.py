@@ -140,7 +140,7 @@ class TrackMapperService(SlotManager):
         seq = Sequence()
         added_track = Song.selected_track()
         if Song.selected_track() == Song.current_track().base_track:
-            added_track = Song.current_track()
+            added_track = Song.current_track().base_track
         seq.defer()
         seq.add(added_track.on_added)
 

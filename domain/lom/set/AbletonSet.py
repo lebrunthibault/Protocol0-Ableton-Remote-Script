@@ -61,7 +61,7 @@ class AbletonSet(object):
     @property
     def is_test(self):
         # type: () -> bool
-        return self._title == "Toto"
+        return self._title in ("Toto", "Default")
 
     @property
     def _saved_tracks(self):
@@ -126,7 +126,7 @@ class AbletonSet(object):
         self._title = res["title"]
         self._path = res["path"]
 
-        if not self.is_unknown:
+        if not self.is_unknown and not self.is_test:
             abstract_track_names = [t.name for t in Song.abstract_tracks()]
             orphan_tracks = [t for t in self._saved_tracks if t not in abstract_track_names]
 

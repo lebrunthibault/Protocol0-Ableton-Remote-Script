@@ -48,7 +48,7 @@ def _get_insert_instrument_track(instrument_cls):
         if t.group_track is None and t.color == target_color
     ]
 
-    last_track = list(Song.top_tracks())[-1]
+    last_track = list(Song.top_tracks())[-1].base_track
 
     return next(reversed(instrument_tracks), last_track)
 

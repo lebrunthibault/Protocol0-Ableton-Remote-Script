@@ -33,13 +33,10 @@ class ExtMonitoringState(Observable):
 
     def monitor_midi(self):
         # type: () -> None
-        # audio track
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._audio_track._output_meter_level_listener.subject = self._audio_track._track
 
-    # noinspection DuplicatedCode
     def monitor_audio(self):
         # type: () -> None
-        # audio track
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         self._audio_track._output_meter_level_listener.subject = None
