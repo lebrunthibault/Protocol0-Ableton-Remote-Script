@@ -2,7 +2,7 @@ from functools import partial
 
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
+from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
@@ -15,12 +15,12 @@ class CountInOneBar(CountInInterface):
         # solo for count in
         track_solo = track.solo
         track.solo = True
+        playback_component.metronome = True
         playback_component.start_playing()
 
         seq = Sequence()
         seq.defer()
-        seq.add(partial(setattr, playback_component, "metronome", True))
-        seq.wait_for_event(BarEndingEvent, continue_on_song_stop=True)
+        seq.wait_for_event(Last32thPassedEvent, continue_on_song_stop=True)
         seq.add(partial(setattr, track, "solo", track_solo))
         seq.add(partial(self._stop_count_in, playback_component, track))
         seq.done()

@@ -11,7 +11,6 @@ from protocol0.domain.track_recorder.event.RecordCancelledEvent import (
     RecordCancelledEvent,
 )
 from protocol0.domain.track_recorder.event.RecordEndedEvent import RecordEndedEvent
-from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -28,7 +27,6 @@ class PlaybackComponent(SlotManager):
             False  # caching this because _is_playing_listener activates multiple times
         )
         self._is_playing_listener.subject = self._live_song
-        DomainEventBus.subscribe(RecordStartedEvent, lambda _: song.stop_playing())
         DomainEventBus.subscribe(RecordEndedEvent, self._on_record_ended_event)
         DomainEventBus.subscribe(RecordCancelledEvent, self._on_record_cancelled_event)
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
