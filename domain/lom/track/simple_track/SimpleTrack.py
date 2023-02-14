@@ -8,6 +8,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip.ClipTail import ClipTail
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
@@ -28,6 +29,8 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import \
 from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
     SimpleTrackMonitoringState,
 )
+from protocol0.domain.lom.track.simple_track.SimpleTrackSaveStartedEvent import \
+    SimpleTrackSaveStartedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -343,6 +346,9 @@ class SimpleTrack(AbstractTrack):
     def save(self):
         # type: () -> Sequence
         track_color = self.color
+
+        DomainEventBus.emit(SimpleTrackSaveStartedEvent())
+
         seq = Sequence()
         seq.add(self.focus)
         seq.add(Backend.client().save_track_to_sub_tracks)

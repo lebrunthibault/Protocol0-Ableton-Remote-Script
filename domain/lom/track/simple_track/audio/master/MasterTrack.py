@@ -7,6 +7,8 @@ from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
+from protocol0.domain.lom.track.simple_track.SimpleTrackSaveStartedEvent import \
+    SimpleTrackSaveStartedEvent
 from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackMuteToggledEvent import \
     MasterTrackMuteToggledEvent
 from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackRoomEqToggledEvent import (
@@ -28,8 +30,11 @@ class MasterTrack(SimpleAudioTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         self._room_eq = None  # type: Optional[Device]
+
         super(MasterTrack, self).__init__(*a, **k)
+
         self.devices.register_observer(self)
+        DomainEventBus.subscribe(SimpleTrackSaveStartedEvent, self._on_simple_track_save_started_event)
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -38,6 +43,15 @@ class MasterTrack(SimpleAudioTrack):
             if room_eq != self._room_eq:
                 self._room_eq = room_eq
             DomainEventBus.emit(MasterTrackRoomEqToggledEvent())
+
+    def _on_simple_track_save_started_event(self, _):
+        # type: (SimpleTrackSaveStartedEvent) -> None
+        """youlean makes saving a track 10s + long"""
+        youlean = self.devices.get_one_from_enum(DeviceEnum.YOULEAN)
+
+        if youlean is not None:
+            self.devices.delete(youlean)
+            Backend.client().show_warning("Youlean removed")
 
     def toggle_room_eq(self):
         # type: () -> Optional[Sequence]

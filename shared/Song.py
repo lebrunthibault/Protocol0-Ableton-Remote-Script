@@ -308,7 +308,7 @@ class Song(object):
             )
 
             if clip_slot is None:
-                raise Protocol0Warning("No selected clip slot")
+                return None
 
             if not isinstance(clip_slot, clip_slot_cls):
                 raise Protocol0Warning("clip slot is not a %s" % clip_slot_cls.__name__)

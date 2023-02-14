@@ -55,6 +55,6 @@ class ExtMatchingTrackCreator(MatchingTrackCreatorInterface):
         seq.add(self._audio_track.flatten)
         seq.add(partial(Backend.client().show_success, "Track bounced"))
 
-        # seq.add(self._base_track.delete)
+        # leave the track on
 
         return seq.done()
