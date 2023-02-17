@@ -84,8 +84,3 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
         for parameter in parameters:
             parameter.reset()
-
-    @property
-    def computed_color(self):
-        # type: () -> int
-        return self.group_track.appearance.color

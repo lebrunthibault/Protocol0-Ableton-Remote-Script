@@ -1,6 +1,5 @@
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.ui.HasAppearance import HasAppearance
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -33,5 +32,5 @@ class ValidatorService(object):
         if log:
             Backend.client().show_success(message)
 
-        if isinstance(obj, HasAppearance):
-            obj.appearance.refresh()
+        if hasattr(obj, "appearance") and hasattr(obj.appearance, "refresh"):  # type: ignore
+            obj.appearance.refresh()  # type: ignore

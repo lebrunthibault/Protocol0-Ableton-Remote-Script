@@ -4,7 +4,6 @@ from typing import Optional, List, cast, TYPE_CHECKING, Dict, Any
 
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.TrackDisconnectedEvent import TrackDisconnectedEvent
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
@@ -23,8 +22,6 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(SlotManager):
-    DEFAULT_COLOR = None  # type: Optional[TrackColorEnum]
-
     def __init__(self, track):
         # type: (SimpleTrack) -> None
         super(AbstractTrack, self).__init__()
@@ -38,7 +35,7 @@ class AbstractTrack(SlotManager):
 
         # MISC
         self.arm_state = AbstractTrackArmState(self._track)  # type: AbstractTrackArmState
-        self.appearance = AbstractTrackAppearance(self._track, self.DEFAULT_COLOR)
+        self.appearance = AbstractTrackAppearance(self._track)
 
     def __repr__(self):
         # type: () -> str
