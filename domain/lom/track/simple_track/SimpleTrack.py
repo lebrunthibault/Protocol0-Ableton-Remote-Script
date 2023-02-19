@@ -5,10 +5,10 @@ from _Framework.SubjectSlot import subject_slot
 from typing import cast, List, Optional, Dict
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip.ClipTail import ClipTail
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
@@ -21,7 +21,6 @@ from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRou
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmState import SimpleTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
-from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import \
@@ -366,6 +365,9 @@ class SimpleTrack(AbstractTrack):
         clip_infos = [ClipInfo(clip) for clip in self.clips]
         recolor_track = partial(setattr, self, "color", self.color)
 
+        for clip in self.clips:
+            clip.loop.end = clip.loop.end_marker  # to have tails
+
         seq = Sequence()
 
         if flatten_track:
@@ -378,6 +380,8 @@ class SimpleTrack(AbstractTrack):
             seq.add(recolor_track)
             seq.wait_for_backend_event("track_flattened")
             seq.defer()
+        else:
+            self.select()
 
         seq.add(partial(DomainEventBus.emit, SimpleTrackFlattenedEvent(clip_infos)))
         seq.defer()
