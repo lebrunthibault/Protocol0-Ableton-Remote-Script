@@ -5,6 +5,10 @@ from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudCom
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackDisconnectedEvent import TrackDisconnectedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.group_track.NormalGroupMatchingTrack import NormalGroupMatchingTrack
+from protocol0.domain.lom.track.group_track.NormalGroupMatchingTrackCreator import \
+    NormalGroupMatchingTrackCreator
+from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtMatchingTrack import ExtMatchingTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtMatchingTrackCreator import \
     ExtMatchingTrackCreator
@@ -21,7 +25,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import \
     SimpleTrackFlattenedEvent
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Song import Song
@@ -52,9 +55,6 @@ class MatchingTrackService(object):
     def bounce_current_track(self):
         # type: () -> Sequence
         current_track = Song.current_track()
-        assert isinstance(
-            current_track, (ExternalSynthTrack, SimpleMidiTrack)
-        ), "Can only bounce midi and ext tracks"
 
         matching_track = self._create_matching_track(current_track)
 
@@ -69,10 +69,12 @@ class MatchingTrackService(object):
     def _create_matching_track(self, track):
         # type: (AbstractTrack) -> Optional[MatchingTrackInterface]
         try:
+            if isinstance(track, SimpleTrack):
+                return SimpleMatchingTrack(track)
             if isinstance(track, ExternalSynthTrack):
                 return ExtMatchingTrack(track.base_track)
-            elif isinstance(track, SimpleTrack):
-                return SimpleMatchingTrack(track)
+            elif isinstance(track, NormalGroupTrack):
+                return NormalGroupMatchingTrack(track.base_track)
         except AssertionError:
             return None
 
@@ -80,10 +82,12 @@ class MatchingTrackService(object):
 
     def _create_matching_track_creator(self, track):
         # type: (AbstractTrack) -> Optional[MatchingTrackCreatorInterface]
-        if isinstance(track, ExternalSynthTrack):
-            return ExtMatchingTrackCreator(self._track_crud_component, track.base_track)
-        elif isinstance(track, SimpleTrack):
+        if isinstance(track, SimpleTrack):
             return SimpleMatchingTrackCreator(self._track_crud_component, track)
+        elif isinstance(track, ExternalSynthTrack):
+            return ExtMatchingTrackCreator(self._track_crud_component, track.base_track)
+        elif isinstance(track, NormalGroupTrack):
+            return NormalGroupMatchingTrackCreator(self._track_crud_component, track.base_track)
 
         return None
 

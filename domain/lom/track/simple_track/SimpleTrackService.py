@@ -15,9 +15,6 @@ class SimpleTrackService(object):
         clip_infos = event.clip_infos
         flattened_track = Song.selected_track(SimpleAudioTrack)
 
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(flattened_track)
-
         assert len(flattened_track.clips) == len(
             clip_infos
         ), "length mismatch between audio clips: len(clips) == %s, len(clip_infos) == %s" % (
