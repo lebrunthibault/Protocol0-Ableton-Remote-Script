@@ -1,7 +1,7 @@
 import inspect
 from functools import partial
 
-from typing import Dict, List, Type, Callable
+from typing import Dict, List, Type, Callable, TYPE_CHECKING
 
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
@@ -20,6 +20,9 @@ from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdated
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import T
+
+if TYPE_CHECKING:
+    from protocol0.shared.sequence.Sequence import Sequence
 
 
 class DomainEventBus(object):
@@ -82,9 +85,13 @@ class DomainEventBus(object):
     @classmethod
     @handle_error
     def emit(cls, domain_event):
-        # type: (object) -> None
+        # type: (object) -> Sequence
         if cls._DEBUG and type(domain_event) not in cls._SILENT_EVENTS:
             Logger.info("Event emitted: %s" % domain_event.__class__.__name__)
+
+        from protocol0.shared.sequence.Sequence import Sequence
+
+        seq = Sequence()
 
         if type(domain_event) in cls._registry:
             # protect the list from unsubscribe in subscribers
@@ -93,8 +100,10 @@ class DomainEventBus(object):
                 Logger.info(
                     "Found subscribers: %s" % [get_callable_repr(sub) for sub in subscribers]
                 )
-            for subscriber in subscribers:
-                subscriber(domain_event)
+
+            seq.add([partial(sub, domain_event) for sub in subscribers])
+
+        return seq.done()
 
     @classmethod
     def defer_emit(cls, domain_event):

@@ -11,6 +11,8 @@ from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import 
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackSaveStartedEvent import \
+    SimpleTrackSaveStartedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -26,6 +28,7 @@ class InstrumentDisplayService(object):
         # type: (DeviceDisplayService) -> None
         self._device_display_service = device_display_service
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
+        DomainEventBus.subscribe(SimpleTrackSaveStartedEvent, self._on_simple_track_save_started_event)
         DomainEventBus.subscribe(InstrumentSelectedEvent, self._on_instrument_selected_event)
 
     def show_instrument(self, track):
@@ -34,7 +37,7 @@ class InstrumentDisplayService(object):
             raise Protocol0Warning("Instrument cannot be shown")
 
         return self.activate_plugin_window(
-            cast(RecordableTrack, track).instrument_track, force_activate=True, slow=False
+            cast(RecordableTrack, track).instrument_track, force_activate=True
         )
 
     def _on_simple_track_armed_event(self, event):
@@ -53,19 +56,28 @@ class InstrumentDisplayService(object):
             return None
 
         seq = Sequence()
-        seq.add(
-            partial(self.activate_plugin_window, track)
-        )
+        seq.add(partial(self.activate_plugin_window, track))
         seq.add(Backend.client().hide_plugins)
 
         return seq.done()
+
+    def _on_simple_track_save_started_event(self, _):
+        # type: (SimpleTrackSaveStartedEvent) -> Optional[Sequence]
+        """Hide the plugin window so it does not reappear while freezing"""
+        track = Song.selected_track()
+        assert track.instrument, "Flattening track has no instrument"
+        assert track.instrument.device, "Flattening track has no instrument device"
+
+        return self._device_display_service.toggle_plugin_window(
+            track, track.instrument.device, activate=False
+        )
 
     def _on_instrument_selected_event(self, _):
         # type: (InstrumentSelectedEvent) -> Optional[Sequence]
         return self.show_instrument(Song.current_track())
 
-    def activate_plugin_window(self, track, force_activate=False, slow=False):
-        # type: (SimpleTrack, bool, bool) -> Optional[Sequence]
+    def activate_plugin_window(self, track, force_activate=False):
+        # type: (SimpleTrack, bool) -> Optional[Sequence]
         seq = Sequence()
         instrument = track.instrument
         if instrument is None:
@@ -75,10 +87,9 @@ class InstrumentDisplayService(object):
         seq.add(track.select)
         seq.add(
             partial(
-                self._device_display_service.make_plugin_window_showable,
+                self._device_display_service.toggle_plugin_window,
                 track,
                 instrument.device,
-                slow=slow,
             )
         )
 

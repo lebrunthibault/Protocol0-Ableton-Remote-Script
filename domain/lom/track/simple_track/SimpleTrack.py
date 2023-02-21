@@ -346,9 +346,8 @@ class SimpleTrack(AbstractTrack):
         # type: () -> Sequence
         track_color = self.color
 
-        DomainEventBus.emit(SimpleTrackSaveStartedEvent())
-
         seq = Sequence()
+        seq.add(partial(DomainEventBus.emit, SimpleTrackSaveStartedEvent()))
         seq.add(self.focus)
         seq.add(Backend.client().save_track_to_sub_tracks)
         seq.wait_for_backend_event("track_focused")

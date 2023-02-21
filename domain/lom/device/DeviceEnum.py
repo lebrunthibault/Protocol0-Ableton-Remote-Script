@@ -102,6 +102,7 @@ class DeviceEnum(AbstractEnum):
         return self not in [
             DeviceEnum.REV2_EDITOR,
             DeviceEnum.PLAY,
+            DeviceEnum.OPUS
         ]
 
     @property

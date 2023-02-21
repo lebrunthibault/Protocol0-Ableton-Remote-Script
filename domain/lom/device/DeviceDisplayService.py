@@ -9,8 +9,8 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.sequence.Sequence import Sequence
+from protocol0.shared.types import Coords
 
 
 class DeviceDisplayService(object):
@@ -26,41 +26,57 @@ class DeviceDisplayService(object):
         # type: (BrowserServiceInterface) -> None
         self._browser_service = browser_service
 
-    def make_plugin_window_showable(self, track, device, slow):
-        # type: (SimpleTrack, Device, bool) -> Sequence
+    def toggle_plugin_window(self, track, device, activate=True):
+        # type: (SimpleTrack, Device, bool) -> Optional[Sequence]
         """handles only one level of grouping in racks. Should be enough for now"""
+        if device.enum is None:
+            return None
+
         parent_rack = self._find_parent_rack(track, device)
         seq = Sequence()
         seq.add(ApplicationViewFacade.show_device)
-        Scheduler.wait_ms(1000, Backend.client().show_plugins)  # because of the keyboard shortcut
+        # Scheduler.wait_ms(1000, Backend.client().show_plugins)  # because of the keyboard shortcut
         seq.defer()
 
         if not parent_rack:
-            seq.add(partial(self._make_top_device_window_showable, track, device, slow))
+            seq.add(partial(self._make_top_device_window_showable, track, device, activate))
         else:
-            seq.add(partial(self._make_nested_device_window_showable, track, device, parent_rack))
+            seq.add(
+                partial(
+                    self._make_nested_device_window_showable, track, device, parent_rack, activate
+                )
+            )
 
         return seq.done()
 
-    def _make_top_device_window_showable(self, track, device, slow):
+    def _toggle_ableton_button(self, coords, activate):
+        # type: (Coords, bool) -> Sequence
+        x, y = coords
+
+        seq = Sequence()
+        seq.add(partial(Backend.client().toggle_ableton_button, x=x, y=y, activate=activate))
+        seq.wait_for_backend_event("button_toggled")
+
+        return seq.done()
+
+    def _make_top_device_window_showable(self, track, device, activate):
         # type: (SimpleTrack, Device, bool) -> Sequence
         devices_to_collapse = [d for d in track.devices if not d.is_collapsed]
         for d in devices_to_collapse:
             d.is_collapsed = True
 
-        (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
+        device_coords = self._get_device_show_button_click_coordinates(track, device)
+
         seq = Sequence()
         seq.defer()
-        seq.add(
-            lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
-        )
-        seq.wait(60 if slow else 30)
+        seq.add(partial(self._toggle_ableton_button, device_coords, activate=activate))
+        seq.wait(30)
         seq.add(partial(self._un_collapse_devices, devices_to_collapse))
 
         return seq.done()
 
-    def _make_nested_device_window_showable(self, track, device, parent_rack):
-        # type: (SimpleTrack, Device, RackDevice) -> Sequence
+    def _make_nested_device_window_showable(self, track, device, parent_rack, activate):
+        # type: (SimpleTrack, Device, RackDevice, bool) -> Sequence
         devices_to_un_collapse = []  # type: List[Device]
 
         for d in track.devices:
@@ -72,19 +88,17 @@ class DeviceDisplayService(object):
                 devices_to_un_collapse.append(d)
                 d.is_collapsed = True
 
-        (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(track, parent_rack)
-        (x_device, y_device) = self._get_device_show_button_click_coordinates(
+        rack_coords = self._get_rack_show_macros_button_click_coordinates(track, parent_rack)
+        device_coords = self._get_device_show_button_click_coordinates(
             track, device, parent_rack
         )
 
         seq = Sequence()
-        seq.add(lambda: Backend.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=False))
+        seq.add(partial(self._toggle_ableton_button, rack_coords, activate=False))
         seq.wait(5)
-        seq.add(
-            lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
-        )
+        seq.add(partial(self._toggle_ableton_button, device_coords, activate=activate))
         seq.wait(10)
-        seq.add(lambda: Backend.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=True))
+        seq.add(partial(self._toggle_ableton_button, rack_coords, activate=True))
         # at this point the rack macro controls could still be hidden if the plugin window masks the button
         seq.add(
             partial(self._un_collapse_devices, devices_to_un_collapse),
