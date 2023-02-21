@@ -16,6 +16,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+
 def _get_audio_track(base_track):
     # type: (SimpleTrack) -> Optional[SimpleAudioTrack]
     from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack

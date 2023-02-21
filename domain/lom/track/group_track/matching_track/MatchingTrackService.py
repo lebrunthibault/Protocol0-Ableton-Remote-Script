@@ -6,24 +6,30 @@ from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackDisconnectedEvent import TrackDisconnectedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.NormalGroupMatchingTrack import NormalGroupMatchingTrack
-from protocol0.domain.lom.track.group_track.NormalGroupMatchingTrackCreator import \
-    NormalGroupMatchingTrackCreator
+from protocol0.domain.lom.track.group_track.NormalGroupMatchingTrackCreator import (
+    NormalGroupMatchingTrackCreator,
+)
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtMatchingTrack import ExtMatchingTrack
-from protocol0.domain.lom.track.group_track.ext_track.ExtMatchingTrackCreator import \
-    ExtMatchingTrackCreator
+from protocol0.domain.lom.track.group_track.ext_track.ExtMatchingTrackCreator import (
+    ExtMatchingTrackCreator,
+)
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackCreatorInterface import \
-    MatchingTrackCreatorInterface
+from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackCreatorInterface import (
+    MatchingTrackCreatorInterface,
+)
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterface import (
     MatchingTrackInterface,
 )
+from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleMatchingTrack import SimpleMatchingTrack
-from protocol0.domain.lom.track.simple_track.SimpleMatchingTrackCreator import \
-    SimpleMatchingTrackCreator
+from protocol0.domain.lom.track.simple_track.SimpleMatchingTrackCreator import (
+    SimpleMatchingTrackCreator,
+)
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import \
-    SimpleTrackFlattenedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import (
+    SimpleTrackFlattenedEvent,
+)
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -38,7 +44,6 @@ class MatchingTrackService(object):
         DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
         DomainEventBus.subscribe(TrackDisconnectedEvent, self._on_track_disconnected_event)
         DomainEventBus.subscribe(SimpleTrackFlattenedEvent, self._on_simple_track_flattened_event)
-
 
     def _on_track_added_event(self, _):
         # type: (TrackAddedEvent) -> None
@@ -112,7 +117,9 @@ class MatchingTrackService(object):
                 # except in the special case of a legacy track where the mapping has not been
                 # done and persisted to the track data
                 # (in this case an exception will be raised)
-                flattened_track.audio_to_midi_clip_mapping.register_file_path(clip.file_path, clip_info)
+                flattened_track.audio_to_midi_clip_mapping.register_file_path(
+                    clip.file_path, clip_info
+                )
 
         if matching_track is None:
             return None
@@ -122,8 +129,18 @@ class MatchingTrackService(object):
     def _on_track_disconnected_event(self, event):
         # type: (TrackDisconnectedEvent) -> None
         matching_track = self._create_matching_track(event.track)
-        if matching_track:
+
+        if matching_track is not None:
             matching_track.router.monitor_audio_track()
+        else:
+            for track in Song.simple_tracks():
+                if (
+                    track != event.track
+                    and not track.is_foldable
+                    and track.name == event.track.name
+                    and track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
+                ):
+                    track.output_routing.track = track.group_track or Song.master_track()  # type: ignore[assignment]
 
     def match_clip_colors(self):
         # type: () -> None
