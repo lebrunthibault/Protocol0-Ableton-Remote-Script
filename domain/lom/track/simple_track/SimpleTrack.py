@@ -342,14 +342,14 @@ class SimpleTrack(AbstractTrack):
         seq.add(self.select)
         return seq.done()
 
-    def save(self):
-        # type: () -> Sequence
+    def save(self, check_for_duplicate=False):
+        # type: (bool) -> Sequence
         track_color = self.color
 
         seq = Sequence()
         seq.add(partial(DomainEventBus.emit, SimpleTrackSaveStartedEvent()))
         seq.add(self.focus)
-        seq.add(Backend.client().save_track_to_sub_tracks)
+        seq.add(partial(Backend.client().save_track_to_sub_tracks, check_for_duplicate))
         seq.wait_for_backend_event("track_focused")
         seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("track_saved")

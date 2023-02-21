@@ -11,6 +11,7 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ReloadScriptCommand import ReloadScriptCommand
 from protocol0.application.error.SentryService import SentryService
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.backend.BackendEvent import BackendEvent
 from protocol0.domain.shared.backend.NotificationColorEnum import NotificationColorEnum
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -39,7 +40,10 @@ class ErrorService(object):
 
         if self._SET_EXCEPTHOOK:
             sys.excepthook = self._handle_uncaught_exception
+
         DomainEventBus.subscribe(ErrorRaisedEvent, self._on_error_raised_event)
+        DomainEventBus.subscribe(BackendEvent, self._on_backend_event)
+
 
     def _on_error_raised_event(self, event):
         # type: (ErrorRaisedEvent) -> None
@@ -53,6 +57,11 @@ class ErrorService(object):
             Backend.client().show_warning(error_message)
         else:
             self._handle_exception(exc_type, exc_value, tb, event.context)
+
+    def _on_backend_event(self, event):
+        # type: (BackendEvent) -> None
+        if event.event == "error":
+            self._restart()
 
     def _handle_uncaught_exception(self, exc_type, exc_value, tb):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
@@ -92,11 +101,15 @@ class ErrorService(object):
         error_message += "----- traceback -----\n"
         error_message += "".join(self._format_list(entries))
 
+        self._restart()
+
+        self._log_error(error_message)
+
+    def _restart(self):
+        # type: () -> None
         Scheduler.restart()
         # noinspection PyArgumentList
         self._song.stop_playing()  # prevent more errors coming through
-
-        self._log_error(error_message)
 
     def _log_file(self, name):
         # type: (str) -> bool

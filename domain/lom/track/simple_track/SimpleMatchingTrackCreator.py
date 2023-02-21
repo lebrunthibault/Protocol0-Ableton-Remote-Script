@@ -24,7 +24,7 @@ class SimpleMatchingTrackCreator(MatchingTrackCreatorInterface):
 
         seq = Sequence()
 
-        seq.add(self._base_track.save)
+        seq.add(partial(self._base_track.save, check_for_duplicate=True))
         seq.add(self._base_track.flatten)
         seq.defer()
 
