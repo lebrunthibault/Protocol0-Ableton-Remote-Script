@@ -150,6 +150,7 @@ class Container(ContainerInterface):
         session_to_arrangement_service = SessionToArrangementService(
             playback_component,
             recording_component,
+            quantization_component,
             scene_component,
             tempo_component,
             track_component,

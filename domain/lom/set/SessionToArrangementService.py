@@ -1,5 +1,7 @@
 from functools import partial
 
+import Live
+
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ResetPlaybackCommand import ResetPlaybackCommand
 from protocol0.domain.audit.SetFixerService import SetFixerService
@@ -7,6 +9,7 @@ from protocol0.domain.audit.stats.SceneStats import SceneStats
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.lom.song.components.QuantizationComponent import QuantizationComponent
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
@@ -26,6 +29,7 @@ class SessionToArrangementService(object):
         self,
         playback_component,  # type: PlaybackComponent
         recording_component,  # type: RecordingComponent
+        quantization_component,  # type: QuantizationComponent
         scene_component,  # type: SceneComponent
         tempo_component,  # type: TempoComponent
         track_component,  # type: TrackComponent
@@ -34,6 +38,7 @@ class SessionToArrangementService(object):
         # type: (...) -> None
         self._playback_component = playback_component
         self._recording_component = recording_component
+        self._quantization_component = quantization_component
         self._scene_component = scene_component
         self._tempo_component = tempo_component
         self._track_component = track_component
@@ -72,10 +77,14 @@ class SessionToArrangementService(object):
         seq.wait_ms(700)
         seq.add(ApplicationViewFacade.show_session)
         seq.add(partial(CommandBus.dispatch, ResetPlaybackCommand()))
+        self._quantization_component.clip_trigger_quantization = Live.Song.Quantization.q_half
 
         # make recording start at 1.1.1
-        seq.add(self._pre_fire_first_scene)
+        # seq.add(self._pre_fire_first_scene)
         seq.add(partial(setattr, self._recording_component, "record_mode", True))
+        seq.defer()
+        seq.wait_beats(1)
+        seq.add(Song.scenes()[0].fire)
         seq.done()
 
     def _setup_bounce(self):
@@ -110,25 +119,27 @@ class SessionToArrangementService(object):
         """
         for track in Song.abstract_group_tracks():
             track.dummy_group.reset_all_automation()
-
-    def _pre_fire_first_scene(self):
-        # type: () -> Sequence
-        scene = Song.scenes()[0]
-        scene.fire()
-        self._playback_component.stop_playing()
-        seq = Sequence()
-        seq.wait(2)
-        return seq.done()
+    #
+    # def _pre_fire_first_scene(self):
+    #     # type: () -> Sequence
+    #     scene = Song.scenes()[0]
+    #     scene.fire()
+    #     self._playback_component.stop_playing()
+    #     seq = Sequence()
+    #     seq.wait(2)
+    #     return seq.done()
 
     def _stop_playing_on_last_scene_end(self):
         # type: () -> None
         """Stop the song when the last scene finishes"""
         self._scene_component.looping_scene_toggler.reset()
+
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, Song.last_scene()._scene)
         seq.add(Song.last_scene().stop)
         if Song.last_scene().bar_length > 1:
             seq.wait_for_event(BarChangedEvent)
+
         seq.add(self._validate_recording_duration)
         seq.wait_bars(4)  # leaving some space for tails
         seq.add(self._playback_component.stop_playing)
@@ -138,6 +149,8 @@ class SessionToArrangementService(object):
         # type: (SongStoppedEvent) -> None
         if not self.is_bouncing:
             return None
+
+        self._quantization_component.clip_trigger_quantization = Live.Song.Quantization.q_bar
 
         CommandBus.dispatch(ResetPlaybackCommand())
         self._recording_component.record_mode = False
@@ -149,7 +162,7 @@ class SessionToArrangementService(object):
 
     def _validate_recording_duration(self):
         # type: () -> None
-        expected_bar_length = SceneStats().bar_length
+        expected_bar_length = SceneStats().bar_length + 1  # empty 1st bar
 
         if expected_bar_length != self._recorded_bar_length:
             Backend.client().show_error(
