@@ -3,9 +3,8 @@ from functools import partial
 from itertools import chain
 
 import Live
-from typing import List, Iterator, Dict
-
 from _Framework.SubjectSlot import subject_slot, SlotManager
+from typing import List, Iterator, Dict
 
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.Scene import Scene
@@ -13,11 +12,12 @@ from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.utils.timing import debounce
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
+from protocol0.domain.shared.utils.timing import debounce
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
@@ -66,6 +66,9 @@ class SceneService(SlotManager):
             if len(previous_live_scenes_ids) and scene.live_id not in previous_live_scenes_ids:
                 Scheduler.defer(scene.on_added)
 
+        if len(previous_live_scenes_ids) > len(Song.scenes()) > 5:
+            Backend.client().show_warning("You just deleted a scene")
+
         DomainEventBus.defer_emit(ScenesMappedEvent())
 
         Logger.info("mapped scenes")
@@ -84,9 +87,7 @@ class SceneService(SlotManager):
     def _generate_scenes(self):
         # type: () -> None
         # save playing scene
-        playing_live_scene = (
-            Song.playing_scene()._scene if Song.playing_scene() else None
-        )
+        playing_live_scene = Song.playing_scene()._scene if Song.playing_scene() else None
         self._clean_deleted_scenes()
 
         # mapping cs should be done before generating the scenes
