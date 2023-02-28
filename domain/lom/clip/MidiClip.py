@@ -105,7 +105,7 @@ class MidiClip(Clip):
 
     def post_record(self, bar_length):
         # type: (int) -> None
-        self.clip_name.update("")
+        super(MidiClip, self).post_record(bar_length)
 
         if bar_length == 0:  # unlimited recording
             clip_end = int(self.loop.end) - (int(self.loop.end) % Song.signature_numerator())

@@ -167,9 +167,12 @@ class RecordService(object):
         """happens when manually stopping song while recording."""
         if self._recorder is None:
             return
-        else:
-            # we could cancel the record here also
-            Backend.client().show_info("Recording stopped")
-            # deferring this to allow components to react to the song stopped event
-            Scheduler.defer(Scheduler.restart)
-            self._recorder = None
+
+        if self._recorder.config.bar_length == 0:
+            return  # already handled
+
+        # we could cancel the record here also
+        Backend.client().show_info("Recording stopped")
+        # deferring this to allow components to react to the song stopped event
+        Scheduler.defer(Scheduler.restart)
+        self._recorder = None

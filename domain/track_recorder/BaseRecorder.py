@@ -17,7 +17,7 @@ class BaseRecorder(object):
     def __init__(self, track, record_config):
         # type: (AbstractTrack, RecordConfig) -> None
         self._track = track
-        self._config = record_config
+        self.config = record_config
 
     def pre_record(self):
         # type: () -> Sequence
@@ -30,7 +30,7 @@ class BaseRecorder(object):
         # type: () -> Sequence
         """isolating this, we need clip slots to be computed at runtime (if the track changes)"""
         seq = Sequence()
-        seq.add([clip_slot.prepare_for_record for clip_slot in self._config.clip_slots])
+        seq.add([clip_slot.prepare_for_record for clip_slot in self.config.clip_slots])
         return seq.done()
 
     def _arm_track(self):
@@ -56,16 +56,16 @@ class BaseRecorder(object):
         # type: () -> Sequence
         # launch the record
         DomainEventBus.emit(RecordStartedEvent(
-            self._config.scene_index,
-            full_record=self._config.bar_length == 0,
-            has_count_in=self._config.records_midi
+            self.config.scene_index,
+            full_record=self.config.bar_length == 0,
+            has_count_in=self.config.records_midi
         ))
         seq = Sequence()
-        bar_length = cast(float, self._config.bar_length)
-        if bar_length:
+        bar_length = cast(float, self.config.bar_length)
+        if bar_length != 0:
             if not Song.is_playing():
                 seq.wait_for_event(SongStartedEvent)
-            if not self._config.records_midi:
+            if not self.config.records_midi:
                 # play well with the tail recording
                 bar_length -= 0.6
 
@@ -74,12 +74,13 @@ class BaseRecorder(object):
             seq.wait_for_event(Last32thPassedEvent)
         else:
             seq.wait_for_event(SongStoppedEvent)
+            seq.log("after stop")
             seq.add(lambda: Song.selected_scene().scene_name.update(""))
 
         return seq.done()
 
     def cancel_record(self):
         # type: () -> None
-        for clip_slot in self._config.clip_slots:
+        for clip_slot in self.config.clip_slots:
             clip_slot.delete_clip()
         self._track.stop(immediate=True)

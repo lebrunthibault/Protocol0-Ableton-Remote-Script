@@ -201,6 +201,10 @@ class Clip(SlotManager, Observable):
         """implemented in MidiClip and AudioClip"""
         raise NotImplementedError
 
+    def post_record(self, _):
+        # type: (int) -> None
+        self.clip_name.update("")
+
     def disconnect(self):
         # type: () -> None
         super(Clip, self).disconnect()

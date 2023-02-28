@@ -71,4 +71,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Song.current_track().arm_state.arm()
+        Song.selected_clip().clip_name.update("")
