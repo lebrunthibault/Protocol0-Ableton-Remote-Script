@@ -47,11 +47,11 @@ class UsamoTrack(SimpleMidiTrack):
             self._on_external_synth_audio_recording_ended_event,
         )
 
-    def activate(self):
+    def _activate(self):
         # type: () -> None
         self._usamo_device.is_enabled = True
 
-    def inactivate(self):
+    def _inactivate(self):
         # type: () -> None
         self._usamo_device.is_enabled = False
 
@@ -61,21 +61,21 @@ class UsamoTrack(SimpleMidiTrack):
         if isinstance(track.abstract_track, ExternalSynthTrack):
             return None
 
-        self.inactivate()
+        self._inactivate()
 
     def _on_external_synth_track_armed_event(self, event):
         # type: (ExtArmedEvent) -> None
         if event.arm:
             # noinspection PyUnresolvedReferences
             self.input_routing.track = event.track.abstract_track.midi_track
-            self.activate()  # this is the default: overridden by rev2
+            self._activate()  # this is the default: overridden by rev2
         else:
-            self.inactivate()
+            self._inactivate()
 
     def _on_external_synth_audio_recording_started_event(self, _):
         # type: (ExtAudioRecordingStartedEvent) -> None
-        self.activate()
+        self._activate()
 
     def _on_external_synth_audio_recording_ended_event(self, _):
         # type: (ExtAudioRecordingEndedEvent) -> None
-        self.inactivate()
+        self._inactivate()

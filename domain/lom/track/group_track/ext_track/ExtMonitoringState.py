@@ -33,10 +33,18 @@ class ExtMonitoringState(Observable):
 
     def monitor_midi(self):
         # type: () -> None
+        self._midi_track.muted = False
+        if self._midi_track.instrument is not None:
+            self._midi_track.instrument.device.is_enabled = True
+
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._audio_track._output_meter_level_listener.subject = self._audio_track._track
 
     def monitor_audio(self):
         # type: () -> None
+        self._midi_track.muted = True
+        if self._midi_track.instrument is not None:
+            self._midi_track.instrument.device.is_enabled = False
+
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         self._audio_track._output_meter_level_listener.subject = None

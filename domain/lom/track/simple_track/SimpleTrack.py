@@ -340,6 +340,7 @@ class SimpleTrack(AbstractTrack):
         #         seq.add(next(SongFacade.simple_tracks()).select)
 
         seq.add(self.select)
+        seq.defer()
         return seq.done()
 
     def save(self, check_for_duplicate=False):
@@ -373,7 +374,6 @@ class SimpleTrack(AbstractTrack):
             is_only_child = self.group_track is not None and len(self.group_track.sub_tracks) == 1
 
             seq.add(self.focus)
-            seq.defer()
             seq.add(partial(Backend.client().flatten_track, is_only_child))
             seq.wait_for_backend_event("track_focused")
             seq.add(recolor_track)

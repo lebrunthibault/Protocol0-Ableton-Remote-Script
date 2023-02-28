@@ -143,6 +143,7 @@ class TrackMapperService(SlotManager):
             added_track = Song.current_track().base_track
         seq.defer()
         seq.add(added_track.on_added)
+        seq.add(Song.current_track().arm_state.arm)
 
         if self._is_track_duplicated(added_track) and added_track.REMOVE_CLIPS_ON_ADDED:
             Backend.client().show_warning("Deleting clips ..")

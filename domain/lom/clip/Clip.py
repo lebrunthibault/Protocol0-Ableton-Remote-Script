@@ -120,9 +120,9 @@ class Clip(SlotManager, Observable):
     def stop(self, immediate=False, wait_until_end=False):
         # type: (bool, bool) -> None
         """
-            immediate: stop is quantized or not
-            until_end: stops the clip when it finished playing
-            (equivalent to doing nothing on a non looped clip)
+        immediate: stop is quantized or not
+        until_end: stops the clip when it finished playing
+        (equivalent to doing nothing on a non looped clip)
         """
         if immediate:
             if not self.muted:
@@ -153,9 +153,15 @@ class Clip(SlotManager, Observable):
         # type: (float) -> None
         if self._clip:
             UndoFacade.begin_undo_step()
-            record_quantization_index = self._QUANTIZATION_OPTIONS.index(
-                Song.midi_recording_quantization()
-            )
+            from protocol0.shared.logging.Logger import Logger
+
+            midi_quantization = Song.midi_recording_quantization()
+            if midi_quantization == Live.Song.RecordingQuantization.rec_q_no_q:
+                midi_quantization = Live.Song.RecordingQuantization.rec_q_eight
+
+            record_quantization_index = self._QUANTIZATION_OPTIONS.index(midi_quantization)
+            Logger.dev(Song.midi_recording_quantization())
+            Logger.dev(record_quantization_index)
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)
             UndoFacade.end_undo_step()

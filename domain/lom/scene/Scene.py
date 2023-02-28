@@ -171,12 +171,6 @@ class Scene(SlotManager):
 
     def fire(self):
         # type: () -> None
-        """
-        Fire the scene
-
-        stop_tails == True will stop the tails immediately and is used
-        when the scenes are not contiguous
-        """
         # stop the previous scene in advance, using clip launch quantization
         DomainEventBus.emit(SceneFiredEvent(self.index))
 
