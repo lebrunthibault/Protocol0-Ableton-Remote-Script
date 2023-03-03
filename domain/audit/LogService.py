@@ -4,6 +4,7 @@ from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
@@ -87,7 +88,9 @@ class LogService(object):
         Logger.info()
         Logger.info("selected_scene.clips.all: %s" % Song.selected_scene().clips.all)
         Logger.info()
-        Logger.info("selected_scene.longest_clip: %s" % Song.selected_scene()._scene_length.get_longest_clip())
+        longest_clip = Song.selected_scene()._scene_length.get_longest_clip()
+        clip_track = find_if(lambda t: longest_clip in t.clips, Song.simple_tracks())
+        Logger.info("selected_scene.longest_clip: %s (%s)" % (longest_clip, clip_track))
         Logger.info()
         Logger.info("********* SELECTED_DEVICE *************")
         Logger.info()
