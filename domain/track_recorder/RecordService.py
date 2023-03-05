@@ -122,7 +122,10 @@ class RecordService(object):
             seq.add(partial(processors.pre_record.process, track, config))
         seq.add(partial(record_type.get_count_in().launch, self._playback_component, track))
         seq.add(partial(DomainEventBus.subscribe, SongStoppedEvent, self._on_song_stopped_event))
-        seq.defer()
+
+        if not config.records_midi:
+            seq.wait_ms(50)  # so that the record doesn't start before the clip slot is ready
+
 
         # RECORD
         if processors.record is not None:

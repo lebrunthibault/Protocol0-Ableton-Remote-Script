@@ -1,18 +1,15 @@
 from typing import Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import \
-    ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExtArmedEvent import (
     ExtArmedEvent,
 )
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.track_recorder.external_synth.ExtAudioRecordingEndedEvent import (
-    ExtAudioRecordingEndedEvent,
-)
 from protocol0.domain.track_recorder.external_synth.ExtAudioRecordingStartedEvent import (
     ExtAudioRecordingStartedEvent,
 )
@@ -41,10 +38,6 @@ class UsamoTrack(SimpleMidiTrack):
         DomainEventBus.subscribe(
             ExtAudioRecordingStartedEvent,
             self._on_external_synth_audio_recording_started_event,
-        )
-        DomainEventBus.subscribe(
-            ExtAudioRecordingEndedEvent,
-            self._on_external_synth_audio_recording_ended_event,
         )
 
     def _activate(self):
@@ -75,7 +68,3 @@ class UsamoTrack(SimpleMidiTrack):
     def _on_external_synth_audio_recording_started_event(self, _):
         # type: (ExtAudioRecordingStartedEvent) -> None
         self._activate()
-
-    def _on_external_synth_audio_recording_ended_event(self, _):
-        # type: (ExtAudioRecordingEndedEvent) -> None
-        self._inactivate()
