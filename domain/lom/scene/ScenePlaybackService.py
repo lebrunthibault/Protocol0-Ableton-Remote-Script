@@ -78,7 +78,7 @@ class ScenePlaybackService(SlotManager):
         if bar_length != 0:
             # removing click when changing position
             # (created by playing shortly the scene beginning)
-            Song.master_track().mute_for(250)
+            Song.master_track().mute_for(150)
 
         seq = Sequence()
         seq.add(self._playback_component.stop)

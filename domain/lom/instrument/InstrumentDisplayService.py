@@ -65,7 +65,9 @@ class InstrumentDisplayService(object):
         # type: (SimpleTrackSaveStartedEvent) -> Optional[Sequence]
         """Hide the plugin window so it does not reappear while freezing"""
         track = Song.selected_track()
-        assert track.instrument, "Flattening track has no instrument"
+        if track.instrument is None:  # e.g. minitaur
+            return None
+
         assert track.instrument.device, "Flattening track has no instrument device"
 
         return self._device_display_service.toggle_plugin_window(

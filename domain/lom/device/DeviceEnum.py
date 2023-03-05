@@ -222,7 +222,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnumGroup("Vol Mod", [cls.LFO_TOOL, cls.GATEKEEPER]),
                 DeviceEnumGroup("Satu", [cls.SATURN_2, cls.SATURATOR, cls.DECAPITATOR]),
                 DeviceEnumGroup("Reverb", [cls.VALHALLA_VINTAGE_VERB]),
-                DeviceEnumGroup("Delay", [cls.SUPER_TAP_2, cls.SUPER_TAP_6, cls.DELAY]),
+                DeviceEnumGroup("Delay", [cls.SUPER_TAP_6, cls.SUPER_TAP_2, cls.DELAY]),
             ],
             [
                 cls.DRUM_RACK,
