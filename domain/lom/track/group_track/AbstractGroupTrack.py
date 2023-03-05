@@ -7,7 +7,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
 )
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -63,7 +63,7 @@ class AbstractGroupTrack(AbstractTrack):
     def get_view_track(self, scene_index):
         # type: (int) -> Optional[SimpleTrack]
         """track to show when scrolling scene tracks"""
-        if ApplicationViewFacade.is_clip_view_visible():
+        if ApplicationView.is_clip_view_visible():
             return None
         else:
             return self.dummy_group.get_view_track(scene_index)

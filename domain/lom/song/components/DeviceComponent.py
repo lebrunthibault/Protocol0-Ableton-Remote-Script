@@ -7,7 +7,7 @@ from typing import Optional
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
@@ -55,6 +55,6 @@ class DeviceComponent(SlotManager):
         seq = Sequence()
         seq.add(track.select)
         seq.add(partial(self._view.select_device, device._device))
-        seq.add(ApplicationViewFacade.focus_detail)
-        seq.add(ApplicationViewFacade.show_device)
+        seq.add(ApplicationView.focus_detail)
+        seq.add(ApplicationView.show_device)
         return seq.done()

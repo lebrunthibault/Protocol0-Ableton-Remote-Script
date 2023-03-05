@@ -2,7 +2,7 @@ from functools import partial
 
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.concurrency import lock
@@ -15,7 +15,7 @@ class InstrumentPresetScrollerService(object):
     def scroll_presets_or_samples(self, track, go_next):
         # type: (AbstractTrack, bool) -> Sequence
         assert track.instrument is not None, "track has not instrument"
-        ApplicationViewFacade.show_device()
+        ApplicationView.show_device()
 
         seq = Sequence()
         seq.add(track.arm_state.arm)
@@ -30,7 +30,7 @@ class InstrumentPresetScrollerService(object):
         if not len(instrument.preset_list.categories):
             raise Protocol0Warning("this instrument does not have categories")
 
-        ApplicationViewFacade.show_device()
+        ApplicationView.show_device()
         category = ValueScroller.scroll_values(
             instrument.preset_list.categories, instrument.preset_list.selected_category, go_next
         ).lower()

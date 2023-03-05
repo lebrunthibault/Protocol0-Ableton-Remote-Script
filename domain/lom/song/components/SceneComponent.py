@@ -3,7 +3,7 @@ import Live
 from protocol0.domain.lom.scene.LoopingSceneToggler import LoopingSceneToggler
 from protocol0.domain.lom.scene.NextSceneStartedEvent import NextSceneStartedEvent
 from protocol0.domain.lom.scene.Scene import Scene
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.event.RecordStartedEvent import RecordStartedEvent
@@ -49,6 +49,6 @@ class SceneComponent(object):
 
         if (
             previous_selected_scene != Song.selected_scene()
-            and ApplicationViewFacade.is_clip_view_visible()
+            and ApplicationView.is_clip_view_visible()
         ):
             self.select_scene(previous_selected_scene)

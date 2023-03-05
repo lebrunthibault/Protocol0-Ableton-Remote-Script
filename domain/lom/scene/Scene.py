@@ -15,7 +15,7 @@ from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
@@ -212,7 +212,7 @@ class Scene(SlotManager):
         next_track = ValueScroller.scroll_values(tracks, Song.selected_track(), go_next)
         next_track.select()
 
-        ApplicationViewFacade.focus_session()
+        ApplicationView.focus_session()
 
     def unfold(self):
         # type: () -> None

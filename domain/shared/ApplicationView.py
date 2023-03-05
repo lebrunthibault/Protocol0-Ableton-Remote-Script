@@ -6,14 +6,14 @@ from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterf
 from protocol0.shared.Song import Song
 
 
-class ApplicationViewFacade(object):
+class ApplicationView(object):
     """Facade for accessing the application view"""
 
-    _INSTANCE = None  # type: Optional[ApplicationViewFacade]
+    _INSTANCE = None  # type: Optional[ApplicationView]
 
     def __init__(self, recording_component, application_view, session_service):
         # type: (RecordingComponent, Live.Application.Application.View, SessionServiceInterface) -> None
-        ApplicationViewFacade._INSTANCE = self
+        ApplicationView._INSTANCE = self
         self._recording_component = recording_component
         self._application_view = application_view
         self._session_service = session_service

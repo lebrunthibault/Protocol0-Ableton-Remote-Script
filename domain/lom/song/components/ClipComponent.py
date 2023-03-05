@@ -6,7 +6,7 @@ from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEven
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip.MidiClip import MidiClip
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.list import find_if
@@ -43,7 +43,7 @@ class ClipComponent(SlotManager):
     def on_clip_slot_selected_event(self, event):
         # type: (ClipSlotSelectedEvent) -> None
         # we need all tracks un folded for this
-        ApplicationViewFacade.show_clip()
+        ApplicationView.show_clip()
 
         # workaround to refocus the selected clip slot
         if event.live_clip_slot == self._view.highlighted_clip_slot:

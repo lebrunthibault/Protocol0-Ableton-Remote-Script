@@ -12,7 +12,7 @@ from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import Instru
 from protocol0.domain.lom.sample.SampleCategory import SampleCategory
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -113,7 +113,7 @@ class DrumRackService(object):
         assert not drum_pad.is_empty, "the pitch '%s' corresponds to an empty drum pad" % pitch
 
         sample_path = drum_pad.chains[0].devices[0].sample.file_path
-        ApplicationViewFacade.show_device()
+        ApplicationView.show_device()
 
         Backend.client().load_sample_in_simpler(sample_path)
 

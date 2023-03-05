@@ -12,7 +12,7 @@ from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudCom
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -49,7 +49,7 @@ class DeviceService(object):
             device_enum.default_parameter is not None
             and Song.selected_clip_slot() is not None
             and Song.selected_clip(raise_if_none=False) is not None
-            and ApplicationViewFacade.is_clip_view_visible()
+            and ApplicationView.is_clip_view_visible()
         ):
             seq.add(partial(self._create_default_automation, Song.selected_clip()))
 

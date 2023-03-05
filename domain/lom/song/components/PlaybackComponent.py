@@ -4,7 +4,7 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.event.RecordCancelledEvent import (
@@ -44,7 +44,7 @@ class PlaybackComponent(SlotManager):
         if not self.is_playing:
             DomainEventBus.defer_emit(SongStoppedEvent())
         else:
-            if ApplicationViewFacade.is_session_visible():
+            if ApplicationView.is_session_visible():
                 # will re enable automation for reset dummy automations
                 self.re_enable_automation()
 

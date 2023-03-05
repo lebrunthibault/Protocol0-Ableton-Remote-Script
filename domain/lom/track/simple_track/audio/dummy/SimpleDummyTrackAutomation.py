@@ -14,7 +14,7 @@ from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrackAddedEv
     SimpleDummyTrackAddedEvent,
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -99,7 +99,7 @@ class SimpleDummyTrackAutomation(object):
             clip.bar_length = Song.selected_scene().bar_length
         clip.show_loop()
         clip.loop.looping = True
-        ApplicationViewFacade.show_clip()
+        ApplicationView.show_clip()
 
     def _create_dummy_automation(self):
         # type: () -> None

@@ -5,7 +5,7 @@ from typing import Optional, Tuple, List
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -34,7 +34,7 @@ class DeviceDisplayService(object):
 
         parent_rack = self._find_parent_rack(track, device)
         seq = Sequence()
-        seq.add(ApplicationViewFacade.show_device)
+        seq.add(ApplicationView.show_device)
         # Scheduler.wait_ms(1000, Backend.client().show_plugins)  # because of the keyboard shortcut
         seq.defer()
 

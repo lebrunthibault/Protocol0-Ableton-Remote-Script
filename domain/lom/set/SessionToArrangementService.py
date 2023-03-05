@@ -14,7 +14,7 @@ from protocol0.domain.lom.song.components.RecordingComponent import RecordingCom
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
@@ -72,10 +72,10 @@ class SessionToArrangementService(object):
         self._setup_bounce()
 
         seq = Sequence()
-        seq.add(ApplicationViewFacade.show_arrangement)
+        seq.add(ApplicationView.show_arrangement)
         seq.add(Backend.client().clear_arrangement)
         seq.wait_ms(700)
-        seq.add(ApplicationViewFacade.show_session)
+        seq.add(ApplicationView.show_session)
         seq.add(partial(CommandBus.dispatch, ResetPlaybackCommand()))
         self._quantization_component.clip_trigger_quantization = Live.Song.Quantization.q_half
 
@@ -156,7 +156,7 @@ class SessionToArrangementService(object):
         self._recording_component.record_mode = False
         self._tempo_component.tempo = self._tempo
         self._recording_component.back_to_arranger = False
-        ApplicationViewFacade.show_arrangement()
+        ApplicationView.show_arrangement()
         self._playback_component.re_enable_automation()
         self.is_bouncing = False
 

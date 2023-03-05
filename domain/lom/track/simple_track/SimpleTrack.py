@@ -30,6 +30,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrackSaveStartedEvent import \
     SimpleTrackSaveStartedEvent
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -330,14 +331,14 @@ class SimpleTrack(AbstractTrack):
         self.color = ColorEnum.FOCUSED.int_value
 
         seq = Sequence()
-        #
-        # if show_browser and not ApplicationViewFacade.is_browser_visible():
-        #     ApplicationViewFacade.show_browser()
-        #     seq.defer()
-        #
-        #     # trick
-        #     if SongFacade.selected_track() == self.base_track:
-        #         seq.add(next(SongFacade.simple_tracks()).select)
+
+        if not ApplicationView.is_browser_visible():
+            ApplicationView.show_browser()
+            seq.defer()
+
+            # trick
+            if Song.selected_track() == self.base_track:
+                seq.add(next(Song.simple_tracks()).select)
 
         seq.add(self.select)
         seq.defer()

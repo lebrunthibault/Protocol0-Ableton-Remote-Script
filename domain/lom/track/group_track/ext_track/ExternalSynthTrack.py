@@ -14,7 +14,7 @@ from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import S
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 
@@ -107,7 +107,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def get_view_track(self, scene_index):
         # type: (int) -> Optional[SimpleTrack]
-        if ApplicationViewFacade.is_clip_view_visible():
+        if ApplicationView.is_clip_view_visible():
             return self.midi_track
         else:
             return self.base_track

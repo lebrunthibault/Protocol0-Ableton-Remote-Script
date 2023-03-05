@@ -13,7 +13,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -35,7 +35,7 @@ class TrackComponent(SlotManager):
     @subject_slot("selected_track")
     def _selected_track_listener(self):
         # type: () -> None
-        ApplicationViewFacade.focus_current_track()
+        ApplicationView.focus_current_track()
         DomainEventBus.emit(SelectedTrackChangedEvent())
 
     def _on_abstract_track_selected_event(self, event):
@@ -48,7 +48,7 @@ class TrackComponent(SlotManager):
 
         scrollable_tracks = list(Song.scrollable_tracks())
         if len(scrollable_tracks) != 0 and track == scrollable_tracks[-1]:
-            ApplicationViewFacade.focus_current_track()
+            ApplicationView.focus_current_track()
 
     def _on_simple_track_armed_event(self, _):
         # type: (SimpleTrackArmedEvent) -> None
