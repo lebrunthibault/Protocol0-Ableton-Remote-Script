@@ -160,8 +160,6 @@ class Clip(SlotManager, Observable):
                 midi_quantization = Live.Song.RecordingQuantization.rec_q_eight
 
             record_quantization_index = self._QUANTIZATION_OPTIONS.index(midi_quantization)
-            Logger.dev(Song.midi_recording_quantization())
-            Logger.dev(record_quantization_index)
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)
             UndoFacade.end_undo_step()
