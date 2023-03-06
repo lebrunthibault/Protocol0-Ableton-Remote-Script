@@ -1,6 +1,6 @@
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
-from typing import Optional, Dict
+from typing import Dict
 
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 from protocol0.shared.Config import Config
@@ -20,9 +20,6 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
         self._looping_listener.subject = self._clip
-
-        # caching this for when we set looping to False (used for tails)
-        self._loop_end = None  # type: Optional[float]
 
     def __repr__(self):
         # type: () -> str
@@ -53,23 +50,16 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @subject_slot("loop_start")
     def _loop_start_listener(self):
         # type: () -> None
-        self._loop_listener()
+        self.notify_observers()
 
     @subject_slot("loop_end")
     def _loop_end_listener(self):
         # type: () -> None
-        self._loop_listener()
+        self.notify_observers()
 
     @subject_slot("looping")
     def _looping_listener(self):
         # type: () -> None
-        self._loop_listener()
-
-    def _loop_listener(self):
-        # type: () -> None
-        if self.looping:
-            self._loop_end = self._clip.loop_end
-
         self.notify_observers()
 
     @property
@@ -84,9 +74,6 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def looping(self, looping):
         # type: (bool) -> None
         if self._clip:
-            if not looping:
-                self._loop_end = self._clip.loop_end
-
             self._clip.looping = looping
 
     @property
@@ -155,12 +142,9 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         self._clip._end_marker = end_marker
 
     @property
-    def loop_end(self):
+    def bar_offset(self):
         # type: () -> float
-        if self._loop_end is not None:
-            return self._loop_end
-        else:
-            return self._clip.loop_end
+        return (self.start - self.start_marker) / Song.signature_numerator()
 
     @property
     def length(self):

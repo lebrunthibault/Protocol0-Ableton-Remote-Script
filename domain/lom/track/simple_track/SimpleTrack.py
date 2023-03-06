@@ -273,9 +273,12 @@ class SimpleTrack(AbstractTrack):
 
         # let tail play
         clip = self.clip_slots[scene_index].clip
+        if clip is not None and next_scene_index is not None:
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev((self, clip))
 
         if clip is not None and clip.is_playing:
-            Scheduler.wait_bars(clip.playing_position.bars_left, clip.stop)
+            clip.stop(wait_until_end=True)
 
     def delete(self):
         # type: () -> Sequence

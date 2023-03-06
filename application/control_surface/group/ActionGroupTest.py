@@ -71,4 +71,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Song.selected_clip().clip_name.update("")
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(Song.selected_clip().playing_position.bars_left)

@@ -131,6 +131,8 @@ class Clip(SlotManager, Observable):
             return None
 
         if wait_until_end:
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev(self.playing_position.bars_left)
             Scheduler.wait_bars(self.playing_position.bars_left, self._clip.stop)
             return None
 

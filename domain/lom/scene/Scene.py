@@ -22,6 +22,7 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.timing import throttle
 from protocol0.shared.Song import Song
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -181,8 +182,14 @@ class Scene(SlotManager):
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
+        next_scene_index = next_scene.index if next_scene is not None else None
+
+        if next_scene is not None:
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev("")
+            Logger.dev((self.index, immediate, next_scene_index))
+
         for track in Song.abstract_tracks():
-            next_scene_index = next_scene.index if next_scene is not None else None
             track.stop(
                 scene_index=self.index, immediate=immediate, next_scene_index=next_scene_index
             )
