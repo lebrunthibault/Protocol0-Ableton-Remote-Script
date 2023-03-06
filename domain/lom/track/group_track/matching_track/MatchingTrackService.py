@@ -31,6 +31,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import (
     SimpleTrackFlattenedEvent,
 )
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Song import Song
@@ -136,6 +137,7 @@ class MatchingTrackService(object):
             for track in Song.simple_tracks():
                 if (
                     track != event.track
+                    and liveobj_valid(track._track)
                     and not track.is_foldable
                     and track.name == event.track.name
                     and track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
