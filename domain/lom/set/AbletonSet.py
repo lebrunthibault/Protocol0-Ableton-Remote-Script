@@ -13,13 +13,9 @@ from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import (
     AbstractTrackNameUpdatedEvent,
 )
-from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackMuteToggledEvent import \
-    MasterTrackMuteToggledEvent
-from protocol0.domain.lom.track.simple_track.audio.master.MasterTrackRoomEqToggledEvent import (
-    MasterTrackRoomEqToggledEvent,
-)
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -40,14 +36,15 @@ class AbletonSet(object):
         listened_events = [
             AbstractTrackNameUpdatedEvent,
             DrumRackLoadedEvent,
-            MasterTrackRoomEqToggledEvent,
-            MasterTrackMuteToggledEvent,
             TracksMappedEvent,
-            SelectedTrackChangedEvent,
         ]
 
         for event in listened_events:
             DomainEventBus.subscribe(event, lambda _: self.notify())
+
+        # fixes multiple notification on startup
+        for event in (SelectedTrackChangedEvent,):
+            Scheduler.wait(2, partial(DomainEventBus.subscribe, event, lambda _: self.notify()))
 
     def __repr__(self):
         # type: () -> str
@@ -79,7 +76,6 @@ class AbletonSet(object):
 
     def to_dict(self):
         # type: () -> Dict
-        room_eq = Song.master_track() and Song.master_track().room_eq
         muted = Song.master_track() is not None and Song.master_track().muted
 
         return {
@@ -99,7 +95,6 @@ class AbletonSet(object):
             "drum_rack_visible": isinstance(
                 Song.selected_track().instrument, InstrumentDrumRack
             ),
-            "room_eq_enabled": room_eq is not None and room_eq.is_active,
         }
 
     def notify(self, force=False):

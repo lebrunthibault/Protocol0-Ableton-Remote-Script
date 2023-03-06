@@ -39,7 +39,7 @@ class AbstractTrack(SlotManager):
 
     def __repr__(self):
         # type: () -> str
-        return "%s : %s (%s)" % (self.__class__.__name__, self.name, self.index + 1)
+        return "%s : %s (%s)" % (self.__class__.__name__, self._track.name, self.index + 1)
 
     def on_added(self):
         # type: () -> Optional[Sequence]

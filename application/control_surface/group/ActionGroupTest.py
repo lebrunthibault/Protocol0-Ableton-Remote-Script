@@ -6,7 +6,6 @@ from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
@@ -32,11 +31,6 @@ class ActionGroupTest(ActionGroupInterface):
 
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
-
-        # DUPLication encoder
-        self.add_encoder(
-            identifier=4, name="test server duplication", on_press=Backend.client().test_duplication
-        )
 
         self.add_encoder(
             identifier=5, name="log midi", on_press=self.action_log_midi

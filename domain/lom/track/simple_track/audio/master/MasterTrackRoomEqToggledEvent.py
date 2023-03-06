@@ -1,2 +1,0 @@
-class MasterTrackRoomEqToggledEvent(object):
-    pass

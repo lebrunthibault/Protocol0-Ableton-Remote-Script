@@ -12,7 +12,6 @@ from protocol0.application.command.FireSelectedSceneCommand import FireSelectedS
 from protocol0.application.command.GetSetStateCommand import GetSetStateCommand
 from protocol0.application.command.PlayPauseSongCommand import PlayPauseSongCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
-from protocol0.application.command.ToggleRoomEQCommand import ToggleRoomEQCommand
 from protocol0.application.command.ToggleSceneLoopCommand import ToggleSceneLoopCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
@@ -30,7 +29,6 @@ broadcast_commands = [
     FireSceneToPositionCommand,
     FireSelectedSceneCommand,
     PlayPauseSongCommand,
-    ToggleRoomEQCommand,
     ToggleSceneLoopCommand,
 ]
 

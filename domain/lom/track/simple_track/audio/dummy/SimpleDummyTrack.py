@@ -36,6 +36,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
     def update(self, observable):
         # type: (Observable) -> None
+        super(SimpleDummyTrack, self).update(observable)
         # manually setting the has_automation attribute
         if isinstance(observable, SimpleTrackClipSlots):
             for clip in self.clips:

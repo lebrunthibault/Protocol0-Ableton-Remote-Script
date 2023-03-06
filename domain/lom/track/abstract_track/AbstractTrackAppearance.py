@@ -1,15 +1,15 @@
+import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional
 
-import Live
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import (
     AbstractTrackNameUpdatedEvent,
 )
-from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.string import title
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -20,7 +20,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
         self._live_track = live_track
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._name_listener.subject = live_track
-        self._name_cached = self.name
+        self._cached_name = self.name
 
     def set_instrument(self, instrument):
         # type: (Optional[InstrumentInterface]) -> None
@@ -30,7 +30,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
     @defer
     def _name_listener(self):
         # type: () -> None
-        self._name_cached = self.name
+        self._cached_name = self.name
 
         if len(self.name) > 2:
             self.name = title(self.name)
@@ -38,7 +38,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
     @property
     def name(self):
         # type: () -> str
-        return self._live_track.name if self._live_track else self._name_cached
+        return self._live_track.name if self._live_track else self._cached_name
 
     @name.setter
     def name(self, name):

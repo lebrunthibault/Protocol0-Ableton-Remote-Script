@@ -23,7 +23,7 @@ class AbstractGroupTrack(AbstractTrack):
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_group = DummyGroup(self, is_active=False)
 
-        self.appearance.register_observer(self)
+        # self.appearance.register_observer(self)
 
     def on_tracks_change(self):
         # type: () -> None
@@ -31,6 +31,13 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks[:] = self.base_track.sub_tracks
         self._link_group_track()
         self.dummy_group.map_tracks()
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, AbstractTrackAppearance):
+            for sub_track in self.sub_tracks:
+                sub_track.color = self.appearance.color
+
 
     def link_sub_track(self, sub_track):
         # type: (SimpleTrack) -> None
@@ -67,12 +74,6 @@ class AbstractGroupTrack(AbstractTrack):
             return None
         else:
             return self.dummy_group.get_view_track(scene_index)
-
-    def update(self, observable):
-        # type: (Observable) -> None
-        if isinstance(observable, AbstractTrackAppearance):
-            for sub_track in self.sub_tracks:
-                sub_track.color = self.appearance.color
 
     def clear_clips(self):
         # type: () -> Sequence
