@@ -43,6 +43,7 @@ class ExtMatchingTrackCreator(MatchingTrackCreatorInterface):
                 )
 
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
+        # noinspection DuplicatedCode
         seq = Sequence()
 
         mixer_data = self._base_track.devices.mixer_device.to_dict()
@@ -59,6 +60,6 @@ class ExtMatchingTrackCreator(MatchingTrackCreatorInterface):
         seq.add(self._audio_track.flatten)
         seq.add(partial(Backend.client().show_success, "Track bounced"))
 
-        # leave the track on
+        # don't delete the base track
 
         return seq.done()
