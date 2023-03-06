@@ -65,9 +65,10 @@ class LogService(object):
             )
             Logger.info()
         Logger.info(
-            "selected_track.abstract_group_track: %s"
-            % Song.selected_track().abstract_group_track
+            "selected_track.abstract_group_track: %s" % Song.selected_track().abstract_group_track
         )
+        Logger.info()
+        Logger.info("selected_track.sub_tracks: %s" % Song.selected_track().sub_tracks)
         Logger.info()
         Logger.info("selected_track.clip_slots: %s" % Song.selected_track().clip_slots)
         Logger.info()
@@ -76,8 +77,7 @@ class LogService(object):
         Logger.info("selected_track.instrument: %s" % Song.selected_track().instrument)
         if Song.selected_track().instrument:
             Logger.info(
-                "selected_track.instrument.device: %s"
-                % Song.selected_track().instrument.device
+                "selected_track.instrument.device: %s" % Song.selected_track().instrument.device
             )
         Logger.info()
         Logger.info("********* SELECTED_SCENE *************")
@@ -131,12 +131,13 @@ class LogService(object):
         Logger.info("********* GLOBAL objects *************")
         Logger.info("song.is_playing: %s" % Song.is_playing())
         Logger.info()
-        Logger.info(
-            "song.midi_recording_quantization: %s" % Song.midi_recording_quantization()
-        )
+        Logger.info("song.midi_recording_quantization: %s" % Song.midi_recording_quantization())
         Logger.info()
         Logger.info("********* SONG TRACKS *************")
-        Logger.info("live_tracks : %s" % list(self._track_mapper_service._live_track_id_to_simple_track.values()))
+        Logger.info(
+            "live_tracks : %s"
+            % list(self._track_mapper_service._live_track_id_to_simple_track.values())
+        )
         Logger.info()
         Logger.info("simple_tracks : %s" % list(Song.simple_tracks()))
         Logger.info()
@@ -149,9 +150,7 @@ class LogService(object):
         Logger.info()
         Logger.info("selected_scene.tracks : %s" % list(Song.selected_scene().clips.tracks))
         Logger.info()
-        Logger.info(
-            "selected_scene.abstract_tracks : %s" % Song.selected_scene().abstract_tracks
-        )
+        Logger.info("selected_scene.abstract_tracks : %s" % Song.selected_scene().abstract_tracks)
         Logger.info()
         Logger.info("selected_scene.clips : %s" % list(Song.selected_scene().clips))
         Logger.info()
@@ -164,8 +163,7 @@ class LogService(object):
         Logger.info("song.selected_clip_slot: %s" % Song.selected_clip_slot())
         if Song.selected_clip_slot():
             Logger.info(
-                "song.selected_clip_slot._clip_slot: %s"
-                % Song.selected_clip_slot()._clip_slot
+                "song.selected_clip_slot._clip_slot: %s" % Song.selected_clip_slot()._clip_slot
             )
 
         if Song.selected_clip_slot().clip is not None:
@@ -178,7 +176,9 @@ class LogService(object):
             Logger.info("song.selected_clip.length: %s" % selected_clip.length)
             Logger.info()
             if isinstance(selected_clip, AudioClip):
-                Logger.info("song.selected_clip.previous_file_path: %s" % selected_clip.previous_file_path)
+                Logger.info(
+                    "song.selected_clip.previous_file_path: %s" % selected_clip.previous_file_path
+                )
 
         Logger.info()
         Logger.info("********* ABLETON_SET *************")

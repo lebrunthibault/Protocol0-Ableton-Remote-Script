@@ -131,8 +131,6 @@ class Clip(SlotManager, Observable):
             return None
 
         if wait_until_end:
-            from protocol0.shared.logging.Logger import Logger
-            Logger.dev(self.playing_position.bars_left)
             Scheduler.wait_bars(self.playing_position.bars_left, self._clip.stop)
             return None
 
@@ -155,7 +153,6 @@ class Clip(SlotManager, Observable):
         # type: (float) -> None
         if self._clip:
             UndoFacade.begin_undo_step()
-            from protocol0.shared.logging.Logger import Logger
 
             midi_quantization = Song.midi_recording_quantization()
             if midi_quantization == Live.Song.RecordingQuantization.rec_q_no_q:

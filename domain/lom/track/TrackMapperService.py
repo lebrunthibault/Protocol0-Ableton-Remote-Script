@@ -184,12 +184,12 @@ class TrackMapperService(SlotManager):
         new_simple_track._index = previous_simple_track._index
         previous_simple_track.disconnect()
 
-        if previous_simple_track.group_track:
+        if previous_simple_track.group_track is not None and previous_simple_track.group_track.abstract_group_track is not None:
             previous_simple_track.group_track.abstract_group_track.add_or_replace_sub_track(
                 new_simple_track, previous_simple_track
             )
 
-        if previous_simple_track.abstract_group_track:
+        if previous_simple_track.abstract_group_track is not None:
             previous_simple_track.abstract_group_track.add_or_replace_sub_track(
                 new_simple_track, previous_simple_track
             )

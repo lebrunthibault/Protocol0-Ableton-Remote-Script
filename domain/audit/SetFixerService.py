@@ -1,5 +1,4 @@
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
@@ -58,5 +57,3 @@ class SetFixerService(object):
         for track in Song.external_synth_tracks():
             track.midi_track.name = "m"
             track.audio_track.name = "a"
-            if track.audio_tail_track:
-                track.audio_tail_track.name = SimpleAudioTailTrack.TRACK_NAME

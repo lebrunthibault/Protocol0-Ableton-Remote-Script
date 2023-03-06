@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import Optional, cast
 
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
@@ -10,13 +8,11 @@ from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import 
 from protocol0.domain.lom.track.group_track.ext_track.ExtSoloState import ExtSoloState
 from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.group_track.ext_track.SimpleBaseExtTrack import SimpleBaseExtTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.group_track.ext_track.SimpleMidiExtTrack import SimpleMidiExtTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 
 
@@ -25,27 +21,25 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track)
 
+        # swapping the base track
         self.base_track = SimpleBaseExtTrack(base_group_track._track, base_group_track.index)
         self.base_track.group_track = base_group_track.group_track
         self.base_track.abstract_group_track = self
+        self.base_track.sub_tracks = base_group_track.sub_tracks
 
-        midi_track = base_group_track.sub_tracks[0]
+        # swapping the midi track
+        midi_track = self.base_track.sub_tracks[0]
         self.midi_track = SimpleMidiExtTrack(midi_track._track, midi_track.index)
         self.link_sub_track(self.midi_track)
+        self.midi_track.devices.build()
 
-        audio_track = base_group_track.sub_tracks[1]
+        # swapping the audio track
+        audio_track = self.base_track.sub_tracks[1]
         self.audio_track = SimpleAudioExtTrack(audio_track._track, audio_track.index)
         self.link_sub_track(self.audio_track)
-        # fixes having the ext track instead of simple tracks
+
+        # use the ext tracks instead of simple tracks
         self.base_track.sub_tracks = self.sub_tracks
-
-        self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
-
-        # sub tracks are now handled by self
-        for sub_track in base_group_track.sub_tracks:
-            sub_track.abstract_group_track = self
-
-        self.midi_track.devices.build()
 
         self.monitoring_state = ExtMonitoringState(self.base_track)
 
@@ -59,27 +53,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_tracks_change(self):
         # type: () -> None
-        self._map_optional_audio_tail_track()
         super(ExternalSynthTrack, self).on_tracks_change()
         self._solo_state.update()
-
-    def _map_optional_audio_tail_track(self):
-        # type: () -> None
-        has_tail_track = (
-            len(self.base_track.sub_tracks) > 2
-            and len(list(self.base_track.sub_tracks[2].devices)) == 0
-        )
-
-        if has_tail_track and not self.audio_tail_track:
-            track = self.base_track.sub_tracks[2]
-            self.audio_tail_track = SimpleAudioTailTrack(track._track, track.index)
-            self.link_sub_track(self.audio_tail_track)
-            Scheduler.defer(
-                partial(setattr, self.audio_tail_track.input_routing, "track", self.midi_track)
-            )
-            Scheduler.defer(self.audio_tail_track.configure)
-        elif not has_tail_track:
-            self.audio_tail_track = None
 
     @classmethod
     def is_group_track_valid(cls, base_group_track):

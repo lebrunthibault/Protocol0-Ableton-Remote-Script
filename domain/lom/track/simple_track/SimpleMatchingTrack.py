@@ -8,7 +8,7 @@ from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterfac
     MatchingTrackInterface,
 )
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
-from protocol0.domain.shared.utils.utils import assert_valid_track_name
+from protocol0.domain.lom.track.group_track.matching_track.utils import assert_valid_track_name
 from protocol0.shared.sequence.Sequence import Sequence
 
 

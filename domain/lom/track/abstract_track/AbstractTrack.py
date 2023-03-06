@@ -87,6 +87,9 @@ class AbstractTrack(SlotManager):
         if sub_track in self.sub_tracks:
             return
 
+        if sub_track._track == self._track:  # same track
+            return
+
         if previous_sub_track is None or previous_sub_track not in self.sub_tracks:
             self.sub_tracks.append(sub_track)
         else:

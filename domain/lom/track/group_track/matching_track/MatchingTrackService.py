@@ -1,4 +1,6 @@
-from typing import Optional, cast, Dict
+from functools import partial
+
+from typing import Optional, cast, Dict, List
 
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
@@ -46,6 +48,8 @@ class MatchingTrackService(object):
         DomainEventBus.subscribe(TrackDisconnectedEvent, self._on_track_disconnected_event)
         DomainEventBus.subscribe(SimpleTrackFlattenedEvent, self._on_simple_track_flattened_event)
 
+        self._checked_tracks = []  # type: List[AbstractTrack]
+
     def _on_track_added_event(self, _):
         # type: (TrackAddedEvent) -> None
         matching_track = self._create_matching_track(Song.current_track())
@@ -69,7 +73,10 @@ class MatchingTrackService(object):
 
         seq = Sequence()
 
-        seq.add(self._create_matching_track_creator(current_track).bounce)
+        checked = current_track in self._checked_tracks
+        seq.add(partial(self._create_matching_track_creator(current_track).bounce, checked))
+
+        self._checked_tracks.append(current_track)
         return seq.done()
 
     def _create_matching_track(self, track):

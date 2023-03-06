@@ -13,6 +13,6 @@ class MatchingTrackCreatorInterface(object):
         self._track_crud_component = track_crud_component
         self._base_track = base_track
 
-    def bounce(self):
-        # type: () -> Sequence
+    def bounce(self, already_checked):
+        # type: (bool) -> Sequence
         raise NotImplementedError

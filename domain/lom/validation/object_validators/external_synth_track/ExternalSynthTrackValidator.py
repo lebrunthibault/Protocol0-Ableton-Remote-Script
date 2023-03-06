@@ -10,9 +10,6 @@ from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidat
 from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleAudioExtTrackValidator import (
     SimpleAudioExtTrackValidator,
 )
-from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleAudioTailTrackValidator import (
-    SimpleAudioTailTrackValidator,
-)
 from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleMidiExtTrackValidator import (
     SimpleMidiExtTrackValidator,
 )
@@ -35,9 +32,6 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
         # SUB TRACKS
         validators += SimpleMidiExtTrackValidator(track.midi_track, browser_service)._validators
         validators += SimpleAudioExtTrackValidator(track.audio_track, track.midi_track)._validators
-
-        if track.audio_tail_track is not None:
-            validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
         super(ExternalSynthTrackValidator, self).__init__(track, validators)
 

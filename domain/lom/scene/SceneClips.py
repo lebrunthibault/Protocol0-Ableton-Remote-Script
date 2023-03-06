@@ -6,12 +6,13 @@ from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import InstrumentBusTrack
-from protocol0.domain.lom.track.simple_track.audio.special.ResamplingTrack import ResamplingTrack
 from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
-from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import (
+    InstrumentBusTrack,
+)
+from protocol0.domain.lom.track.simple_track.audio.special.ResamplingTrack import ResamplingTrack
 from protocol0.domain.shared.utils.timing import debounce
 from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
@@ -22,9 +23,7 @@ class SceneClip(object):
         # type: (SimpleTrack, Clip) -> None
         self.track = track
         self.clip = clip
-        self.is_main_clip = not isinstance(
-            track, (SimpleAudioExtTrack, SimpleAudioTailTrack, SimpleDummyTrack)
-        )
+        self.is_main_clip = not isinstance(track, (SimpleAudioExtTrack, SimpleDummyTrack))
 
     def __repr__(self):
         # type: () -> str
