@@ -38,6 +38,7 @@ class DeviceEnum(AbstractEnum):
     INSERT_DRY_WET = "Insert Dry Wet"
     INSERT_REVERB = "Insert Reverb"
     INSTRUMENT_RACK = "Instrument Rack"
+    JJP_STRINGS = "JJP-Strings-Keys-Stereo"
     LFO_TOOL = "LFOTool_x64"
     L1_LIMITER = "L1 limiter Stereo"
     L1_ULTRAMAXIMIZER = "L1+ Ultramaximizer Stereo"
@@ -267,6 +268,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.GATEKEEPER: 130,
                     DeviceEnum.GLUE_COMPRESSOR: 6,
                     DeviceEnum.INSTRUMENT_RACK: 10,
+                    DeviceEnum.JJP_STRINGS: 280,
                     DeviceEnum.LFO_TOOL: 180,
                     DeviceEnum.L1_LIMITER: 64,
                     DeviceEnum.L1_ULTRAMAXIMIZER: 64,

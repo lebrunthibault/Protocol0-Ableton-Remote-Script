@@ -9,10 +9,11 @@ from protocol0.domain.lom.track.group_track.ext_track.ExtArmState import ExtArmS
 from protocol0.domain.lom.track.group_track.ext_track.ExtMonitoringState import ExtMonitoringState
 from protocol0.domain.lom.track.group_track.ext_track.ExtSoloState import ExtSoloState
 from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
+from protocol0.domain.lom.track.group_track.ext_track.SimpleBaseExtTrack import SimpleBaseExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiExtTrack import SimpleMidiExtTrack
+from protocol0.domain.lom.track.group_track.ext_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -23,7 +24,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def __init__(self, base_group_track):
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track)
-        self.base_track = cast(SimpleAudioTrack, base_group_track)
+
+        self.base_track = SimpleBaseExtTrack(base_group_track._track, base_group_track.index)
+        self.base_track.group_track = base_group_track.group_track
+        self.base_track.abstract_group_track = self
+
         midi_track = base_group_track.sub_tracks[0]
         self.midi_track = SimpleMidiExtTrack(midi_track._track, midi_track.index)
         self.link_sub_track(self.midi_track)
