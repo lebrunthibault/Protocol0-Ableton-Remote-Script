@@ -233,10 +233,16 @@ class Sequence(Observable):
 
         return self._add_timeout_step(subscribe, "wait_for_event %s" % event_class)
 
-    def wait_for_backend_event(self, event_type):
-        # type: (str) -> Sequence
+    def wait_for_backend_event(self, event_type, timeout=0):
+        # type: (str, int) -> Sequence
         """event types are hardcoded in the script and backend"""
-        self.add(nop, notify_terminated=False)
+
+        def step():
+            # type: () -> None
+            DomainEventBus.subscribe(BackendEvent, on_event)
+
+            if timeout:
+                Scheduler.wait_ms(timeout, cancel)
 
         def on_event(backend_event):
             # type: (BackendEvent) -> None
@@ -249,7 +255,13 @@ class Sequence(Observable):
                 self.res = backend_event.data
                 self._execute_next_step()
 
-        DomainEventBus.subscribe(BackendEvent, on_event)
+
+        def cancel():
+            # type: () -> None
+            DomainEventBus.un_subscribe(BackendEvent, on_event)
+            self._cancel()
+
+        self.add(step, notify_terminated=False)
 
         return self
 

@@ -17,7 +17,6 @@ from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
@@ -107,7 +106,9 @@ class ErrorService(object):
 
     def _restart(self):
         # type: () -> None
-        Scheduler.restart()
+        Sequence.reset()
+
+        # Scheduler.restart()
         # noinspection PyArgumentList
         self._song.stop_playing()  # prevent more errors coming through
 

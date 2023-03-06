@@ -74,7 +74,6 @@ class BaseRecorder(object):
             seq.wait_for_event(Last32thPassedEvent)
         else:
             seq.wait_for_event(SongStoppedEvent)
-            seq.log("after stop")
             seq.add(lambda: Song.selected_scene().scene_name.update(""))
 
         return seq.done()

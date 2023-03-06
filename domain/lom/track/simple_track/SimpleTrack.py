@@ -324,9 +324,7 @@ class SimpleTrack(AbstractTrack):
     def focus(self):
         # type: () -> Sequence
         # track can disappear out of view if this is done later
-
-        # defensive : this will normally be done before
-        Scheduler.wait_ms(2000, partial(setattr, self, "color", self.color))
+        track_color = self.color
 
         self.color = ColorEnum.FOCUSED.int_value
 
@@ -342,6 +340,10 @@ class SimpleTrack(AbstractTrack):
 
         seq.add(self.select)
         seq.defer()
+
+        # defensive : this will normally be done before
+        seq.add(lambda: Scheduler.wait_ms(2000, partial(setattr, self, "color", track_color)))
+
         return seq.done()
 
     def save(self, check_for_duplicate=False):
@@ -352,9 +354,9 @@ class SimpleTrack(AbstractTrack):
         seq.add(partial(DomainEventBus.emit, SimpleTrackSaveStartedEvent()))
         seq.add(self.focus)
         seq.add(partial(Backend.client().save_track_to_sub_tracks, check_for_duplicate))
-        seq.wait_for_backend_event("track_focused")
+        seq.wait_for_backend_event("track_focused", timeout=3000)
         seq.add(partial(setattr, self, "color", track_color))
-        seq.wait_for_backend_event("track_saved")
+        seq.wait_for_backend_event("track_saved", timeout=10000)
 
         return seq.done()
 

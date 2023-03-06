@@ -37,10 +37,14 @@ class ExtMatchingTrackCreator(MatchingTrackCreatorInterface):
 
         # populate the mapping
         for midi_cs, audio_cs in zip(self._midi_track.clip_slots, self._audio_track.clip_slots):
-            if midi_cs.clip is not None and audio_cs.clip is not None:
-                self._audio_track.audio_to_midi_clip_mapping.register_file_path(
-                    audio_cs.clip.file_path, ClipInfo(midi_cs.clip)
-                )
+            if audio_cs.clip is None:
+                continue
+
+            assert midi_cs.clip is not None, "Incoherent clip layout"
+
+            self._audio_track.audio_to_midi_clip_mapping.register_file_path(
+                audio_cs.clip.file_path, ClipInfo(midi_cs.clip)
+            )
 
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         # noinspection DuplicatedCode

@@ -66,7 +66,10 @@ class AudioToMidiClipMapping(object):
         if midi_hash is None:
             midi_hash = self._file_path_mapping.get(cast(str, clip_info.file_path), None)
 
-        assert midi_hash is not None, "The clip info file path was not recognized"
+        assert midi_hash is not None, "Cannot find midi hash from '%s' and %s" % (
+            basename(file_path),
+            clip_info,
+        )
 
         if self._DEBUG:
             Logger.info("register %s -> %s" % (basename(file_path), midi_hash))
