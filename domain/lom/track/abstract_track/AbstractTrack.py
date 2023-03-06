@@ -170,6 +170,10 @@ class AbstractTrack(SlotManager):
         """Due to AbstractGroupTrack we cannot do this only at clip level"""
         raise NotImplementedError
 
+    def to_dict(self):
+        # type: () -> Dict
+        return {"name": self.name, "type": self.__class__.__name__, "index": self.index}
+
     def disconnect(self):
         # type: () -> None
         super(AbstractTrack, self).disconnect()

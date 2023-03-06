@@ -84,14 +84,8 @@ class AbletonSet(object):
             "path": self._path,
             "title": self._title,
             "muted": muted,
-            "current_track": {
-                "name": Song.current_track().name,
-                "type": Song.current_track().__class__.__name__,
-            },
-            "selected_track": {
-                "name": Song.selected_track().name,
-                "type": Song.selected_track().__class__.__name__,
-            },
+            "current_track": Song.current_track().to_dict(),
+            "selected_track": Song.selected_track().to_dict(),
             "drum_rack_visible": isinstance(
                 Song.selected_track().instrument, InstrumentDrumRack
             ),
