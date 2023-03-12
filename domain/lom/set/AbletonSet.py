@@ -86,6 +86,7 @@ class AbletonSet(object):
             "muted": muted,
             "current_track": Song.current_track().to_dict(),
             "selected_track": Song.selected_track().to_dict(),
+            "track_count": len(list(Song.simple_tracks())),
             "drum_rack_visible": isinstance(
                 Song.selected_track().instrument, InstrumentDrumRack
             ),

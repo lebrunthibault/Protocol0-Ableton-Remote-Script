@@ -19,7 +19,7 @@ class ActionGroupTest(ActionGroupInterface):
         self.add_encoder(
             identifier=1,
             name="test",
-            on_press=self.action_test,
+            on_press=self.action_log_midi,
         )
 
         # PROFiling encoder

@@ -33,6 +33,10 @@ class ClipInfo(object):
 
         return "ClipInfo(name=%s,midi_hash=%s,file_path=%s)" % (self.name, self.midi_hash, file_path)
 
+    def already_bounced_to(self, track):
+        # type: (SimpleAudioTrack) -> bool
+        return any(self.matches_clip_slot(track, cs, False) for cs in track.clip_slots)
+
     def matches_clip_slot(self, dest_track, dest_cs, exclude_identity=True):
         # type: (SimpleAudioTrack, AudioClipSlot, bool) -> bool
         dest_clip = dest_cs.clip
