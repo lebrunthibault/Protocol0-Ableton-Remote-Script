@@ -9,6 +9,7 @@ from protocol0.domain.lom.scene.SceneLength import SceneLength
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils.string import title
 from protocol0.domain.shared.utils.utils import get_length_legend
 from protocol0.shared.Config import Config
 from protocol0.shared.Song import Song
@@ -84,5 +85,5 @@ class SceneName(SlotManager):
         if Song.looping_scene() and Song.looping_scene()._scene == self._scene:
             scene_name = "*%s" % scene_name
 
-        self._scene.name = scene_name
+        self._scene.name = title(scene_name)
         self._last_updated_at = time.time()

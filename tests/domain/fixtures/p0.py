@@ -7,6 +7,7 @@ from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.song.SongInitService import SongInitService
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterface import MatchingTrackInterface
 from protocol0.domain.lom.track.routing.RoutingTrackDescriptor import RoutingTrackDescriptor
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.func import nop
@@ -41,6 +42,7 @@ def monkey_patch_static():
     Backend(nop)
     UndoFacade(nop, nop)
     AbletonSet.notify = nop
+    SimpleTrack.click = nop
     # noinspection PyTypeChecker
     Scheduler(TickSchedulerTest(), None)  # ignore beat scheduling in tests
 
