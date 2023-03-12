@@ -5,6 +5,7 @@ from _Framework.SubjectSlot import subject_slot
 from typing import cast, List, Optional, Dict
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip.ClipTail import ClipTail
@@ -71,7 +72,9 @@ class SimpleTrack(AbstractTrack):
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._view = live_track.view
 
-        self._clip_slots = SimpleTrackClipSlots(live_track, self.CLIP_SLOT_CLASS)
+
+        self._clip_config = ClipConfig(self.color)
+        self._clip_slots = SimpleTrackClipSlots(live_track, self.CLIP_SLOT_CLASS, self._clip_config)
         self._clip_slots.build()
         self._clip_slots.register_observer(self)
         self.clip_tail = ClipTail(self._clip_slots)
@@ -250,6 +253,8 @@ class SimpleTrack(AbstractTrack):
     def color(self, color_index):
         # type: (int) -> None
         self.appearance.color = color_index
+        self._clip_config.color = color_index
+
         for clip in self.clips:
             clip.color = color_index
 

@@ -63,7 +63,7 @@ class MatchingTrackService(object):
             Song.current_track().arm_state.arm()
 
     def bounce_current_track(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
         current_track = Song.current_track()
 
         matching_track = self._create_matching_track(current_track)

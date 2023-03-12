@@ -32,8 +32,8 @@ class MatchingTrackClipColorManager(object):
         if self._audio_track_2 is not None:
             clips += self._audio_track_2.clips
 
-        for clip in clips:
-            clip.color = self._clip_track.color
+        # for clip in clips:
+        #     clip.color = self._clip_track.color
 
     def _set_colours(self):
         # type: () -> None

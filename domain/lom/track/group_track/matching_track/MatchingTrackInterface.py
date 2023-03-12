@@ -52,5 +52,5 @@ class MatchingTrackInterface(SlotManager):
         raise NotImplementedError
 
     def bounce(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
         raise NotImplementedError

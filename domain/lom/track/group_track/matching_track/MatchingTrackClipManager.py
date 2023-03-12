@@ -58,8 +58,8 @@ class MatchingTrackClipManager(object):
             # in case the base track is not already removed
             Scheduler.wait_ms(1500, self._router.monitor_base_track)
 
-            # for cs in replaced_cs:
-            #     cs.clip.blink()
+            for cs in replaced_cs:
+                cs.clip.blink()
 
         seq.add(post_broadcast)
 

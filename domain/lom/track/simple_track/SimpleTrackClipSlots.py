@@ -17,8 +17,8 @@ from protocol0.shared.observer.Observable import Observable
 
 
 class SimpleTrackClipSlots(SlotManager, Observable):
-    def __init__(self, live_track, clip_slot_class):
-        # type: (Live.Track.Track, Type[ClipSlot]) -> None
+    def __init__(self, live_track, clip_slot_class, clip_config):
+        # type: (Live.Track.Track, Type[ClipSlot], ClipConfig) -> None
         super(SimpleTrackClipSlots, self).__init__()
         self._live_track = live_track
         self._clip_slot_class = clip_slot_class
@@ -28,7 +28,7 @@ class SimpleTrackClipSlots(SlotManager, Observable):
         self._has_clip_listener.replace_subjects(live_track.clip_slots)
 
         self._instrument = None  # type: Optional[InstrumentInterface]
-        self._clip_config = ClipConfig(self._live_track.color_index)
+        self._clip_config = clip_config
 
     def __iter__(self):
         # type: () -> Iterator[ClipSlot]

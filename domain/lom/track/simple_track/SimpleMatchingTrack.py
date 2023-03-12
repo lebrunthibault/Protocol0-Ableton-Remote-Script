@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipColorManager import (
@@ -12,6 +12,7 @@ from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterfac
 )
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.group_track.matching_track.utils import assert_valid_track_name
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -28,7 +29,7 @@ class SimpleMatchingTrack(MatchingTrackInterface):
         return MatchingTrackClipColorManager(self.router, self._base_track, self._audio_track)
 
     def bounce(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
         assert all(clip.looping for clip in self._base_track.clips), "Some clips are not looped"
         assert self._base_track.devices.mixer_device.is_default, "Mixer was changed"
 
@@ -47,6 +48,9 @@ class SimpleMatchingTrack(MatchingTrackInterface):
         bounced_clips = [
             c for c in self._base_track.clips if ClipInfo(c).already_bounced_to(self._audio_track)
         ]
+        if bounced_clips == self._base_track.clips:
+            Backend.client().show_success("No new clip to bounce")
+            return None
 
         seq = Sequence()
         seq.add(self._base_track.save)

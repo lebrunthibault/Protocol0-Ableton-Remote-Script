@@ -89,8 +89,10 @@ class AudioToMidiClipMapping(object):
         self._midi_hash_equivalences[new_hash] = hash_list
         self._midi_hash_equivalences[existing_hash] = hash_list
 
-    def hash_matches_file_path(self, midi_hash, file_path, exclude_identity=True):
-        # type: (int, str, bool) -> bool
+    def hash_matches_file_path(self, midi_hash, file_path, exclude_identity, exact):
+        # type: (int, str, bool, bool) -> bool
+        assert not (exclude_identity and exact), "Cannot use both exclude_identity and exact"
+
         if file_path not in self._file_path_mapping:
             return False
 
@@ -98,12 +100,18 @@ class AudioToMidiClipMapping(object):
         if exclude_identity and midi_hash == file_path_midi_hash:
             return False
 
-        return midi_hash in self._midi_hash_equivalences[file_path_midi_hash]
+        equivalences = self._midi_hash_equivalences[file_path_midi_hash]
 
-    def file_path_updated_matches_file_path(self, file_path_1, file_path_2, exclude_identity=True):
-        # type: (str, str, bool) -> bool
+        # exact will not check previous versions
+        if exact:
+            return midi_hash == next(iter(equivalences), None)
+        else:
+            return midi_hash in equivalences
+
+    def file_path_updated_matches_file_path(self, file_path_1, file_path_2, exclude_identity, exact):
+        # type: (str, str, bool, bool) -> bool
         midi_hash_1 = self._file_path_mapping.get(file_path_1, None)
 
         return midi_hash_1 is not None and self.hash_matches_file_path(
-            midi_hash_1, file_path_2, exclude_identity
+            midi_hash_1, file_path_2, exclude_identity, exact
         )

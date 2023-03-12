@@ -35,23 +35,20 @@ class ClipInfo(object):
 
     def already_bounced_to(self, track):
         # type: (SimpleAudioTrack) -> bool
-        return any(self.matches_clip_slot(track, cs, False) for cs in track.clip_slots)
+        return any(self.matches_clip_slot(track, cs, False, exact=True) for cs in track.clip_slots)
 
-    def matches_clip_slot(self, dest_track, dest_cs, exclude_identity=True):
-        # type: (SimpleAudioTrack, AudioClipSlot, bool) -> bool
+    def matches_clip_slot(self, dest_track, dest_cs, exclude_identity=True, exact=False):
+        # type: (SimpleAudioTrack, AudioClipSlot, bool, bool) -> bool
         dest_clip = dest_cs.clip
 
         if dest_clip is None:
             return False
 
-        if self._DEBUG:
-            Logger.info("dest clip: %s -> %s" % (dest_clip, basename(dest_clip.file_path)))
-
         if self.midi_hash is not None:
             return dest_track.audio_to_midi_clip_mapping.hash_matches_file_path(
-                self.midi_hash, dest_clip.file_path, exclude_identity
+                self.midi_hash, dest_clip.file_path, exclude_identity, exact
             )
         else:
             return dest_track.audio_to_midi_clip_mapping.file_path_updated_matches_file_path(
-                cast(str, self.file_path), dest_clip.file_path,exclude_identity
+                cast(str, self.file_path), dest_clip.file_path,exclude_identity, exact
             )
