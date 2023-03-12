@@ -64,6 +64,8 @@ def load_instrument_track(instrument_cls):
     seq.add(partial(Backend.client().load_instrument_track, instrument_cls.INSTRUMENT_TRACK_NAME))
     seq.wait_for_backend_event("instrument_loaded")
     seq.add(partial(setattr, insert_track, "color", track_color))
+    seq.defer()
+    # seq.add(lambda: Song.selected_track().click())
     return seq.done()
 
 
