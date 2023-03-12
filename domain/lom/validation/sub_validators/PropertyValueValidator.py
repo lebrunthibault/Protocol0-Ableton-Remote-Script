@@ -44,9 +44,9 @@ class PropertyValueValidator(ValidatorInterface):
         if not self._fix:
             return
         if hasattr(self._obj, self._attr):
-            try:
-                setattr(self._obj, self._attr, self._expected_value)
-            except AttributeError as e:
-                Logger.error("Error on %s - %s : %s" % (self._obj, self._attr, e))
+            # try:
+            setattr(self._obj, self._attr, self._expected_value)
+            # except AttributeError as e:
+            #     Logger.error("Fix error on %s - %s : %s" % (self._obj, self._attr, e))
         else:
             raise Protocol0Error("Cannot set attribute when it does not exist")
