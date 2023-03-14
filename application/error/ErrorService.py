@@ -43,7 +43,6 @@ class ErrorService(object):
         DomainEventBus.subscribe(ErrorRaisedEvent, self._on_error_raised_event)
         DomainEventBus.subscribe(BackendEvent, self._on_backend_event)
 
-
     def _on_error_raised_event(self, event):
         # type: (ErrorRaisedEvent) -> None
         UndoFacade.end_undo_step()
@@ -154,7 +153,6 @@ class ErrorService(object):
         seq = Sequence()
         seq.prompt(
             "%s\n\nReload script ?" % message,
-            vertical=False,
             color=NotificationColorEnum.ERROR,
             default=False,
         )

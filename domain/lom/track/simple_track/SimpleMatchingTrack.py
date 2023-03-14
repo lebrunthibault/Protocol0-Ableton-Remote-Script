@@ -4,15 +4,14 @@ from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipColorManager import (
     MatchingTrackClipColorManager,
 )
-from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipsBroadcastEvent import (
-    MatchingTrackClipsBroadcastEvent,
-)
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterface import (
     MatchingTrackInterface,
 )
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.group_track.matching_track.utils import assert_valid_track_name
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.Song import Song
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -39,7 +38,7 @@ class SimpleMatchingTrack(MatchingTrackInterface):
         if isinstance(self._base_track, SimpleMidiTrack):
             for clip in self._base_track.clips:
                 if clip.previous_midi_hash != clip.midi_hash:
-                    self._audio_track.audio_to_midi_clip_mapping.register_midi_hash_equivalence(
+                    self._audio_track.clip_mapping.register_midi_hash_equivalence(
                         clip.previous_midi_hash, clip.midi_hash
                     )
                     clip.previous_midi_hash = clip.midi_hash
@@ -48,15 +47,18 @@ class SimpleMatchingTrack(MatchingTrackInterface):
         bounced_clips = [
             c for c in self._base_track.clips if ClipInfo(c).already_bounced_to(self._audio_track)
         ]
+
         if bounced_clips == self._base_track.clips:
             Backend.client().show_success("No new clip to bounce")
             return None
+
+        elif len(bounced_clips) != 0:
+            Logger.info("Removing bounced clips: %s" % bounced_clips)
 
         seq = Sequence()
         seq.add(self._base_track.save)
         seq.add([c.delete for c in bounced_clips])
         seq.add(self._base_track.flatten)
-        seq.wait_for_event(MatchingTrackClipsBroadcastEvent)
-        # seq.add(self._base_track.delete)
+        seq.add(lambda: Song.selected_track().delete())
 
         return seq.done()

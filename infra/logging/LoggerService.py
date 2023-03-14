@@ -20,9 +20,12 @@ class LoggerService(LoggerServiceInterface):
 
         if isinstance(message, List) or isinstance(message, Dict):
             try:
-                message = json.dumps(message, indent=4)
-            except TypeError:
-                pass
+                # use str to json encode classes
+                message = json.dumps(message, indent=4, default=str)
+            except TypeError as e:
+                from protocol0.shared.logging.Logger import Logger
+
+                Logger.error(e)
 
         if not isinstance(message, basestring):
             message = str(message)

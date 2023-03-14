@@ -19,7 +19,7 @@ class ActionGroupTest(ActionGroupInterface):
         self.add_encoder(
             identifier=1,
             name="test",
-            on_press=self.action_test,
+            on_press=self.action_log_midi,
         )
 
         # PROFiling encoder
@@ -49,20 +49,21 @@ class ActionGroupTest(ActionGroupInterface):
     def action_log_midi(self):
         # type: () -> None
         if isinstance(Song.selected_clip(), MidiClip):
-            Logger.info("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
             Logger.info("previous midi hash: %s" % Song.selected_clip(MidiClip).previous_midi_hash)
+            Logger.info("midi hash: %s" % Song.selected_clip(MidiClip).midi_hash)
+            # Logger.info("hash: %s" % Song.selected_clip(MidiClip).get_hash(Song.selected_track().devices.parameters))
         else:
             track = Song.selected_track(SimpleAudioTrack)
-            Logger.info(track.audio_to_midi_clip_mapping._file_path_mapping)
-            midi_hash = track.audio_to_midi_clip_mapping._file_path_mapping.get(
+            Logger.info(track.clip_mapping._file_path_mapping)
+            midi_hash = track.clip_mapping._file_path_mapping.get(
                 Song.selected_clip(AudioClip).file_path, None
             )
             Logger.info("midi hash: %s" % midi_hash)
             Logger.info(
                 "midi hash equivalences: %s"
-                % track.audio_to_midi_clip_mapping._midi_hash_equivalences.get(midi_hash, None)
+                % track.clip_mapping._midi_hash_equivalences.get(midi_hash, None)
             )
 
     def action_test(self):
         # type: () -> None
-        Song.selected_track().click()
+        pass

@@ -11,6 +11,7 @@ from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.clip.ClipPlayingPosition import ClipPlayingPosition
 from protocol0.domain.lom.clip.automation.ClipAutomation import ClipAutomation
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.Song import Song
@@ -59,6 +60,10 @@ class Clip(SlotManager, Observable):
     length = cast(float, ForwardTo("loop", "length"))
     bar_length = cast(float, ForwardTo("loop", "bar_length"))
     looping = cast(bool, ForwardTo("loop", "looping"))
+
+    def get_hash(self, device_parameters):
+        # type: (List[DeviceParameter]) -> float
+        raise NotImplementedError
 
     @property
     def is_triggered(self):

@@ -29,7 +29,7 @@ class SimpleAudioTrack(SimpleTrack):
         self._needs_flattening = True
 
         self._data = TrackData(self)
-        self.audio_to_midi_clip_mapping = AudioToMidiClipMapping(self._data)
+        self.clip_mapping = AudioToMidiClipMapping(self._data)
         self._data.restore()
 
         self._has_clip_listener.replace_subjects(self._track.clip_slots)

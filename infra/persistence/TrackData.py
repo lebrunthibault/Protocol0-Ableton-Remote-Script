@@ -22,7 +22,7 @@ class TrackData(object):
         if liveobj_valid(self._track._track):
             self._track._track.set_data(
                 TrackDataEnum.AUDIO_TO_MIDI_CLIP_MAPPING.value,
-                self._track.audio_to_midi_clip_mapping.to_dict(),
+                self._track.clip_mapping.to_dict(),
             )
 
     def restore(self):
@@ -33,6 +33,6 @@ class TrackData(object):
         )  # type: Dict
 
         if mapping_data is not None:
-            self._track.audio_to_midi_clip_mapping = AudioToMidiClipMapping.from_dict(
+            self._track.clip_mapping = AudioToMidiClipMapping.from_dict(
                 self, mapping_data
             )

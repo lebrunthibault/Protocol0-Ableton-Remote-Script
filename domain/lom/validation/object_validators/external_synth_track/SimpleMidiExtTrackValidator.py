@@ -1,7 +1,7 @@
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.track.group_track.ext_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.lom.track.group_track.ext_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import \
@@ -9,17 +9,12 @@ from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator impor
 from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import \
     SimpleTrackHasDeviceValidator
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
-from protocol0.shared.Config import Config
 
 
 class SimpleMidiExtTrackValidator(AggregateValidator):
     def __init__(self, track, browser_service):
         # type: (SimpleMidiExtTrack, BrowserServiceInterface) -> None
         self._track = track
-
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(track.output_routing.type)
-        Logger.dev(track.group_track)
 
         validators = [
             PropertyValueValidator(track, "volume", 0, name="midi track volume"),

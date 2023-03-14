@@ -8,7 +8,7 @@ pretty = false
 ignore_missing_imports = true
 follow_imports = 'skip'
 # cannot remove misc because of _Framework. union-attr possibly
-disable_error_code = ['misc','union-attr']
+disable_error_code = ['misc','union-attr', 'has-type']
 show_error_codes = true
 #warn_return_any = true # this is not possible because of the Live stub (and xml) doesn't specify types for properties
 warn_unreachable = true

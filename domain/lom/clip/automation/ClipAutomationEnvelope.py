@@ -1,13 +1,28 @@
 import Live
 
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.utils.utils import float_seq
 
 
 class ClipAutomationEnvelope(object):
+    _FOOTPRINT_MEASURES = 100
+
     def __init__(self, envelope, length):
         # type: (Live.Clip.AutomationEnvelope, float) -> None
         self._envelope = envelope
         self._length = length
+
+    @property
+    def hash(self):
+        # type: () -> float
+        """pick up to 10 values to generate a footprint of the automation"""
+        values = [
+            self.value_at_time(i)
+            for i in float_seq(0, int(self._length), self._length / self._FOOTPRINT_MEASURES)
+        ]
+        values.append(self.value_at_time(self._length))
+
+        return hash(tuple(values))
 
     def value_at_time(self, beat_length):
         # type: (float) -> float

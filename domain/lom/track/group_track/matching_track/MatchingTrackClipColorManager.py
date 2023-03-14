@@ -32,24 +32,24 @@ class MatchingTrackClipColorManager(object):
         if self._audio_track_2 is not None:
             clips += self._audio_track_2.clips
 
-        # for clip in clips:
-        #     clip.color = self._clip_track.color
+        for clip in clips:
+            clip.color = self._clip_track.color
 
     def _set_colours(self):
         # type: () -> None
         self._router.monitor_audio_track()  # show clip colors
+
         color_index = 0
+        clip_infos = ClipInfo.create_from_clips(
+            self._clip_track.clips, self._clip_track.devices.parameters
+        )
 
-        for base_clip in self._clip_track.clips:
-            base_clip.color = color_index
+        for clip_info in clip_infos:
+            clips = clip_info.get_clips(self._clip_track)
+            for clip in clips:
+                clip.color = color_index
 
-            clip_slots = self._audio_track.clip_slots
-            if self._audio_track_2 is not None:
-                clip_slots += self._audio_track_2.clip_slots
-
-            clip_info = ClipInfo(base_clip)
-            for cs in clip_slots:
-                if clip_info.matches_clip_slot(self._audio_track, cs, exclude_identity=False):
-                    cs.clip.color = color_index
+            for cs in clip_info.matching_clip_slots(self._audio_track):
+                cs.clip.color = color_index
 
             color_index += 1

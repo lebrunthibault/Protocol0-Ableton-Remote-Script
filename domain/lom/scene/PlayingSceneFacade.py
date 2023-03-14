@@ -37,8 +37,6 @@ class PlayingSceneFacade(object):
         if scene == cls.get():
             return None
 
-        Logger.debug("set playing scene from %s to %s" % (cls.get(), scene))
-
         scenes = cls._INSTANCE._last_playing_scenes
         cls._INSTANCE._last_playing_scenes = scenes[1:] + [scene]
 

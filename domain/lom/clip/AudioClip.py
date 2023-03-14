@@ -1,9 +1,10 @@
 from functools import partial
 
 import Live
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.ui.ColorEnum import ColorEnum
@@ -18,6 +19,10 @@ class AudioClip(Clip):
 
         # associate the clip with a midi content
         self.previous_file_path = None  # type: Optional[str]
+
+    def get_hash(self, device_parameters):
+        # type: (List[DeviceParameter]) -> float
+        return hash((self.file_path, self.automation.get_hash(device_parameters)))
 
     def matches(self, other):
         # type: (AudioClip) -> bool

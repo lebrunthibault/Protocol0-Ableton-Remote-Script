@@ -7,8 +7,8 @@ from protocol0.domain.lom.clip.automation.ClipAutomationEnvelope import ClipAuto
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
 
@@ -18,6 +18,13 @@ class ClipAutomation(object):
         self._live_clip = live_clip
         self._loop = loop
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
+
+    def get_hash(self, device_parameters):
+        # type: (List[DeviceParameter]) -> int
+        automated_parameters = self.get_automated_parameters(device_parameters)
+        envs = [self.get_envelope(param) for param in automated_parameters]
+
+        return hash(tuple([env.hash for env in envs]))
 
     def get_automated_parameters(self, device_parameters):
         # type: (List[DeviceParameter]) -> List[DeviceParameter]

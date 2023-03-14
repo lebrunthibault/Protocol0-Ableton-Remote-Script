@@ -2,9 +2,7 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class LogLevelEnum(AbstractEnum):
-    DISABLED = 0
-    DEBUG = 1
-    DEV = 2
-    INFO = 3
-    WARNING = 4
-    ERROR = 5
+    DEV = 1
+    INFO = 2
+    WARNING = 3
+    ERROR = 4

@@ -77,3 +77,4 @@ _.bounce_current_track  # unused method (domain\lom\track\group_track\matching_t
 Coords  # unused variable (shared\types.py:7)
 _.activate  # unused method (application\error\SentryService.py:14)
 _.action_test  # unused method (application\control_surface\group\ActionGroupTest.py:66)
+timeit  # unused function (domain\shared\utils\utils.py:110)

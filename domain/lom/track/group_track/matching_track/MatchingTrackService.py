@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Optional, cast, Dict, List
+from typing import Optional, cast, Dict
 
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
@@ -34,6 +34,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import (
 )
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.LiveObject import liveobj_valid
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Song import Song
@@ -47,8 +48,6 @@ class MatchingTrackService(object):
         DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
         DomainEventBus.subscribe(TrackDisconnectedEvent, self._on_track_disconnected_event)
         DomainEventBus.subscribe(SimpleTrackFlattenedEvent, self._on_simple_track_flattened_event)
-
-        self._checked_tracks = []  # type: List[AbstractTrack]
 
     def _on_track_added_event(self, _):
         # type: (TrackAddedEvent) -> None
@@ -71,13 +70,7 @@ class MatchingTrackService(object):
         if matching_track is not None:
             return matching_track.bounce()
 
-        seq = Sequence()
-
-        checked = current_track in self._checked_tracks
-        seq.add(partial(self._create_matching_track_creator(current_track).bounce, checked))
-
-        self._checked_tracks.append(current_track)
-        return seq.done()
+        return self._create_matching_track_creator(current_track).bounce()
 
     def _create_matching_track(self, track):
         # type: (AbstractTrack) -> Optional[MatchingTrackInterface]
@@ -125,9 +118,7 @@ class MatchingTrackService(object):
                 # except in the special case of a legacy track where the mapping has not been
                 # done and persisted to the track data
                 # (in this case an exception will be raised)
-                flattened_track.audio_to_midi_clip_mapping.register_file_path(
-                    clip.file_path, clip_info
-                )
+                flattened_track.clip_mapping.register_file_path(clip.file_path, clip_info)
 
         if matching_track is None:
             return None
@@ -150,6 +141,11 @@ class MatchingTrackService(object):
                     and track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
                 ):
                     track.output_routing.track = track.group_track or Song.master_track()  # type: ignore[assignment]
+
+                    seq = Sequence()
+                    seq.prompt("Remove saved track '%s'?" % track.name)
+                    seq.add(partial(Backend.client().delete_saved_track, track.name))
+                    seq.done()
 
     def match_clip_colors(self):
         # type: () -> None

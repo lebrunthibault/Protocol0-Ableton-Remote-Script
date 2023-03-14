@@ -71,6 +71,7 @@ class DeviceEnum(AbstractEnum):
     UTILITY = "Utility"
     VALHALLA_VINTAGE_VERB = "ValhallaVintageVerb"
     VCOMP = "VComp Stereo"
+    VEQ = "VEQ3 Stereo"
     YOULEAN = "Youlean Loudness Meter 2"
 
     @property
@@ -211,7 +212,7 @@ class DeviceEnum(AbstractEnum):
             [
                 cls.AUTO_FILTER_HIGH_PASS,
                 cls.AUTO_FILTER_LOW_PASS,
-                DeviceEnumGroup("EQ", [cls.PRO_Q_3, cls.EQ_EIGHT]),
+                DeviceEnumGroup("EQ", [cls.PRO_Q_3, cls.EQ_EIGHT, cls.VEQ]),
                 cls.UTILITY,
             ],
             [

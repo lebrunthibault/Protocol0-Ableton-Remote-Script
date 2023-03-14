@@ -82,23 +82,19 @@ class AudioToMidiClipMapping(object):
     def register_midi_hash_equivalence(self, existing_hash, new_hash):
         # type: (int, int) -> None
         if self._DEBUG:
-            Logger.info("register %s -> %s" % (existing_hash, new_hash))
+            Logger.info("registering equivalence: %s -> %s" % (existing_hash, new_hash))
 
         hash_list = self._midi_hash_equivalences.get(existing_hash, [])
         hash_list.append(new_hash)
         self._midi_hash_equivalences[new_hash] = hash_list
         self._midi_hash_equivalences[existing_hash] = hash_list
 
-    def hash_matches_file_path(self, midi_hash, file_path, exclude_identity, exact):
-        # type: (int, str, bool, bool) -> bool
-        assert not (exclude_identity and exact), "Cannot use both exclude_identity and exact"
-
+    def hash_matches_path(self, midi_hash, file_path, exact):
+        # type: (int, str, bool) -> bool
         if file_path not in self._file_path_mapping:
             return False
 
         file_path_midi_hash = self._file_path_mapping[file_path]
-        if exclude_identity and midi_hash == file_path_midi_hash:
-            return False
 
         equivalences = self._midi_hash_equivalences[file_path_midi_hash]
 
@@ -108,10 +104,8 @@ class AudioToMidiClipMapping(object):
         else:
             return midi_hash in equivalences
 
-    def file_path_updated_matches_file_path(self, file_path_1, file_path_2, exclude_identity, exact):
-        # type: (str, str, bool, bool) -> bool
+    def path_matches_path(self, file_path_1, file_path_2, exact):
+        # type: (str, str, bool) -> bool
         midi_hash_1 = self._file_path_mapping.get(file_path_1, None)
 
-        return midi_hash_1 is not None and self.hash_matches_file_path(
-            midi_hash_1, file_path_2, exclude_identity, exact
-        )
+        return midi_hash_1 is not None and self.hash_matches_path(midi_hash_1, file_path_2, exact)

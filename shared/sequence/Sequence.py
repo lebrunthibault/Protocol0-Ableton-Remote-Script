@@ -86,7 +86,7 @@ class Sequence(Observable):
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self._DEBUG:
-                Logger.debug("%s : Executing %s" % (self, self._current_step))
+                Logger.info("%s : Executing %s" % (self, self._current_step))
             self._current_step.register_observer(self)
             self._current_step.start()
         else:
@@ -282,7 +282,7 @@ class Sequence(Observable):
 
         return self.add(execute, notify_terminated=False)
 
-    def prompt(self, question, vertical=True, color=NotificationColorEnum.INFO, default=True):
+    def prompt(self, question, vertical=False, color=NotificationColorEnum.INFO, default=True):
         # type: (str, bool, NotificationColorEnum, bool) -> None
         """helper method for prompts"""
         if default:

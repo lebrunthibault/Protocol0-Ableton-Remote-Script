@@ -32,11 +32,10 @@ class PostRecordAudio(RecordProcessorInterface):
                 setattr, audio_clip.loop, "end", config.bar_length * Song.signature_numerator()
             ),
         )
-        if midi_clip.previous_midi_hash is not None:
-            track.audio_track.audio_to_midi_clip_mapping.register_midi_hash_equivalence(
-                midi_clip.previous_midi_hash, midi_clip.midi_hash
-            )
-        track.audio_track.audio_to_midi_clip_mapping.register_file_path(
+        track.audio_track.clip_mapping.register_midi_hash_equivalence(
+            midi_clip.previous_midi_hash, midi_clip.midi_hash
+        )
+        track.audio_track.clip_mapping.register_file_path(
             audio_clip.file_path, ClipInfo(midi_clip)
         )
         midi_clip.previous_midi_hash = midi_clip.midi_hash

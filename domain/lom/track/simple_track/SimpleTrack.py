@@ -382,8 +382,7 @@ class SimpleTrack(AbstractTrack):
         # this is needed to have flattened clip of the right length
         Song._live_song().stop_playing()
 
-        clip_infos = [ClipInfo(clip) for clip in self.clips]
-        recolor_track = partial(setattr, self, "color", self.color)
+        clip_infos = ClipInfo.create_from_clips(self.clips, self.devices.parameters, True)
 
         for clip in self.clips:
             clip.loop.end = clip.loop.end_marker  # to have tails
@@ -392,7 +391,7 @@ class SimpleTrack(AbstractTrack):
 
         if flatten_track:
             is_only_child = self.group_track is not None and len(self.group_track.sub_tracks) == 1
-
+            recolor_track = partial(setattr, self, "color", self.color)
             seq.add(self.focus)
             seq.add(partial(Backend.client().flatten_track, is_only_child))
             seq.wait_for_backend_event("track_focused")
@@ -402,8 +401,10 @@ class SimpleTrack(AbstractTrack):
         else:
             self.select()
 
+        seq.add(partial(ClipInfo.restore_duplicate_clips, clip_infos))
         seq.add(partial(DomainEventBus.emit, SimpleTrackFlattenedEvent(clip_infos)))
         seq.defer()
+
         return seq.done()
 
     def isolate_clip_tail(self):
@@ -419,9 +420,7 @@ class SimpleTrack(AbstractTrack):
         seq.add(partial(self.clip_slots[clip.index].duplicate_clip_to, next_cs))
         seq.add(clip.remove_tail)
         seq.add(lambda: next_cs.clip.crop_to_tail())
-        # seq.add(lambda: next_cs.clip.select())
         seq.add(lambda: next_cs.clip.crop())
-        # seq.add(lambda: next_cs.clip.automation.show_envelope())
 
         return seq.done()
 

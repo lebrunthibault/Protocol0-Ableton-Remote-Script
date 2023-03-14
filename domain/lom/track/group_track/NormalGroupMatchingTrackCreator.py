@@ -10,8 +10,8 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class NormalGroupMatchingTrackCreator(MatchingTrackCreatorInterface):
-    def bounce(self, _):
-        # type: (bool) -> Sequence
+    def bounce(self):
+        # type: () -> Sequence
         assert_valid_track_name(self._base_track.name)
 
         # noinspection DuplicatedCode

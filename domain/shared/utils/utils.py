@@ -1,9 +1,13 @@
+import itertools
 import pkgutil
+import time
 import types
 
-from typing import Any, List
+from typing import Any, List, Callable, Iterable
 
+from protocol0.domain.shared.utils.func import get_callable_repr
 from protocol0.shared.Config import Config
+from protocol0.shared.logging.Logger import Logger
 
 
 def clamp(val, min_v, max_v):
@@ -102,3 +106,25 @@ def previous_power_of_2(x):
         return res
     else:
         return int(res / 2)
+
+def timeit(func):
+    # type: (Callable) -> Callable
+    def decorate(*a, **k):
+        # type: (Any, Any) -> None
+        start_at = time.time()
+        res = func(*a, **k)
+
+        duration = time.time() - start_at
+        Logger.info("%s took %.3fs" % (get_callable_repr(func),  duration))
+
+        return res
+
+    return decorate
+
+
+def float_seq(start, end, step):
+    # type: (int, int, float) -> Iterable
+    assert step != 0
+    sample_count = int(abs(end - start) / step)
+
+    return itertools.islice(itertools.count(start, step), sample_count)  # type: ignore
