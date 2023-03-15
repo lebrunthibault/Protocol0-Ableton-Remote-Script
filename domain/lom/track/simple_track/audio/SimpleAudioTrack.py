@@ -49,10 +49,6 @@ class SimpleAudioTrack(SimpleTrack):
         # type: (Live.ClipSlot.ClipSlot) -> None
         self._needs_flattening = True
 
-    def has_same_clips(self, track):
-        # type: (SimpleAudioTrack) -> bool
-        return all(clip.matches(other_clip) for clip, other_clip in zip(self.clips, track.clips))
-
     def load_full_track(self):
         # type: () -> Sequence
         assert isinstance(Song.current_track(), SimpleAudioTrack), "Track already loaded"

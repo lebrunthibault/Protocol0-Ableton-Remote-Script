@@ -24,12 +24,6 @@ class SimpleMidiTrack(SimpleTrack):
         # type: () -> List[MidiClip]
         return super(SimpleMidiTrack, self).clips  # noqa
 
-    def has_same_clips(self, track):
-        # type: (SimpleMidiTrack) -> bool
-        return len(self.clips) == len(track.clips) and all(
-            clip.matches(other_clip) for clip, other_clip in zip(self.clips, track.clips)
-        )
-
     def broadcast_selected_clip(self):
         # type: () -> Sequence
         selected_cs = Song.selected_clip_slot(MidiClipSlot)
@@ -38,7 +32,9 @@ class SimpleMidiTrack(SimpleTrack):
             raise Protocol0Warning("No selected clip")
 
         matching_clip_slots = [
-            c for c in self.clip_slots if c.clip and c.clip.matches(clip) and c.clip is not clip
+            c
+            for c in self.clip_slots
+            if c.clip and c.clip.matches(clip, self.devices.parameters) and c.clip is not clip
         ]
 
         Backend.client().show_info("Copying to %s clips" % len(matching_clip_slots))

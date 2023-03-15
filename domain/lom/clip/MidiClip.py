@@ -23,24 +23,15 @@ class MidiClip(Clip):
         super(MidiClip, self).__init__(*a, **k)
         self._cached_notes = []  # type: List[Note]
 
-        # tpm values to keep the audio clip link even on midi change
-        self.previous_midi_hash = self.midi_hash
         # select when a new midi clip is recorded
         if self.is_recording:
             Scheduler.defer(self.select)
 
-    @property
-    def midi_hash(self):
-        # type: () -> int
-        return hash(tuple(note.to_data() for note in self.get_notes()))
-
     def get_hash(self, device_parameters):
-        # type: (List[DeviceParameter]) -> float
-        return hash((self.midi_hash, self.automation.get_hash(device_parameters)))
+        # type: (List[DeviceParameter]) -> int
+        midi_hash = hash(tuple(note.to_data() for note in self.get_notes()))
 
-    def matches(self, other):
-        # type: (MidiClip) -> bool
-        return self.midi_hash == other.midi_hash
+        return hash((midi_hash, self.automation.get_hash(device_parameters)))
 
     @property
     def starts_at_1(self):
@@ -80,8 +71,6 @@ class MidiClip(Clip):
 
     def on_added(self):
         # type: () -> Optional[Sequence]
-        self.previous_midi_hash = 0
-
         if len(self.get_notes()) > 0 or self.is_recording:
             return None
 

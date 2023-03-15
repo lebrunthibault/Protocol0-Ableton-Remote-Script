@@ -3,9 +3,7 @@ from os.path import basename
 
 from typing import TYPE_CHECKING, List, Dict, Optional
 
-from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.shared.Song import Song
@@ -20,31 +18,22 @@ if TYPE_CHECKING:
 class ClipInfo(object):
     _DEBUG = True
 
-    def __init__(self, clip, duplicate_clips=None):
-        # type: (Clip, Optional[List[Clip]]) -> None
+    def __init__(self, clip, device_parameters, duplicate_clips=None):
+        # type: (Clip, List[DeviceParameter], Optional[List[Clip]]) -> None
         duplicate_clips = duplicate_clips or []
 
         self.index = clip.index
         self.name = clip.name
-        self.midi_hash = None
-        self.file_path = None
-        if isinstance(clip, MidiClip):
-            self.midi_hash = clip.midi_hash
-        elif isinstance(clip, AudioClip):
-            self.file_path = clip.file_path
-
+        self.hash = clip.get_hash(device_parameters)
         self._duplicate_indexes = [clip.index for clip in duplicate_clips]
 
         self.replaced_clip_slots = []  # type: List[AudioClipSlot]
 
     def __repr__(self):
         # type: () -> str
-        file_path = self.file_path and basename(self.file_path)
-
-        return "ClipInfo(name=%s,midi_hash=%s,file_path=%s,duplicates=%s)" % (
+        return "ClipInfo(name=%s,hash=%s,duplicates=%s)" % (
             self.name,
-            self.midi_hash,
-            file_path,
+            self.hash,
             self._duplicate_indexes,
         )
 
@@ -57,7 +46,7 @@ class ClipInfo(object):
             clip_hash = clip.get_hash(device_parameters)
             unique_clips_by_hash[clip_hash] = unique_clips_by_hash.get(clip_hash, []) + [clip]
 
-        clip_infos = [cls(clips[0], clips[1:]) for clips in unique_clips_by_hash.values()]
+        clip_infos = [cls(clips[0], device_parameters, clips[1:]) for clips in unique_clips_by_hash.values()]
 
         if clean_duplicates:
             for clips in unique_clips_by_hash.values():
@@ -85,18 +74,14 @@ class ClipInfo(object):
             if dest_clip is None:
                 return False
 
-            if self._DEBUG:
-                compare = "midi hash" if self.midi_hash is not None else "path"
-                Logger.info("Comparing %s to %s using %s" % (self, dest_cs, compare))
-
             clip_mapping = dest_track.clip_mapping
-            args = (dest_clip.file_path, exact_match)
 
-            if self.midi_hash is not None:
-                return clip_mapping.hash_matches_path(self.midi_hash, *args)
-            else:
-                assert self.file_path is not None, "file path is None"
-                return clip_mapping.path_matches_path(self.file_path, *args)
+            if self._DEBUG:
+                hashes = clip_mapping._file_path_mapping.get(dest_clip.file_path, None)
+                Logger.info("Comparing %s to %s : (%s, %s)" % (self, dest_cs, basename(dest_clip.file_path), hashes))
+
+
+            return clip_mapping.path_matches_hash(dest_clip.file_path, self.hash, exact_match)
 
 
         return [cs for cs in track.clip_slots if matches_clip_slot(track, cs, exact_match=exact)]

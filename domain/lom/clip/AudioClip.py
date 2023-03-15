@@ -21,12 +21,8 @@ class AudioClip(Clip):
         self.previous_file_path = None  # type: Optional[str]
 
     def get_hash(self, device_parameters):
-        # type: (List[DeviceParameter]) -> float
+        # type: (List[DeviceParameter]) -> int
         return hash((self.file_path, self.automation.get_hash(device_parameters)))
-
-    def matches(self, other):
-        # type: (AudioClip) -> bool
-        return self.loop.matches(other.loop) and self.file_path == other.file_path
 
     @property
     def warp_mode(self):

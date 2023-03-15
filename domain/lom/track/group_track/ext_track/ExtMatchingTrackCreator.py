@@ -39,7 +39,7 @@ class ExtMatchingTrackCreator(MatchingTrackCreatorInterface):
             assert midi_cs.clip is not None, "Incoherent clip layout"
 
             self._audio_track.clip_mapping.register_file_path(
-                audio_cs.clip.file_path, ClipInfo(midi_cs.clip)
+                audio_cs.clip.file_path, ClipInfo(midi_cs.clip, self._midi_track.devices.parameters)
             )
 
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO

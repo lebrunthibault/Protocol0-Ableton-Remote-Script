@@ -27,6 +27,11 @@ class SimpleMatchingTrack(MatchingTrackInterface):
         # type: () -> MatchingTrackClipColorManager
         return MatchingTrackClipColorManager(self.router, self._base_track, self._audio_track)
 
+    def init_clips(self):
+        # type: () -> None
+        for clip in self._base_track.clips:
+            clip.previous_hash = clip.get_hash(self._base_track.devices.parameters)
+
     def bounce(self):
         # type: () -> Optional[Sequence]
         assert all(clip.looping for clip in self._base_track.clips), "Some clips are not looped"
@@ -37,15 +42,21 @@ class SimpleMatchingTrack(MatchingTrackInterface):
         # keep the midi / audio link even on midi clip update
         if isinstance(self._base_track, SimpleMidiTrack):
             for clip in self._base_track.clips:
-                if clip.previous_midi_hash != clip.midi_hash:
-                    self._audio_track.clip_mapping.register_midi_hash_equivalence(
-                        clip.previous_midi_hash, clip.midi_hash
-                    )
-                    clip.previous_midi_hash = clip.midi_hash
+                clip_hash = clip.get_hash(self._base_track.devices.parameters)
+                if clip.previous_hash == clip_hash:
+                    continue
 
+                self._audio_track.clip_mapping.register_hash_equivalence(
+                    clip.previous_hash, clip_hash
+                )
+                clip.previous_hash = clip_hash
 
         bounced_clips = [
-            c for c in self._base_track.clips if ClipInfo(c).already_bounced_to(self._audio_track)
+            c
+            for c in self._base_track.clips
+            if ClipInfo(c, self._base_track.devices.parameters).already_bounced_to(
+                self._audio_track
+            )
         ]
 
         if bounced_clips == self._base_track.clips:

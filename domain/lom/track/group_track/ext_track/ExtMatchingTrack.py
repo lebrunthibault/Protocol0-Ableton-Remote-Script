@@ -41,7 +41,7 @@ class ExtMatchingTrack(MatchingTrackInterface):
         bounced_clips = [
             (mc, ac)
             for (mc, ac) in zip(self._midi_sub_track.clips, self._audio_sub_track.clips)
-            if ClipInfo(mc).already_bounced_to(self._audio_track)
+            if ClipInfo(mc, self._midi_sub_track.devices.parameters).already_bounced_to(self._audio_track)
         ]
         if len(bounced_clips) == len(self._audio_sub_track.clips):
             Backend.client().show_success("No new clip to bounce")

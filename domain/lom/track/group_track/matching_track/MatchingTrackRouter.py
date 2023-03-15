@@ -31,11 +31,12 @@ class MatchingTrackRouter(SlotManager):
 
     def monitor_base_track(self):
         # type: () -> None
+        if not liveobj_valid(self._base_track._track) or not liveobj_valid(self._audio_track._track):
+            return None
+
         self._audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self._audio_track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
-
-        if liveobj_valid(self._base_track._track):
-            self._base_track.output_routing.track = self._audio_track
+        self._base_track.output_routing.track = self._audio_track
 
     def monitor_audio_track(self):
         # type: () -> None

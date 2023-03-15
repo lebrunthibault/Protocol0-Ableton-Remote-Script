@@ -21,7 +21,7 @@ class TrackData(object):
         # type: () -> None
         if liveobj_valid(self._track._track):
             self._track._track.set_data(
-                TrackDataEnum.AUDIO_TO_MIDI_CLIP_MAPPING.value,
+                TrackDataEnum.CLIP_MAPPING.value,
                 self._track.clip_mapping.to_dict(),
             )
 
@@ -29,10 +29,8 @@ class TrackData(object):
         # type: () -> None
         # noinspection PyTypeChecker
         mapping_data = self._track._track.get_data(
-            TrackDataEnum.AUDIO_TO_MIDI_CLIP_MAPPING.value, None
+            TrackDataEnum.CLIP_MAPPING.value, None
         )  # type: Dict
 
         if mapping_data is not None:
-            self._track.clip_mapping = AudioToMidiClipMapping.from_dict(
-                self, mapping_data
-            )
+            self._track.clip_mapping = AudioToMidiClipMapping(self, mapping_data)

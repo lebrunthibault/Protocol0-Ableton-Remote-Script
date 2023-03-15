@@ -75,7 +75,7 @@ class SimpleTrackClipSlots(SlotManager, Observable):
                 clip_slot = live_cs_to_cs[live_clip_slot]
                 # reindexing is necessary
                 clip_slot.index = index
-                if clip_slot.clip:
+                if clip_slot.clip is not None:
                     clip_slot.clip.index = index
                 new_clip_slots.append(clip_slot)
             else:

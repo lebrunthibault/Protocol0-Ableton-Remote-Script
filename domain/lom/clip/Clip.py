@@ -42,6 +42,8 @@ class Clip(SlotManager, Observable):
 
         self.loop.register_observer(self)
 
+        self.previous_hash = 0
+
     def __eq__(self, clip):
         # type: (object) -> bool
         return isinstance(clip, Clip) and self._clip == clip._clip
@@ -62,8 +64,14 @@ class Clip(SlotManager, Observable):
     looping = cast(bool, ForwardTo("loop", "looping"))
 
     def get_hash(self, device_parameters):
-        # type: (List[DeviceParameter]) -> float
+        # type: (List[DeviceParameter]) -> int
         raise NotImplementedError
+
+    def matches(self, other, device_parameters):
+        # type: (Clip, List[DeviceParameter]) -> bool
+        return self.get_hash(device_parameters) == other.get_hash(
+            device_parameters
+        ) and self.loop.matches(other.loop)
 
     @property
     def is_triggered(self):

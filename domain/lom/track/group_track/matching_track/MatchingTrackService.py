@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import Optional, cast, Dict
 
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
@@ -34,10 +32,11 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import (
 )
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.LiveObject import liveobj_valid
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils.utils import timeit
 from protocol0.shared.Song import Song
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -48,6 +47,18 @@ class MatchingTrackService(object):
         DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
         DomainEventBus.subscribe(TrackDisconnectedEvent, self._on_track_disconnected_event)
         DomainEventBus.subscribe(SimpleTrackFlattenedEvent, self._on_simple_track_flattened_event)
+
+        Scheduler.defer(self._generate_clip_hashes)
+
+    @timeit
+    def _generate_clip_hashes(self):
+        # type: () -> None
+        for track in Song.abstract_tracks():
+            matching_track = self._create_matching_track(track)
+
+            if matching_track is not None:
+                Logger.info("init clips of %s" % track)
+                matching_track.init_clips()
 
     def _on_track_added_event(self, _):
         # type: (TrackAddedEvent) -> None
@@ -112,12 +123,7 @@ class MatchingTrackService(object):
         for clip in flattened_track.clips:
             if clip.index in clip_info_by_index:
                 clip_info = clip_info_by_index[clip.index]  # noqa
-                # Here the clip info origin can be either a midi or audio track
-                # in case of an audio track, this means bouncing an external synth track
-                # the clip info file paths are normally already mapped to midi hashes
-                # except in the special case of a legacy track where the mapping has not been
-                # done and persisted to the track data
-                # (in this case an exception will be raised)
+                # Here the clip info origin is linked to the new clip
                 flattened_track.clip_mapping.register_file_path(clip.file_path, clip_info)
 
         if matching_track is None:
@@ -138,14 +144,15 @@ class MatchingTrackService(object):
                     and liveobj_valid(track._track)
                     and not track.is_foldable
                     and track.name == event.track.name
+                    and track.index > event.track.index
                     and track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
                 ):
                     track.output_routing.track = track.group_track or Song.master_track()  # type: ignore[assignment]
 
-                    seq = Sequence()
-                    seq.prompt("Remove saved track '%s'?" % track.name)
-                    seq.add(partial(Backend.client().delete_saved_track, track.name))
-                    seq.done()
+                    # seq = Sequence()
+                    # seq.prompt("Remove saved track '%s'?" % track.name)
+                    # seq.add(partial(Backend.client().delete_saved_track, track.name))
+                    # seq.done()
 
     def match_clip_colors(self):
         # type: () -> None
