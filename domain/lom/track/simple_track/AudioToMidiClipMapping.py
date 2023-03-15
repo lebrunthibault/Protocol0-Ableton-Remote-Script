@@ -26,7 +26,7 @@ class AudioToMidiClipMapping(object):
 
     def __repr__(self):
         # type: () -> str
-        return json.dumps(self.to_dict(), indent=4)
+        return json.dumps({basename(k): v for k, v in self._file_path_mapping.items()}, indent=4)
 
     def to_dict(self):
         # type: () -> Dict

@@ -69,6 +69,8 @@ class MatchingTrackService(object):
 
         Scheduler.defer(matching_track.router.monitor_base_track)
 
+        matching_track.init_clips()
+
         if not Song.is_track_recording():
             Song.current_track().arm_state.arm()
 

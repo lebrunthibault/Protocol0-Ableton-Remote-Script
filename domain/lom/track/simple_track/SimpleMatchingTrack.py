@@ -8,7 +8,6 @@ from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterfac
     MatchingTrackInterface,
 )
 from protocol0.domain.lom.track.group_track.matching_track.utils import assert_valid_track_name
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
@@ -39,17 +38,16 @@ class SimpleMatchingTrack(MatchingTrackInterface):
 
         assert_valid_track_name(self._base_track.name)
 
-        # keep the midi / audio link even on midi clip update
-        if isinstance(self._base_track, SimpleMidiTrack):
-            for clip in self._base_track.clips:
-                clip_hash = clip.get_hash(self._base_track.devices.parameters)
-                if clip.previous_hash == clip_hash:
-                    continue
+        # maintain hash / path link on hash change (update)
+        for clip in self._base_track.clips:
+            clip_hash = clip.get_hash(self._base_track.devices.parameters)
+            if clip.previous_hash == clip_hash:
+                continue
 
-                self._audio_track.clip_mapping.register_hash_equivalence(
-                    clip.previous_hash, clip_hash
-                )
-                clip.previous_hash = clip_hash
+            self._audio_track.clip_mapping.register_hash_equivalence(
+                clip.previous_hash, clip_hash
+            )
+            clip.previous_hash = clip_hash
 
         bounced_clips = [
             c

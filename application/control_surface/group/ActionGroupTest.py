@@ -31,9 +31,7 @@ class ActionGroupTest(ActionGroupInterface):
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
 
-        self.add_encoder(
-            identifier=5, name="log midi", on_press=self.action_log_midi
-        )
+        self.add_encoder(identifier=5, name="log midi", on_press=self.action_log_midi)
 
         # USAMo encoder
         self.add_encoder(
@@ -55,8 +53,6 @@ class ActionGroupTest(ActionGroupInterface):
             track = Song.selected_track(SimpleAudioTrack)
             Logger.info(track.clip_mapping._file_path_mapping)
 
-
     def action_test(self):
         # type: () -> None
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(Song.selected_track()._data.save())
+        pass
