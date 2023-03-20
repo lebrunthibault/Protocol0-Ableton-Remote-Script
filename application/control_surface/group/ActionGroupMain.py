@@ -54,11 +54,6 @@ class ActionGroupMain(ActionGroupInterface):
             on_press=lambda: self._container.get(
                 TrackAutomationService
             ).select_or_sync_automation,
-            on_long_press=partial(self._container.get(TrackAutomationService).show_automation, go_next=True),
-            on_scroll=lambda: partial(
-                Song.selected_clip().automation.scroll_envelopes,
-                Song.selected_track().devices.parameters,
-            ),
         )
 
         # VOLume encoder

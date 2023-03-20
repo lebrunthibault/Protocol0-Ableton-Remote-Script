@@ -6,8 +6,6 @@ from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.automation.ClipAutomationEnvelope import ClipAutomationEnvelope
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
@@ -17,7 +15,6 @@ class ClipAutomation(object):
         # type: (Live.Clip.Clip, ClipLoop) -> None
         self._live_clip = live_clip
         self._loop = loop
-        self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
 
     def get_hash(self, device_parameters):
         # type: (List[DeviceParameter]) -> int
@@ -47,22 +44,6 @@ class ClipAutomation(object):
         # noinspection PyArgumentList
         self._live_clip.view.select_envelope_parameter(parameter._device_parameter)
         DomainEventBus.emit(ClipEnvelopeShowedEvent())
-        self.displayed_automated_parameter = parameter
-
-    def scroll_envelopes(self, device_parameters, go_next=True):
-        # type: (List[DeviceParameter], bool) -> None
-        automated_parameters = self.get_automated_parameters(device_parameters)
-        if len(automated_parameters) == 0:
-            raise Protocol0Warning("No automated parameters")
-
-        if self.displayed_automated_parameter is None:
-            self.displayed_automated_parameter = automated_parameters[0]
-        else:
-            self.displayed_automated_parameter = ValueScroller.scroll_values(
-                automated_parameters, self.displayed_automated_parameter, go_next
-            )
-
-        self.show_parameter_envelope(self.displayed_automated_parameter)
 
     def get_envelope(self, parameter):
         # type: (DeviceParameter) -> Optional[ClipAutomationEnvelope]

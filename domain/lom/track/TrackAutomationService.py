@@ -10,7 +10,9 @@ from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import 
 )
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.ValueScroller import ValueScroller
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -46,13 +48,15 @@ class TrackAutomationService(object):
             raise Protocol0Warning("parameter does not belong to selected track")
 
         self._last_scrolled_parameter = selected_parameter
+        if selected_parameter not in Song.selected_clip().automation.get_automated_parameters(Song.selected_track().devices.parameters):
+            bar_length = Song.selected_scene().bar_length
+            Scheduler.defer(partial(Backend.client().set_envelope_loop_length, bar_length))
+
         Song.selected_clip().automation.show_parameter_envelope(selected_parameter)
 
     def _scroll_automated_parameters(self, go_next):
         # type: (bool) -> Sequence
         """Scroll the automated parameters of the clip"""
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev("scrolling")
         current_track = Song.current_track()
         index = Song.selected_scene().index
 
