@@ -23,6 +23,10 @@ class ClipAutomation(object):
 
         return hash(tuple([env.hash for env in envs]))
 
+    def has_automation(self, device_parameters):
+        # type: (List[DeviceParameter]) -> bool
+        return len(self.get_automated_parameters(device_parameters)) != 0
+
     def get_automated_parameters(self, device_parameters):
         # type: (List[DeviceParameter]) -> List[DeviceParameter]
         automated_parameters = []

@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Optional, cast
 
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
@@ -29,6 +30,7 @@ class TrackAutomationService(object):
         selected_parameter = Song.selected_parameter() or self._last_scrolled_parameter
 
         from protocol0.shared.logging.Logger import Logger
+
         Logger.dev("show automation")
         Logger.dev(selected_parameter)
 
@@ -48,11 +50,16 @@ class TrackAutomationService(object):
             raise Protocol0Warning("parameter does not belong to selected track")
 
         self._last_scrolled_parameter = selected_parameter
-        if selected_parameter not in Song.selected_clip().automation.get_automated_parameters(Song.selected_track().devices.parameters):
-            bar_length = Song.selected_scene().bar_length
-            Scheduler.defer(partial(Backend.client().set_envelope_loop_length, bar_length))
+        clip = Song.selected_clip()
 
-        Song.selected_clip().automation.show_parameter_envelope(selected_parameter)
+        clip.automation.show_parameter_envelope(selected_parameter)
+
+        if selected_parameter not in clip.automation.get_automated_parameters(
+            Song.selected_track().devices.parameters
+        ):
+            bar_length = Song.selected_scene().bar_length
+            if bar_length != clip.bar_length:
+                Scheduler.defer(partial(Backend.client().set_envelope_loop_length, bar_length))
 
     def _scroll_automated_parameters(self, go_next):
         # type: (bool) -> Sequence
@@ -119,3 +126,16 @@ class TrackAutomationService(object):
         )
 
         return seq.done()
+
+    def color_clip_with_automation(self):
+        # type: () -> None
+        track = Song.selected_track()
+        colors_on = any(c.color != track.color for c in track.clips)
+
+        if colors_on:
+            for clip in track.clips:
+                clip.color = track.color
+        else:
+            for clip in track.clips:
+                if clip.automation.has_automation(track.devices.parameters):
+                    clip.color = ClipColorEnum.BLINK.value
