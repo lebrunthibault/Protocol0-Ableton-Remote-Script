@@ -119,7 +119,8 @@ class SimpleTrack(AbstractTrack):
         self.group_track = Song.live_track_to_simple_track(self._track.group_track)
         self.group_track.add_or_replace_sub_track(self)
         if self.group_track.color != self.color:
-            Scheduler.defer(lambda: setattr(self, "color", self.group_track.color))
+            # working around live setting the group track to the default color
+            Scheduler.wait(2, lambda: setattr(self, "color", self.group_track.color))
 
     @property
     def clip_slots(self):
