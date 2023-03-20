@@ -45,7 +45,6 @@ class PlaybackComponent(SlotManager):
             DomainEventBus.defer_emit(SongStoppedEvent())
         else:
             if ApplicationView.is_session_visible():
-                # will re enable automation for reset dummy automations
                 self.re_enable_automation()
 
             DomainEventBus.defer_emit(SongStartedEvent())

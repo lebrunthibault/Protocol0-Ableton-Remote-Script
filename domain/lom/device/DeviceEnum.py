@@ -192,20 +192,6 @@ class DeviceEnum(AbstractEnum):
             return None
 
     @classmethod
-    def from_device_parameter(cls, device_parameter_enum):
-        # type: (DeviceParameterEnum) -> DeviceEnum
-        mapping = {
-            DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,
-            DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_LOW_PASS,
-            DeviceParameterEnum.UTILITY_GAIN: DeviceEnum.UTILITY,
-        }
-
-        if device_parameter_enum not in mapping:
-            raise Protocol0Error("parameter not in mapping")
-
-        return mapping[device_parameter_enum]
-
-    @classmethod
     def favorites(cls):
         # type: () -> List[List[Union[DeviceEnum, DeviceEnumGroup]]]
         return [

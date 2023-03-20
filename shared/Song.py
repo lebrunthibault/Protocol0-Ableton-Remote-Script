@@ -36,7 +36,6 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
     from protocol0.domain.lom.clip.MidiClip import MidiClip  # noqa
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-    from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
     from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 
@@ -333,15 +332,6 @@ class Song(object):
             raise Protocol0Warning("clip is not a %s" % clip_cls.__name__)
 
         return clip
-
-    @classmethod
-    def template_dummy_clip_slot(cls):
-        # type: () -> Optional[AudioClipSlot]
-        track = cls._INSTANCE._track_mapper_service._instrument_bus_track
-        if track is None:
-            return None
-        else:
-            return track.template_dummy_clip_slot
 
     @classmethod
     def selected_parameter(cls):

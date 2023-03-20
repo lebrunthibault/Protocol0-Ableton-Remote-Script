@@ -8,7 +8,6 @@ from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
-from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
@@ -46,7 +45,9 @@ class TrackAutomationService(object):
 
     def _scroll_automated_parameters(self, go_next):
         # type: (bool) -> Sequence
-        """Scroll the automated parameters of the dummy clips"""
+        """Scroll the automated parameters of the clip"""
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("scrolling")
         current_track = Song.current_track()
         index = Song.selected_scene().index
 
@@ -100,10 +101,7 @@ class TrackAutomationService(object):
 
         seq = Sequence()
         if selected_clip is None:
-            if isinstance(selected_track, SimpleDummyTrack):
-                seq.add(selected_track.automation.insert_dummy_clip)
-            else:
-                raise Protocol0Warning("No selected clip")
+            raise Protocol0Warning("No selected clip")
 
         seq.add(
             lambda: Song.selected_clip().automation.select_or_create_envelope(

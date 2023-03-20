@@ -142,7 +142,6 @@ class SceneService(SlotManager):
         empty_scenes = []
         seq = Sequence()
         for scene in list(reversed(Song.scenes()))[1:]:
-            # nb : scene.length == 0 would suppress the template dummy clip
             if len(scene.clips.all) == 0:
                 empty_scenes.append(scene)
             else:

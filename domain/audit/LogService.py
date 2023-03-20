@@ -2,7 +2,6 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
-from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
@@ -31,9 +30,6 @@ class LogService(object):
         Logger.info()
         Logger.info("current_track.sub_tracks: %s" % current_track.sub_tracks)
         Logger.info()
-        if isinstance(current_track, AbstractGroupTrack):
-            Logger.info("current_track.dummy_group: %s" % current_track.dummy_group)
-            Logger.info()
         Logger.info("current_track.instrument: %s" % current_track.instrument)
         if current_track.instrument:
             Logger.info()

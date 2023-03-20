@@ -1,7 +1,6 @@
 from typing import Optional
 
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.shared.utils.utils import previous_power_of_2
 from protocol0.shared.Song import Song
@@ -49,7 +48,6 @@ class SceneLength(object):
         # type: (bool) -> Optional[Clip]
         """
             We take any clip except
-            - dummy clips (that can spawn more than one scene)
             - recording clips that have a non integer length
             - muted clips
 
@@ -62,7 +60,6 @@ class SceneLength(object):
             for clip in self._clips
             if (not clip.is_recording or float(clip.length).is_integer())
                and not is_playing or clip.is_playing
-               and not isinstance(clip, DummyClip)
                and not clip.muted
         ]
         if len(clips) == 0:

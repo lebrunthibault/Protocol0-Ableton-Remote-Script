@@ -59,8 +59,6 @@ class TrackComponent(SlotManager):
     def abstract_tracks(self):
         # type: () -> Iterator[AbstractTrack]
         for track in Song.simple_tracks():
-            # if type(track) == InstrumentBusTrack:
-            #     continue
             if track.abstract_group_track:
                 # skipping ExternalSynthTrack sub tracks
                 if track.abstract_group_track.base_track == track:

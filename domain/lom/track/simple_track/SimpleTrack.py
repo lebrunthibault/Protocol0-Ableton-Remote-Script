@@ -7,7 +7,6 @@ from typing import cast, List, Optional, Dict
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
-from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip.ClipTail import ClipTail
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
@@ -264,12 +263,6 @@ class SimpleTrack(AbstractTrack):
 
         for clip in self.clips:
             clip.color = color_index
-
-    def select_clip_slot(self, clip_slot):
-        # type: (ClipSlot) -> None
-        assert clip_slot in [cs for cs in self.clip_slots], "clip slot inconsistency"
-        self.is_folded = False
-        DomainEventBus.emit(ClipSlotSelectedEvent(clip_slot._clip_slot))
 
     def fire(self, scene_index):
         # type: (int) -> None

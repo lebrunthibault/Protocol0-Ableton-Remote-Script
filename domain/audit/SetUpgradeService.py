@@ -6,7 +6,6 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -51,12 +50,6 @@ class SetUpgradeService(object):
 
     def get_deletable_devices(self):
         # type: () -> Iterator[Tuple[SimpleTrack, Device]]
-        tracks = [
-            track
-            for track in Song.all_simple_tracks()
-            if not isinstance(track, SimpleDummyTrack)
-        ]
-
         # devices with default values (unchanged)
         for device_enum in DeviceEnum:  # type: DeviceEnum
             try:
@@ -64,7 +57,7 @@ class SetUpgradeService(object):
             except Protocol0Error:
                 continue
 
-            for track in tracks:
+            for track in Song.all_simple_tracks():
                 device = track.devices.get_one_from_enum(device_enum)
                 if not device:
                     continue

@@ -8,10 +8,6 @@ from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.lom.track.simple_track.audio.dummy.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import (
-    InstrumentBusTrack,
-)
 from protocol0.domain.lom.track.simple_track.audio.special.ResamplingTrack import ResamplingTrack
 from protocol0.domain.shared.utils.timing import debounce
 from protocol0.shared.Song import Song
@@ -23,7 +19,7 @@ class SceneClip(object):
         # type: (SimpleTrack, Clip) -> None
         self.track = track
         self.clip = clip
-        self.is_main_clip = not isinstance(track, (SimpleAudioExtTrack, SimpleDummyTrack))
+        self.is_main_clip = not isinstance(track, SimpleAudioExtTrack)
 
     def __repr__(self):
         # type: () -> str
@@ -81,7 +77,7 @@ class SceneClips(Observable):
             if (
                 clip is not None
                 and clip_slot.has_clip
-                and type(track) not in (InstrumentBusTrack, ResamplingTrack)
+                and not isinstance(track, ResamplingTrack)
             ):
                 self._clip_tracks.append(SceneClip(track, clip))
 

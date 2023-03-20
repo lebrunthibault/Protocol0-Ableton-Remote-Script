@@ -20,7 +20,7 @@ def import_package(package):
     """import all modules in a package"""
     prefix = package.__name__ + "."
     for _, mod_name, _ in pkgutil.iter_modules(package.__path__, prefix):
-        __import__(mod_name, fromlist="dummy")
+        __import__(mod_name)
 
 
 def compare_values(value, expected_value):

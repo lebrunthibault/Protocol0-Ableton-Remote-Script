@@ -15,7 +15,6 @@ from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
-from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.audio.master.MasterTrack import MasterTrack
 from protocol0.domain.lom.track.simple_track.audio.special.ReferenceTrack import ReferenceTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleReturnTrack import SimpleReturnTrack
@@ -43,7 +42,6 @@ class TrackMapperService(SlotManager):
             collections.OrderedDict()
         )  # type: Dict[int, SimpleTrack]
         self._usamo_track = None  # type: Optional[SimpleTrack]
-        self._instrument_bus_track = None  # type: Optional[InstrumentBusTrack]
         self._drums_track = None  # type: Optional[DrumsTrack]
         self._vocals_track = None  # type: Optional[VocalsTrack]
         self._reference_track = None  # type: Optional[ReferenceTrack]
@@ -95,8 +93,6 @@ class TrackMapperService(SlotManager):
     def _generate_simple_tracks(self):
         # type: () -> None
         """instantiate SimpleTracks (including return / master, that are marked as inactive)"""
-        self._prev_instrument_bus_track = self._instrument_bus_track
-
         # instantiate set tracks
         for index, track in enumerate(list(self._live_song.tracks)):
             self._track_factory.create_simple_track(track, index)
@@ -118,9 +114,6 @@ class TrackMapperService(SlotManager):
         simple_tracks = list(Song.simple_tracks())
 
         self._usamo_track = find_if(lambda t: isinstance(t, UsamoTrack), simple_tracks)
-        self._instrument_bus_track = find_if(
-            lambda t: isinstance(t, InstrumentBusTrack), simple_tracks
-        )
         abgs = list(Song.abstract_group_tracks())
 
         self._drums_track = find_if(lambda t: isinstance(t, DrumsTrack), abgs)
@@ -129,8 +122,6 @@ class TrackMapperService(SlotManager):
 
         if self._usamo_track is None:
             Logger.warning("Usamo track is not present")
-        if self._prev_instrument_bus_track is not None and self._instrument_bus_track is None:
-            Backend.client().show_warning("InstrumentBusTrack removed")
 
     def _on_track_added(self):
         # type: () -> Optional[Sequence]

@@ -56,12 +56,10 @@ The bigger part of the script is dedicated to handling external synths.
   recordings.
 - It activates only on a group track that has the following layout (in this order, any other layout will not be
   detected) :
-    - a midi track (records midi ofc)
-    - an audio track (records the synth)
-    - an optional audio track with no device on it (records audio clip tails)
-    - any other number of audio tracks (detects them as dummy tracks)
+    - a midi track (records midi)
+    - an audio track (records audio)
 - the record button has 2 main modes :
-    - midi recording : will record midi, audio and optional audio tail on the next scene available
+    - midi recording : will record midi and audio on the next scene available
     - audio recording : will record audio from midi on this scene
 
 ## The backend

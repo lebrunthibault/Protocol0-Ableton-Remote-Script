@@ -80,8 +80,6 @@ class DeviceService(object):
         # only case when we want to select the midi track of an ext track
         if isinstance(selected_track, SimpleMidiExtTrack) and device_enum == DeviceEnum.REV2_EDITOR:
             return selected_track
-
-        # we always want the group track except if it's the dummy track
         elif isinstance(current_track, ExternalSynthTrack):
             return current_track.audio_track
 

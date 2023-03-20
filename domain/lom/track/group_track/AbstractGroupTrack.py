@@ -2,13 +2,8 @@ from typing import List, Optional, Dict
 
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
-    AbstractTrackAppearance,
-)
-from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -21,23 +16,12 @@ class AbstractGroupTrack(AbstractTrack):
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
-        self.dummy_group = DummyGroup(self, is_active=False)
-
-        # self.appearance.register_observer(self)
 
     def on_tracks_change(self):
         # type: () -> None
         # 2nd layer linking : here we don't necessarily link the sub tracks to self
         self.sub_tracks[:] = self.base_track.sub_tracks
         self._link_group_track()
-        self.dummy_group.map_tracks()
-
-    def update(self, observable):
-        # type: (Observable) -> None
-        if isinstance(observable, AbstractTrackAppearance):
-            for sub_track in self.sub_tracks:
-                sub_track.color = self.appearance.color
-
 
     def link_sub_track(self, sub_track):
         # type: (SimpleTrack) -> None
@@ -73,7 +57,7 @@ class AbstractGroupTrack(AbstractTrack):
         if ApplicationView.is_clip_view_visible():
             return None
         else:
-            return self.dummy_group.get_view_track(scene_index)
+            return super(AbstractGroupTrack, self).get_view_track(scene_index)
 
     def clear_clips(self):
         # type: () -> Sequence

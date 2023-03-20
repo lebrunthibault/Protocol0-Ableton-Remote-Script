@@ -92,7 +92,6 @@ class SessionToArrangementService(object):
         self._scene_component.looping_scene_toggler.reset()
         self.is_bouncing = True
         self._track_component.un_focus_all_tracks(including_current=True)
-        self._reset_automation()
         self._tempo = self._tempo_component.tempo
         self._tempo_component.tempo = 750
         self._recorded_bar_length = 0
@@ -106,19 +105,6 @@ class SessionToArrangementService(object):
                     "Disabling external device of %s (for audio export)" % track
                 )
                 ext_device.is_enabled = False
-
-    def _reset_automation(self):
-        # type: () -> None
-        """
-        In the (rare) case automated parameters are not at their default
-        we set them back
-        Glitch can happen if an parameter automated in a following clip but not in the first
-        has its value changed.
-        The script does not fix up this case
-        but does when the parameter is automated in the next clip
-        """
-        for track in Song.abstract_group_tracks():
-            track.dummy_group.reset_all_automation()
     #
     # def _pre_fire_first_scene(self):
     #     # type: () -> Sequence

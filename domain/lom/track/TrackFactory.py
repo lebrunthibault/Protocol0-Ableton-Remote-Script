@@ -12,7 +12,6 @@ from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupT
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
-from protocol0.domain.lom.track.simple_track.audio.special.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.audio.special.ResamplingTrack import ResamplingTrack
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
@@ -41,7 +40,7 @@ class TrackFactory(object):
             existing_simple_track._index = index
             return existing_simple_track
 
-        special_tracks = (UsamoTrack, InstrumentBusTrack, ResamplingTrack)
+        special_tracks = (UsamoTrack, ResamplingTrack)
 
         if cls is None:
             if track.has_midi_input:
