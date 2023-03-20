@@ -1,4 +1,4 @@
-from typing import List, Optional, Any, TYPE_CHECKING
+from typing import Optional, Any, TYPE_CHECKING
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.AbstractEnum import AbstractEnum
@@ -74,15 +74,6 @@ class DeviceParameterEnum(AbstractEnum):
                 DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: "High Pass Frequency",
             }
         )
-
-    # @classmethod
-    # def automatable_parameters(cls):
-    #     # type: () -> List[DeviceParameterEnum]
-    #     return [
-    #         cls.UTILITY_GAIN,
-    #         cls.AUTO_FILTER_LOW_PASS_FREQUENCY,
-    #         cls.AUTO_FILTER_HIGH_PASS_FREQUENCY,
-    #     ]
 
     @classmethod
     def from_name(cls, device_name, name):

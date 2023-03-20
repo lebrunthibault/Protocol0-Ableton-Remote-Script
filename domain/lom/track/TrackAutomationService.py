@@ -8,6 +8,7 @@ from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
@@ -25,9 +26,13 @@ class TrackAutomationService(object):
         # type: (bool) -> Sequence
         selected_parameter = Song.selected_parameter() or self._last_scrolled_parameter
 
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("show automation")
+        Logger.dev(selected_parameter)
+
         seq = Sequence()
 
-        if selected_parameter is not None:
+        if selected_parameter is not None and not ApplicationView.is_clip_view_visible():
             seq.add(partial(self._show_selected_parameter_automation, selected_parameter))
         else:
             seq.add(partial(self._scroll_automated_parameters, go_next))
