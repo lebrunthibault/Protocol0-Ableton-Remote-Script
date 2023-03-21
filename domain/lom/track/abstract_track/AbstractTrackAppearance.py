@@ -53,7 +53,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
         if self._live_track:
             return self._live_track.color_index
         else:
-            return TrackColorEnum.DISABLED.int_value
+            return TrackColorEnum.DISABLED.value
 
     @color.setter
     def color(self, color_index):

@@ -30,4 +30,4 @@ class PostRecordMidi(RecordProcessorInterface):
         track.audio_track.clip_mapping.register_file_path(
             audio_clip.file_path, ClipInfo(midi_clip, track.midi_track.devices.parameters)
         )
-        audio_clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.int_value
+        audio_clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.value

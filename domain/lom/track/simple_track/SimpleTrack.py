@@ -321,7 +321,7 @@ class SimpleTrack(AbstractTrack):
         # track can disappear out of view if this is done later
         track_color = self.color
 
-        self.color = ColorEnum.FOCUSED.int_value
+        self.color = ColorEnum.FOCUSED.value
 
         seq = Sequence()
 

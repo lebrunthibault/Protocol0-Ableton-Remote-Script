@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class ClipInfo(object):
-    _DEBUG = True
+    _DEBUG = False
 
     def __init__(self, clip, device_parameters, duplicate_clips=None):
         # type: (Clip, List[DeviceParameter], Optional[List[Clip]]) -> None

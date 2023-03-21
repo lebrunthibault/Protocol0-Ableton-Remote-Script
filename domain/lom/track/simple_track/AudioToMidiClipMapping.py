@@ -17,7 +17,7 @@ class AudioToMidiClipMapping(object):
     hash to file path is a many to many relationship
     """
 
-    _DEBUG = True
+    _DEBUG = False
 
     def __init__(self, track_data, file_path_mapping=None):
         # type: (TrackData, Dict[str, List[int]]) -> None
@@ -36,6 +36,9 @@ class AudioToMidiClipMapping(object):
         # type: (AudioToMidiClipMapping) -> None
         for file_path, equivalences in other_mapping._file_path_mapping.items():
             for clip_hash in equivalences:
+                if file_path not in self._file_path_mapping:
+                    self._file_path_mapping[file_path] = []
+
                 if clip_hash not in self._file_path_mapping[file_path]:
                     self._file_path_mapping[file_path].append(clip_hash)
 
@@ -66,7 +69,7 @@ class AudioToMidiClipMapping(object):
         if file_path not in self._file_path_mapping:
             return False
 
-        equivalences = self._file_path_mapping[file_path]
+        equivalences = self._file_path_mapping.get(file_path, [])
 
         # exact will not check previous versions
         if exact:

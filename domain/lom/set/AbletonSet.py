@@ -122,7 +122,7 @@ class AbletonSet(object):
 
             if len(orphan_tracks):
                 Backend.client().show_warning("Found orphan saved tracks: \n\n%s" % "\n".join(orphan_tracks))
-                Backend.client().show_sub_tracks()
+                Backend.client().show_saved_tracks()
 
     def _disconnect(self):
         # type: () -> None

@@ -41,7 +41,7 @@ class AudioClip(Clip):
 
     def focus(self):
         # type: () -> None
-        self.color = ColorEnum.FOCUSED.int_value
+        self.color = ColorEnum.FOCUSED.value
 
     def crop(self):
         # type: () -> Optional[Sequence]

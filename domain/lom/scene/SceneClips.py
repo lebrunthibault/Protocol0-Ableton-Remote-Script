@@ -68,9 +68,6 @@ class SceneClips(Observable):
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot) or isinstance(observable, Clip):
-            from protocol0.shared.logging.Logger import Logger
-
-            Logger.info("%s updated -> %s, %s" % (self.index, observable, id(observable)))
             self.build()
             self.notify_observers()
 
@@ -92,7 +89,7 @@ class SceneClips(Observable):
         if any(clip for clip in self.all if self._clip_has_default_recording_name(clip)):
             for clip in self.all:
                 if self._clip_has_default_recording_name(clip):
-                    clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.int_value
+                    clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.value
                 clip.clip_name.update("")
 
     def _clip_has_default_recording_name(self, clip):

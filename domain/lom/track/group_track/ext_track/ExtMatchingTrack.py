@@ -1,5 +1,6 @@
 from typing import cast, Optional
 
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipColorManager import (
     MatchingTrackClipColorManager,
@@ -8,7 +9,6 @@ from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterfac
     MatchingTrackInterface,
 )
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -41,13 +41,13 @@ class ExtMatchingTrack(MatchingTrackInterface):
         bounced_clips = [
             (mc, ac)
             for (mc, ac) in zip(self._midi_sub_track.clips, self._audio_sub_track.clips)
-            if ClipInfo(mc, self._midi_sub_track.devices.parameters).already_bounced_to(self._audio_track)
+            if mc.color == ClipColorEnum.DISABLED.value and ac.color == ClipColorEnum.DISABLED.value
         ]
-        if len(bounced_clips) == len(self._audio_sub_track.clips):
-            Backend.client().show_success("No new clip to bounce")
-            return None
-
         bounced_clips_flat = [c for clips in bounced_clips for c in clips]
+        for clip in bounced_clips_flat:
+            assert ClipInfo(clip, self._base_track.devices.parameters).already_bounced_to(
+                self._audio_track
+            ), "clip disabled but not bounced: %s" % clip
 
         seq = Sequence()
 

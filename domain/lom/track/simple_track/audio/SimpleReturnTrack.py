@@ -14,6 +14,6 @@ class SimpleReturnTrack(SimpleAudioTrack):
         # type: (Any, Any) -> None
         super(SimpleReturnTrack, self).__init__(*a, **k)
         Scheduler.defer(
-            partial(setattr, self.appearance, "color", TrackColorEnum.RETURN.int_value)
+            partial(setattr, self.appearance, "color", TrackColorEnum.RETURN.value)
         )
         self.appearance.disconnect()

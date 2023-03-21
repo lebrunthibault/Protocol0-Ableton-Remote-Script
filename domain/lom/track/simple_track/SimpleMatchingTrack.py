@@ -1,5 +1,6 @@
 from typing import Any, Optional
 
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipInfo import ClipInfo
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackClipColorManager import (
     MatchingTrackClipColorManager,
@@ -9,9 +10,7 @@ from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackInterfac
 )
 from protocol0.domain.lom.track.group_track.matching_track.utils import assert_valid_track_name, \
     ensure_clips_looped
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -50,20 +49,11 @@ class SimpleMatchingTrack(MatchingTrackInterface):
             )
             clip.previous_hash = clip_hash
 
-        bounced_clips = [
-            c
-            for c in self._base_track.clips
-            if ClipInfo(c, self._base_track.devices.parameters).already_bounced_to(
+        bounced_clips = [c for c in self._base_track.clips if c.color == ClipColorEnum.DISABLED.value]
+        for clip in bounced_clips:
+            assert ClipInfo(clip, self._base_track.devices.parameters).already_bounced_to(
                 self._audio_track
-            )
-        ]
-
-        if bounced_clips == self._base_track.clips:
-            Backend.client().show_success("No new clip to bounce")
-            return None
-
-        elif len(bounced_clips) != 0:
-            Logger.info("Removing bounced clips: %s" % bounced_clips)
+            ), "clip disabled but not bounced: %s" % clip
 
         seq = Sequence()
         seq.add(self._base_track.save)

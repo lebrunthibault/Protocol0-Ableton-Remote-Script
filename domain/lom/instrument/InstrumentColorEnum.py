@@ -1,8 +1,7 @@
-from protocol0.domain.shared.ui.ColorEnumInterface import ColorEnumInterface
 from protocol0.shared.AbstractEnum import AbstractEnum
 
 
-class InstrumentColorEnum(ColorEnumInterface, AbstractEnum):
+class InstrumentColorEnum(AbstractEnum):
     UNKNOWN = 13
     SIMPLER = 2
     SERUM = 18
@@ -12,7 +11,3 @@ class InstrumentColorEnum(ColorEnumInterface, AbstractEnum):
     KONTAKT = 26
     MINITAUR = 69
 
-    @property
-    def int_value(self):
-        # type: () -> int
-        return self.value

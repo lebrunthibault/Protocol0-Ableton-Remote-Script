@@ -52,6 +52,7 @@ class ClipTail(object):
             clip.looping = False
             seq = Sequence()
             seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
+            seq.wait_beats(clip.playing_position.bars_left)
             seq.wait_bars(clip.playing_position.bars_left, continue_on_song_stop=True)
             seq.add(partial(setattr, clip, "looping", True))
             seq.done()
