@@ -1,6 +1,5 @@
 from typing import Tuple
 
-from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.track.group_track.ext_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -42,7 +41,7 @@ class SceneWindow(object):
 
             clip.crop()
 
-            if isinstance(clip, AudioTailClip) and self._contains_scene_end:
+            if self._contains_scene_end:
                 clip.delete()
 
     @classmethod

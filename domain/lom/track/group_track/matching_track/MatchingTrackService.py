@@ -77,8 +77,6 @@ class MatchingTrackService(object):
         current_track = Song.current_track()
 
         matching_track = self._create_matching_track(current_track)
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(matching_track)
 
         if matching_track is not None:
             return matching_track.bounce()

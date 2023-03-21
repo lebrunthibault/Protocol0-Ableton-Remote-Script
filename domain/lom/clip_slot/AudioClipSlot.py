@@ -21,6 +21,7 @@ class AudioClipSlot(ClipSlot):
         # type: (AudioClipSlot) -> Sequence
         seq = Sequence()
         seq.add(partial(super(AudioClipSlot, self).duplicate_clip_to, clip_slot))
+        seq.add(clip_slot.notify_observers)
         return seq.done()
 
     def replace_clip_sample(self, source_cs=None, file_path=None):

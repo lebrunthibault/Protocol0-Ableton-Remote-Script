@@ -1,8 +1,7 @@
 import re
 
-from typing import List, cast, Iterator
+from typing import List, Iterator, Optional
 
-from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -14,16 +13,24 @@ from protocol0.shared.Song import Song
 from protocol0.shared.observer.Observable import Observable
 
 
-class SceneClip(object):
-    def __init__(self, track, clip):
-        # type: (SimpleTrack, Clip) -> None
+class SceneClipSlot(object):
+    def __init__(self, track, clip_slot):
+        # type: (SimpleTrack, ClipSlot) -> None
         self.track = track
-        self.clip = clip
+        self.clip_slot = clip_slot
         self.is_main_clip = not isinstance(track, SimpleAudioExtTrack)
 
     def __repr__(self):
         # type: () -> str
         return "SceneClips(%s, %s)" % (self.track, self.clip)
+
+    @property
+    def clip(self):
+        # type: () -> Optional[Clip]
+        if self.clip_slot.has_clip and not isinstance(self.track, ResamplingTrack):
+            return self.clip_slot.clip
+        else:
+            return None
 
 
 class SceneClips(Observable):
@@ -31,8 +38,7 @@ class SceneClips(Observable):
         # type: (int) -> None
         super(SceneClips, self).__init__()
         self.index = index
-        self._clip_tracks = []  # type: List[SceneClip]
-        self._clips = []  # type: List[Clip]
+        self._clip_slot_tracks = []  # type: List[SceneClipSlot]
 
         self.build()
 
@@ -42,52 +48,40 @@ class SceneClips(Observable):
 
     def __iter__(self):
         # type: () -> Iterator[Clip]
-        return iter(self._clips)
+        return iter(
+            scene_cs.clip
+            for scene_cs in self._clip_slot_tracks
+            if scene_cs.clip is not None and scene_cs.is_main_clip
+        )
 
     @property
     def all(self):
         # type: () -> List[Clip]
-        return [scene_clip.clip for scene_clip in self._clip_tracks]
-
-    @property
-    def audio_tail_clips(self):
-        # type: () -> List[AudioTailClip]
-        return cast(List[AudioTailClip], [c for c in self.all if isinstance(c, AudioTailClip)])
+        return [scene_cs.clip for scene_cs in self._clip_slot_tracks if scene_cs.clip is not None]
 
     @property
     def tracks(self):
         # type: () -> List[SimpleTrack]
-        return [scene_clip.track for scene_clip in self._clip_tracks]
+        return [scene_clip.track for scene_clip in self._clip_slot_tracks]
 
     @debounce(duration=50)
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot) or isinstance(observable, Clip):
             from protocol0.shared.logging.Logger import Logger
-            Logger.dev((self, observable))
+
+            Logger.info("%s updated -> %s, %s" % (self.index, observable, id(observable)))
             self.build()
             self.notify_observers()
 
     def build(self):
         # type: () -> None
-        self._clip_tracks = []
+        self._clip_slot_tracks = []
 
         for track in Song.simple_tracks():
             clip_slot = track.clip_slots[self.index]
             clip_slot.register_observer(self)
-            clip = clip_slot.clip
-            from protocol0.shared.logging.Logger import Logger
-            Logger.dev((clip_slot, clip_slot.clip))
-            if (
-                clip is not None
-                and clip_slot.has_clip
-                and not isinstance(track, ResamplingTrack)
-            ):
-                self._clip_tracks.append(SceneClip(track, clip))
-
-        self._clips = [
-            scene_clip.clip for scene_clip in self._clip_tracks if scene_clip.is_main_clip
-        ]
+            self._clip_slot_tracks.append(SceneClipSlot(track, clip_slot))
 
         for clip in self:
             clip.register_observer(self)

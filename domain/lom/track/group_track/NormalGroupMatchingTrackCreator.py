@@ -19,7 +19,7 @@ class NormalGroupMatchingTrackCreator(MatchingTrackCreatorInterface):
 
         mixer_data = self._base_track.devices.mixer_device.to_dict()
         self._base_track.reset_mixer()
-        seq.add(partial(self._base_track.save, check_for_duplicate=True))
+        seq.add(self._base_track.save)
 
         insert_index = self._base_track.sub_tracks[-1].index + 1
         seq.add(partial(self._track_crud_component.create_audio_track, insert_index))

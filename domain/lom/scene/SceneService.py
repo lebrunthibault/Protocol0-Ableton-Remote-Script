@@ -143,10 +143,7 @@ class SceneService(SlotManager):
         def delete_empty_scenes():
             # type: () -> None
             for scene in list(reversed(Song.scenes()))[1:]:
-                from protocol0.shared.logging.Logger import Logger
-                Logger.dev((scene, scene.clips, list(scene.clips), scene.clips.all))
                 if len(scene.clips.all) == 0:
-                    Logger.warning("Deleting %s" % scene)
                     self._scene_crud_component.delete_scene(scene)
                 else:
                     return

@@ -55,4 +55,7 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Song.selected_clip().crop()
+        scene = Song.selected_scene()
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev(scene.clips)
+        Logger.dev(scene.clips.all)

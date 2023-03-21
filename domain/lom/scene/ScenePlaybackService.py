@@ -8,10 +8,8 @@ from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.SceneFiredEvent import SceneFiredEvent
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
-from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
-from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -34,7 +32,6 @@ class ScenePlaybackService(SlotManager):
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
-        DomainEventBus.subscribe(SongStartedEvent, self._on_song_started_event)
         DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
         DomainEventBus.subscribe(SceneFiredEvent, self._on_scene_fired_event)
 
@@ -103,26 +100,11 @@ class ScenePlaybackService(SlotManager):
 
         return bar_length
 
-    def _on_song_started_event(self, _):
-        # type: (SongStartedEvent) -> None
-        # deferring because it can conflict with tail clips on fire scene to position
-        if not ApplicationView.is_session_visible():
-            return
-
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
         # don't activate when doing quick play / stop (e.g. in FireSelectedSceneCommand)
         if not Song.is_playing():
             self._stop_previous_playing_scene()
-
-        Scheduler.defer(self._mute_audio_tails)
-
-    def _mute_audio_tails(self):
-        # type: () -> None
-        """On song stop : iterating all scenes because we don't know which tail might be playing"""
-        for scene in Song.scenes():
-            for clip in scene.clips.audio_tail_clips:
-                clip.muted = True
 
     def _on_scene_fired_event(self, event):
         # type: (SceneFiredEvent) -> None
