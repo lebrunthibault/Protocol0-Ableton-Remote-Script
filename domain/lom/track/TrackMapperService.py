@@ -8,18 +8,17 @@ from typing import Optional, Dict
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
-from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
-from protocol0.domain.lom.track.simple_track.audio.master.MasterTrack import MasterTrack
-from protocol0.domain.lom.track.simple_track.audio.special.ReferenceTrack import ReferenceTrack
-from protocol0.domain.lom.track.simple_track.audio.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
+from protocol0.domain.lom.track.simple_track.audio.SimpleReturnTrack import SimpleReturnTrack
+from protocol0.domain.lom.track.simple_track.audio.master.MasterTrack import MasterTrack
+from protocol0.domain.lom.track.simple_track.audio.special.ReferenceTrack import ReferenceTrack
 from protocol0.domain.lom.track.simple_track.midi.special.UsamoTrack import UsamoTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.error_handler import handle_error
@@ -136,28 +135,8 @@ class TrackMapperService(SlotManager):
         seq.add(added_track.on_added)
         seq.add(Song.current_track().arm_state.arm)
 
-        if self._is_track_duplicated(added_track) and added_track.REMOVE_CLIPS_ON_ADDED:
-            Backend.client().show_warning("Deleting clips ..")
-            seq.add(added_track.clear_clips)
-            seq.defer()
-
         seq.add(UndoFacade.end_undo_step)
         return seq.done()
-
-    def _is_track_duplicated(self, track):
-        # type: (AbstractTrack) -> bool
-        if not isinstance(track, ExternalSynthTrack):
-            return False
-
-        if track.group_track is not None:
-            sibling_tracks = track.group_track.sub_tracks
-        else:
-            sibling_tracks = list(Song.abstract_tracks())
-
-        index = sibling_tracks.index(track)
-        previous_track = sibling_tracks[index - 1]
-
-        return type(track) == type(previous_track) and track.has_same_clips(previous_track)  # noqa
 
     def _on_simple_track_created_event(self, event):
         # type: (SimpleTrackCreatedEvent) -> None

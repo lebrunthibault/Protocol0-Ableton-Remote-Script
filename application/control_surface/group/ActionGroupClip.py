@@ -3,7 +3,6 @@ from functools import partial
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
-from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackService import (
     MatchingTrackService,
 )
@@ -46,11 +45,4 @@ class ActionGroupClip(ActionGroupInterface):
             identifier=14,
             name="match clip colors between base track and matching track",
             on_press=self._container.get(MatchingTrackService).match_clip_colors,
-        )
-
-        # AUTOmation clip colors
-        self.add_encoder(
-            identifier=15,
-            name="color clip with automation in selected track",
-            on_press=self._container.get(TrackAutomationService).color_clip_with_automation,
         )

@@ -106,14 +106,6 @@ class AbstractTrack(SlotManager):
         # type: () -> Optional[InstrumentInterface]
         return None
 
-    def has_same_clips(self, track):
-        # type: (Any) -> bool
-        return False
-
-    def clear_clips(self):
-        # type: () -> Sequence
-        raise NotImplementedError
-
     name = cast(str, ForwardTo("appearance", "name"))
 
     @property

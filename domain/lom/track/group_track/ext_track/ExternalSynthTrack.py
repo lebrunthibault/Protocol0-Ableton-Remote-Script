@@ -96,7 +96,3 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def instrument(self):
         # type: () -> InstrumentInterface
         return self.midi_track.instrument or InstrumentMinitaur(device=None, track_name=self.name)
-
-    def has_same_clips(self, track):
-        # type: (ExternalSynthTrack) -> bool
-        return self.midi_track.has_same_clips(track.midi_track)

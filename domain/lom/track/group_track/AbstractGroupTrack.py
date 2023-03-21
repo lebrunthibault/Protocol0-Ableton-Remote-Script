@@ -4,7 +4,6 @@ from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParamete
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class AbstractGroupTrack(AbstractTrack):
@@ -58,10 +57,6 @@ class AbstractGroupTrack(AbstractTrack):
             return None
         else:
             return super(AbstractGroupTrack, self).get_view_track(scene_index)
-
-    def clear_clips(self):
-        # type: () -> Sequence
-        return Sequence().add([t.clear_clips for t in self.sub_tracks]).done()
 
     @property
     def color(self):

@@ -34,7 +34,6 @@ from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import Simpl
 from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils.utils import timeit
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -50,7 +49,6 @@ class MatchingTrackService(object):
 
         Scheduler.defer(self._generate_clip_hashes)
 
-    @timeit
     def _generate_clip_hashes(self):
         # type: () -> None
         for track in Song.abstract_tracks():

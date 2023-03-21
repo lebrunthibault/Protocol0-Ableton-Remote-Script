@@ -135,16 +135,6 @@ class SimpleTrack(AbstractTrack):
             if clip_slot.has_clip and clip_slot.clip is not None
         ]
 
-    def clear_clips(self):
-        # type: () -> Sequence
-        return Sequence().add([clip.delete for clip in self.clips]).done()
-
-    def has_same_clips(self, track):
-        # type: (SimpleTrack) -> bool
-        return len(self.clips) == len(track.clips) and all(
-            clip.matches(other_clip, track.devices.parameters) for clip, other_clip in zip(self.clips, track.clips)
-        )
-
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, SimpleTrackDevices):

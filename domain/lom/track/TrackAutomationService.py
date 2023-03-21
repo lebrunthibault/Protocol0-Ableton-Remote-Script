@@ -29,11 +29,6 @@ class TrackAutomationService(object):
         # type: (bool) -> Sequence
         selected_parameter = Song.selected_parameter() or self._last_scrolled_parameter
 
-        from protocol0.shared.logging.Logger import Logger
-
-        Logger.dev("show automation")
-        Logger.dev(selected_parameter)
-
         seq = Sequence()
 
         if selected_parameter is not None and not ApplicationView.is_clip_view_visible():
@@ -136,6 +131,12 @@ class TrackAutomationService(object):
             for clip in track.clips:
                 clip.color = track.color
         else:
+            has_automation = False
+
             for clip in track.clips:
                 if clip.automation.has_automation(track.devices.parameters):
+                    has_automation = True
                     clip.color = ClipColorEnum.BLINK.value
+
+            if not has_automation:
+                Backend.client().show_warning("No automation")
