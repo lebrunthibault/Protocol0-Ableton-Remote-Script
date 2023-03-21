@@ -1,8 +1,8 @@
+from protocol0.domain.audit.utils import tail_logs
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
@@ -14,14 +14,11 @@ class LogService(object):
         self._ableton_set = ableton_set
         self._track_mapper_service = track_mapper_service
 
-    def focus_window(self):
-        # type: () -> None
-        Backend.client().focus_window(window_name="logs terminal")
-
+    @tail_logs
     def log_current(self):
         # type: () -> None
         Logger.clear()
-        self.focus_window()
+
         current_track = Song.current_track()
         Logger.info("********* CURRENT_TRACK *************")
         Logger.info("current_track: %s" % current_track)
@@ -120,10 +117,11 @@ class LogService(object):
             )
             Logger.info()
 
+    @tail_logs
     def log_set(self):
         # type: () -> None
         Logger.clear()
-        self.focus_window()
+
         Logger.info("********* GLOBAL objects *************")
         Logger.info("song.is_playing: %s" % Song.is_playing())
         Logger.info()
@@ -180,6 +178,7 @@ class LogService(object):
         Logger.info("********* ABLETON_SET *************")
         Logger.info(self._ableton_set.to_dict())
 
+    @tail_logs
     def log_missing_vsts(self):
         # type: () -> None
         for track in Song.all_simple_tracks():

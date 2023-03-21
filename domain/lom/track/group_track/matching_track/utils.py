@@ -23,6 +23,7 @@ def assert_valid_track_name(track_name):
 
     assert track_name.lower() not in excluded_names, "Track name should be specific"
 
+
 def ensure_clips_looped(clips):
     # type: (List[Clip]) -> None
     unlooped_clips = [clip for clip in clips if not clip.looping]
@@ -31,6 +32,7 @@ def ensure_clips_looped(clips):
 
     for clip in unlooped_clips:
         clip.looping = True
+
 
 def is_valid_matching_track(track, audio_track):
     # type: (SimpleTrack, SimpleTrack) -> bool
@@ -43,6 +45,7 @@ def is_valid_matching_track(track, audio_track):
         and track.name == audio_track.name
     )
 
+
 def get_matching_audio_track(base_track):
     # type: (AbstractTrack) -> Optional[SimpleAudioTrack]
     from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
@@ -52,5 +55,6 @@ def get_matching_audio_track(base_track):
         t
         for t in Song.simple_tracks(SimpleAudioTrack)
         if base_track.index + 5 > t.index > base_track.index
+        and t.group_track == base_track.group_track
     ]
     return find_if(partial(is_valid_matching_track, base_track), audio_tracks)
