@@ -63,6 +63,8 @@ class SceneClips(Observable):
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot) or isinstance(observable, Clip):
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev((self, observable))
             self.build()
             self.notify_observers()
 
@@ -74,6 +76,8 @@ class SceneClips(Observable):
             clip_slot = track.clip_slots[self.index]
             clip_slot.register_observer(self)
             clip = clip_slot.clip
+            from protocol0.shared.logging.Logger import Logger
+            Logger.dev((clip_slot, clip_slot.clip))
             if (
                 clip is not None
                 and clip_slot.has_clip

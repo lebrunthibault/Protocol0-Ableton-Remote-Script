@@ -8,7 +8,7 @@ def tail_logs(func):
     def decorate(*a, **k):
         # type: (Any, Any) -> None
         res = func(*a, **k)
-        
+
         Backend.client().tail_logs()
 
         return res

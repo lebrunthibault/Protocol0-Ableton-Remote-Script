@@ -380,10 +380,9 @@ class SimpleTrack(AbstractTrack):
         seq = Sequence()
 
         if flatten_track:
-            is_only_child = self.group_track is not None and len(self.group_track.sub_tracks) == 1
             recolor_track = partial(setattr, self, "color", self.color)
             seq.add(self.focus)
-            seq.add(partial(Backend.client().flatten_track, is_only_child))
+            seq.add(Backend.client().flatten_track)
             seq.wait_for_backend_event("track_focused")
             seq.add(recolor_track)
             seq.wait_for_backend_event("track_flattened")

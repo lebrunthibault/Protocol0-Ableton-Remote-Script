@@ -68,6 +68,8 @@ class Scene(SlotManager):
 
     def on_tracks_change(self):
         # type: () -> None
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("track change : %s" % self)
         self.clips.build()
 
     def on_added(self):

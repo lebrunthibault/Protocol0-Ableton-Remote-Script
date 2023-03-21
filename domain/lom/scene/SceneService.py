@@ -1,5 +1,4 @@
 import collections
-from functools import partial
 from itertools import chain
 
 import Live
@@ -139,13 +138,19 @@ class SceneService(SlotManager):
 
     def _on_track_added_event(self, _):
         # type: (TrackAddedEvent) -> Sequence
-        empty_scenes = []
         seq = Sequence()
-        for scene in list(reversed(Song.scenes()))[1:]:
-            if len(scene.clips.all) == 0:
-                empty_scenes.append(scene)
-            else:
-                break
 
-        seq.add([partial(self._scene_crud_component.delete_scene, scene) for scene in empty_scenes])
+        def delete_empty_scenes():
+            # type: () -> None
+            for scene in list(reversed(Song.scenes()))[1:]:
+                from protocol0.shared.logging.Logger import Logger
+                Logger.dev((scene, scene.clips, list(scene.clips), scene.clips.all))
+                if len(scene.clips.all) == 0:
+                    Logger.warning("Deleting %s" % scene)
+                    self._scene_crud_component.delete_scene(scene)
+                else:
+                    return
+
+        seq.wait_ms(1000)  # wait for the track clips to be populated
+        seq.add(delete_empty_scenes)
         return seq.done()

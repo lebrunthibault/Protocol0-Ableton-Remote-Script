@@ -15,7 +15,7 @@ class Logger(object):
         self._logger = logger_service
 
     @classmethod
-    def dev(cls, message="", debug=False):
+    def dev(cls, message="", debug=True):
         # type: (Any, bool) -> None
         cls._log(message, LogLevelEnum.DEV, debug=debug)
 

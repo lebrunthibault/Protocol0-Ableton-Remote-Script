@@ -5,7 +5,6 @@ from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnaly
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
@@ -56,4 +55,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Backend.client().show_plugins()
+        Song.selected_clip().crop()

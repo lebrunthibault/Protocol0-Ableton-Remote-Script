@@ -19,4 +19,7 @@ def smart_string(s):
 def title(s):
     # type: (str) -> str
     # .title is not good because of words starting with numbers
+    if not s:
+        return s
+
     return s[0].capitalize() + s[1:]
