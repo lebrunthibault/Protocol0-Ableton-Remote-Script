@@ -28,7 +28,7 @@ class ClipSlot(SlotManager, Observable):
         self._clip_config = clip_config
         self.appearance = ClipSlotAppearance(live_clip_slot)
 
-        self.has_clip_listener.subject = self._clip_slot
+        self._has_clip_listener.subject = self._clip_slot
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
 
@@ -45,7 +45,7 @@ class ClipSlot(SlotManager, Observable):
         return "%s (%s)" % (self.__class__.__name__, self.clip.name if self.clip else "empty")
 
     @subject_slot("has_clip")
-    def has_clip_listener(self):
+    def _has_clip_listener(self):
         # type: () -> None
         self._map_clip(is_new=True)
 

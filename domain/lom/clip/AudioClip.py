@@ -5,9 +5,12 @@ from typing import Any, Optional, List
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.ui.ColorEnum import ColorEnum
+from protocol0.shared.Config import Config
+from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -19,6 +22,9 @@ class AudioClip(Clip):
 
         # associate the clip with a midi content
         self.previous_file_path = None  # type: Optional[str]
+
+        if self.name == Config.DUMMY_CLIP_NAME:
+            Scheduler.defer(self.config_dummy_clip)
 
     def get_hash(self, device_parameters):
         # type: (List[DeviceParameter]) -> int
@@ -57,3 +63,16 @@ class AudioClip(Clip):
         seq.wait_for_backend_event("clip_cropped")
         seq.add(partial(setattr, self, "color", clip_color))
         return seq.done()
+
+    def config_dummy_clip(self):
+        # type: () -> None
+        self._clip.warping = True
+
+        self.looping = True
+        scene = Song.scenes()[self.index]
+        self.bar_length = scene.bar_length
+
+        self.clip_name.update("")
+
+        ApplicationView.show_clip()
+        self.show_loop()

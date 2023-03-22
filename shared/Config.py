@@ -34,3 +34,5 @@ class Config(object):
     # VOLUME CONSTANTS
     ZERO_VOLUME = 0.850000023842
     CLIPPING_TRACK_VOLUME = 0.91
+
+    DUMMY_CLIP_NAME = "dummy clip"

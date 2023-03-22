@@ -96,12 +96,11 @@ class SimpleTrackClipSlots(SlotManager, Observable):
 
     @subject_slot_group("has_clip")
     @defer
-    def _has_clip_listener(self, _):
+    def _has_clip_listener(self, clip_slot):
         # type: (Live.ClipSlot.ClipSlot) -> None
         DomainEventBus.emit(ClipSlotHasClipEvent(self._live_track))
-        pass
-        # if clip_slot.clip:
-        #     clip_slot.clip.color_index = self._live_track.color_index
+        if clip_slot.clip:
+            clip_slot.clip.color_index = self._live_track.color_index
 
     def disconnect(self):
         # type: () -> None

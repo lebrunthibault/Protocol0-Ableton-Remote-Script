@@ -12,7 +12,7 @@ def test_scene_clips():
     assert len(list(clips)) == 0
     clip_slot = Song.selected_track().clip_slots[0]
     cast(AbletonClipSlot, clip_slot._clip_slot).add_clip()
-    clip_slot.has_clip_listener()
+    clip_slot._has_clip_listener()
 
     clips = SceneClips(0)
     assert len(list(clips)) == 1
