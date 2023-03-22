@@ -59,8 +59,8 @@ class ExtMatchingTrackCreator(MatchingTrackCreatorInterface):
             lambda: Song.selected_track().devices.mixer_device.update_from_dict(mixer_data)
         )  # noqa
         seq.add(self._audio_track.flatten)
+        seq.add(self._base_track.delete)
         seq.add(partial(Backend.client().show_success, "Track bounced"))
 
-        # don't delete the base track
 
         return seq.done()

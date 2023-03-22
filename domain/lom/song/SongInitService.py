@@ -4,6 +4,7 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.Song import Song
@@ -23,6 +24,7 @@ class SongInitService(object):
         CommandBus.dispatch(ResetPlaybackCommand())
 
         DomainEventBus.emit(SongInitializedEvent())
+        ApplicationView.show_session()
         seq = Sequence()
         seq.wait(10)
 
