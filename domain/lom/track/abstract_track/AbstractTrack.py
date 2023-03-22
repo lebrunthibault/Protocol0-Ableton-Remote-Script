@@ -1,6 +1,6 @@
 import Live
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional, List, cast, TYPE_CHECKING, Dict, Any
+from typing import Optional, List, cast, TYPE_CHECKING, Dict
 
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface

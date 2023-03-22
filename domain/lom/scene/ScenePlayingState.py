@@ -13,9 +13,8 @@ class ScenePlayingState(object):
 
     def __repr__(self):
         # type: () -> str
-        return "position: %.2f, bar_position: %.2f, current_bar: %s, in_last_bar: %s" % (
+        return "position: %.2f, current_bar: %s, in_last_bar: %s" % (
             self.position,
-            self.bar_position,
             self.current_bar,
             self.in_last_bar,
         )

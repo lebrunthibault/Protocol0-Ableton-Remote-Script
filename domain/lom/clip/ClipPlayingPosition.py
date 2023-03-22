@@ -12,11 +12,10 @@ class ClipPlayingPosition(object):
 
     def __repr__(self):
         # type: () -> str
-        return "position: %s, bar_position: %s, current_bar: %s, in_last_bar: %s" % (
+        return "position: %s / %s. beats left: %s" % (
             self.position,
-            self.bar_position,
-            self.current_bar,
-            self.in_last_bar,
+            self._clip_loop.length,
+            self.beats_left
         )
 
     @property
@@ -25,24 +24,8 @@ class ClipPlayingPosition(object):
         return self._live_clip.playing_position - self._clip_loop.start_marker
 
     @property
-    def bar_position(self):
-        # type: () -> float
-        return self.position / Song.signature_numerator()
-
-    @property
-    def current_bar(self):
+    def beats_left(self):
         # type: () -> int
-        if self._clip_loop.length == 0:
-            return 0
-        return int(self.bar_position)
+        bar_offset = int(self._clip_loop.bar_offset) * Song.signature_numerator()
 
-    @property
-    def bars_left(self):
-        # type: () -> int
-        """Truncated number of bars left in the clip"""
-        return int(self._clip_loop.bar_length) - 1 - self.current_bar + int(self._clip_loop.bar_offset)
-
-    @property
-    def in_last_bar(self):
-        # type: () -> bool
-        return self.bars_left == 0
+        return int(self._clip_loop.length - self.position + bar_offset)

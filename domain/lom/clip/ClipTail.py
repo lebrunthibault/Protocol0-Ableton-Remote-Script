@@ -27,11 +27,13 @@ class ClipTail(object):
         if clip is None:
             return
 
-        if PlayingSceneFacade.get() is None:
+        playing_scene = PlayingSceneFacade.get()
+
+        if playing_scene is None:
             return
 
         clip_slots = list(self._track_clip_slots)
-        scene_index = PlayingSceneFacade.get().index
+        scene_index = playing_scene.index
 
         # activate tail only if the next clip slot is empty
         try:
@@ -45,14 +47,14 @@ class ClipTail(object):
         # let the tail play
         if (
             has_empty_next_cs
-            and PlayingSceneFacade.get().playing_state.in_last_bar
+            and playing_scene.playing_state.in_last_bar
+            and not playing_scene.should_loop
             and clip.looping
             and clip.has_tail
         ):
             clip.looping = False
             seq = Sequence()
             seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
-            seq.wait_beats(clip.playing_position.bars_left)
-            seq.wait_bars(clip.playing_position.bars_left, continue_on_song_stop=True)
+            seq.wait_beats(clip.playing_position.beats_left + 1, continue_on_song_stop=True)
             seq.add(partial(setattr, clip, "looping", True))
             seq.done()

@@ -143,7 +143,9 @@ class Clip(SlotManager, Observable):
             return None
 
         if wait_until_end:
-            Scheduler.wait_bars(self.playing_position.bars_left, self._clip.stop)
+            if not self.playing_position.beats_left:
+                self._clip.stop()
+            # else clip will stop in ClipTail
             return None
 
         if self._clip:
