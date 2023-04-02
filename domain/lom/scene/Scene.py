@@ -168,6 +168,8 @@ class Scene(SlotManager):
     def fire(self):
         # type: () -> None
         # stop the previous scene in advance, using clip launch quantization
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("firing %s" % self)
         DomainEventBus.emit(SceneFiredEvent(self.index))
 
         self._scene.fire()

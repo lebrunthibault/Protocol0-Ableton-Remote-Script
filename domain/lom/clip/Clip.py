@@ -143,7 +143,7 @@ class Clip(SlotManager, Observable):
             return None
 
         if wait_until_end:
-            if not self.playing_position.beats_left:
+            if self.playing_position.beats_left <= 1:
                 self._clip.stop()
             # else clip will stop in ClipTail
             return None

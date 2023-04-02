@@ -268,6 +268,8 @@ class SimpleTrack(AbstractTrack):
 
         # let tail play
         clip = self.clip_slots[scene_index].clip
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev((self, scene_index))
 
         if clip is not None and clip.is_playing:
             clip.stop(wait_until_end=True)
