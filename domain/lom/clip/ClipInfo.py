@@ -102,7 +102,7 @@ class ClipInfo(object):
         """Restore duplicates removed before flattening"""
         source_cs = track.clip_slots[self.index]
 
-        assert source_cs.clip is not None
+        assert source_cs.clip is not None, "restore duplicates : no clip at index %s" % self.index
 
         seq = Sequence()
         seq.add(

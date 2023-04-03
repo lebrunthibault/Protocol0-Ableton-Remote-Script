@@ -186,7 +186,7 @@ class Container(ContainerInterface):
         audio_latency_service = AudioLatencyAnalyzerService(
             track_recorder_service, interface_clicks_service, track_crud_component, tempo_component
         )
-        log_service = LogService(ableton_set, track_mapper_service)
+        log_service = LogService(ableton_set, track_mapper_service, matching_track_service)
 
         set_profiling_service = SetProfilingService()
         song_stats_service = SongStatsService()

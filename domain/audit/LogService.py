@@ -3,16 +3,19 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
+from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackService import \
+    MatchingTrackService
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
 
 class LogService(object):
-    def __init__(self, ableton_set, track_mapper_service):
-        # type: (AbletonSet, TrackMapperService) -> None
+    def __init__(self, ableton_set, track_mapper_service, matching_track_service):
+        # type: (AbletonSet, TrackMapperService, MatchingTrackService) -> None
         self._ableton_set = ableton_set
         self._track_mapper_service = track_mapper_service
+        self._matching_track_service = matching_track_service
 
     @tail_logs
     def log_current(self):
@@ -62,6 +65,8 @@ class LogService(object):
         )
         Logger.info()
         Logger.info("selected_track.sub_tracks: %s" % Song.selected_track().sub_tracks)
+        Logger.info()
+        Logger.info("matching_track: %s" % self._matching_track_service._create_matching_track(Song.selected_track()))
         Logger.info()
         Logger.info("selected_track.clip_slots: %s" % Song.selected_track().clip_slots)
         Logger.info()
