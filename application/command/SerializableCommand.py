@@ -1,9 +1,9 @@
 import json
-from pydoc import classname, locate
 
 from typing import Optional
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.utils.utils import locate
 
 
 class SerializableCommand(object):
@@ -22,6 +22,8 @@ class SerializableCommand(object):
     def serialize(self):
         # type: () -> str
         """Used from outside"""
+        from pydoc import classname
+
         return json.dumps(
             {"class": classname(self.__class__, ""), "args": self.__dict__},
             sort_keys=True,
@@ -45,8 +47,7 @@ class SerializableCommand(object):
         if "set_id" in args:
             del args["set_id"]
 
-        # noinspection PyCallingNonCallable
-        command = sub_class(**args)  # type: ignore[operator]
+        command = sub_class(**args)
         command.set_id = set_id
 
         return command

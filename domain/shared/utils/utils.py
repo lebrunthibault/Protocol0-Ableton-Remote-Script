@@ -22,6 +22,16 @@ def import_package(package):
     for _, mod_name, _ in pkgutil.iter_modules(package.__path__, prefix):
         __import__(mod_name)
 
+def locate(name):
+    # type: (str) -> Any
+    components = name.split('.')
+    mod = __import__(components[0])
+
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+
+    return mod
+
 
 def compare_values(value, expected_value):
     # type: (Any, Any) -> bool
