@@ -149,16 +149,11 @@ class MatchingTrackService(object):
                 ):
                     track.output_routing.track = track.group_track or Song.master_track()  # type: ignore[assignment]
 
-                    # seq = Sequence()
-                    # seq.prompt("Remove saved track '%s'?" % track.name)
-                    # seq.add(partial(Backend.client().delete_saved_track, track.name))
-                    # seq.done()
-
     def match_clip_colors(self):
         # type: () -> None
         matching_track = self._create_matching_track(Song.current_track())
 
-        if matching_track is None:
-            return
-
-        matching_track.clip_color_manager.toggle_clip_colors()
+        if matching_track is not None:
+            matching_track.clip_color_manager.toggle_clip_colors()
+        else:
+            Song.selected_track()._clip_slots.toggle_colours()

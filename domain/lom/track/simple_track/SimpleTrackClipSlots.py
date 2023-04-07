@@ -8,6 +8,7 @@ from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotHasClipEvent import ClipSlotHasClipEvent
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.track.simple_track.SimpleTrackClips import SimpleTrackClips
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
@@ -25,6 +26,7 @@ class SimpleTrackClipSlots(SlotManager, Observable):
 
         self._clip_slots = []  # type: List[ClipSlot]
 
+        self._clips = SimpleTrackClips(self, live_track.color_index)
         self._has_clip_listener.replace_subjects(live_track.clip_slots)
 
         self._instrument = None  # type: Optional[InstrumentInterface]
@@ -49,9 +51,7 @@ class SimpleTrackClipSlots(SlotManager, Observable):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        return [
-            clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip
-        ]
+        return list(self._clips)
 
     @property
     def selected(self):
@@ -101,6 +101,10 @@ class SimpleTrackClipSlots(SlotManager, Observable):
         DomainEventBus.emit(ClipSlotHasClipEvent(self._live_track))
         if clip_slot.clip:
             clip_slot.clip.color_index = self._live_track.color_index
+
+    def toggle_colours(self):
+        # type: () -> None
+        self._clips.clip_color_manager.toggle_colors()
 
     def disconnect(self):
         # type: () -> None

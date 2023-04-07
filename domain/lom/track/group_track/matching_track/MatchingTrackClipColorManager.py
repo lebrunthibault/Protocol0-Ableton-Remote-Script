@@ -45,7 +45,7 @@ class MatchingTrackClipColorManager(object):
         )
 
         for clip_info in clip_infos:
-            clips = clip_info.get_clips(self._clip_track)
+            clips = clip_info.get_clips(self._clip_track.clip_slots)
             for clip in clips:
                 clip.color = color_index
 
