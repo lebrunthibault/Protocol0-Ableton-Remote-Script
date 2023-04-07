@@ -2,6 +2,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import List
 
+from protocol0.domain.shared.utils.string import smart_string
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -19,7 +20,7 @@ class DeviceChain(SlotManager, Observable):
 
     def __repr__(self):
         # type: () -> str
-        out = "DeviceChain(name=%s" % self.name
+        out = "DeviceChain(name=%s" % smart_string(self.name)
         if len(self.devices):
             out += ", first_device=%s" % self.devices[0]
 

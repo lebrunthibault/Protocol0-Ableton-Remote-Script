@@ -10,8 +10,8 @@ from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
 from protocol0.domain.lom.sample.SampleCategory import SampleCategory
-from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.midi.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
@@ -131,11 +131,13 @@ class DrumRackService(object):
 
             clip.set_notes(notes)
 
-    def clean_racks(self):
-        # type: () -> None
+    def clean_racks(self, track=None):
+        # type: (Optional[SimpleTrack]) -> None
         seq = Sequence()
 
-        for track in Song.simple_tracks():
+        tracks = [track] if track is not None else Song.simple_tracks()
+
+        for track in tracks:
             if not isinstance(track.instrument, InstrumentDrumRack):
                 continue
 

@@ -25,10 +25,8 @@ from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializer
     PresetInitializerInterface,
 )
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
-
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -134,7 +132,3 @@ class InstrumentInterface(SlotManager):
     def selected_preset(self):
         # type: () -> Optional[InstrumentPreset]
         return self.preset_list.selected_preset
-
-    def set_default_preset(self):
-        # type: () -> None
-        raise Protocol0Warning("No default preset for %s" % self)

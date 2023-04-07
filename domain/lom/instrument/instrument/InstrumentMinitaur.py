@@ -1,11 +1,8 @@
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import \
-    PresetProgramSelectedEvent
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerGroupTrackName import (
     PresetInitializerGroupTrackName,
 )
-from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
 
 class InstrumentMinitaur(InstrumentInterface):
@@ -19,7 +16,3 @@ class InstrumentMinitaur(InstrumentInterface):
     )
     PRESET_OFFSET = 1
     PRESET_INITIALIZER = PresetInitializerGroupTrackName
-
-    def set_default_preset(self):
-        # type: () -> None
-        DomainEventBus.emit(PresetProgramSelectedEvent(2))

@@ -21,7 +21,6 @@ from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentD
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
     InstrumentPresetScrollerService,
 )
-from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
@@ -141,7 +140,7 @@ class Container(ContainerInterface):
         scene_service = SceneService(live_song, scene_crud_component)
         scene_playback_service = ScenePlaybackService(playback_component)
         PlayingSceneFacade(scene_component)
-        validator_service = ValidatorService(ValidatorFactory(browser_service))
+        validator_service = ValidatorService(ValidatorFactory(browser_service), drum_rack_service)
         set_upgrade_service = SetUpgradeService(validator_service, track_crud_component)
         set_fixer_service = SetFixerService(
             validator_service=validator_service,
@@ -176,9 +175,6 @@ class Container(ContainerInterface):
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService()
         interface_clicks_service = InterfaceClicksService()
-
-        # presets
-        preset_service = PresetService()
 
         song_data_service = SongDataService(live_song.get_data, live_song.set_data, scene_component)
 
@@ -224,7 +220,6 @@ class Container(ContainerInterface):
         self._register(mixing_service)
         self._register(track_recorder_service)
         self._register(validator_service)
-        self._register(preset_service)
 
         # audit
         self._register(audio_latency_service)

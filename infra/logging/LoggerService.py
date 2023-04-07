@@ -22,10 +22,10 @@ class LoggerService(LoggerServiceInterface):
             try:
                 # use str to json encode classes
                 message = json.dumps(message, indent=4, default=str)
-            except TypeError as e:
+            except (TypeError, UnicodeEncodeError) as e:
                 from protocol0.shared.logging.Logger import Logger
 
-                Logger.error(e)
+                Logger.warning(e)
 
         if not isinstance(message, basestring):
             message = str(message)

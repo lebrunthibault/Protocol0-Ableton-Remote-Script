@@ -7,6 +7,7 @@ from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParamete
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils.list import find_if
+from protocol0.domain.shared.utils.string import smart_string
 
 
 class Device(SlotManager):
@@ -24,7 +25,7 @@ class Device(SlotManager):
 
     def __repr__(self):
         # type: () -> str
-        return "%s(%s)" % (self.__class__.__name__, self.name)
+        return "%s(%s)" % (self.__class__.__name__, smart_string(self.name))
 
     @classmethod
     def _get_class(cls, device):
