@@ -15,12 +15,16 @@ class DeviceEnum(AbstractEnum):
     AUTO_FILTER = "Auto Filter"
     AUTO_FILTER_HIGH_PASS = "Auto Filter High Pass"
     AUTO_FILTER_LOW_PASS = "Auto Filter Low Pass"
-    AUTO_PAN = "Auto Pan"
+    AUTO_PAN = "AutoPan"
     BEAT_REPEAT = "Beat Repeat"
     C1_COMP = "C1 comp Stereo"
     COMPRESSOR = "Compressor"
     DECAPITATOR = "Decapitator"
+    DE_ESSER = "DeEsser Stereo"
     DELAY = "Delay"
+    DRUM_BUSS = "Drum Buss"
+    DOUBLER2 = "Doubler2 Stereo"
+    DOUBLER4 = "Doubler4 Stereo"
     DRUM_RACK = "Drum Rack"
     EFFECTRIX = "Effectrix"
     ENIGMA = "Enigma Stereo"
@@ -38,7 +42,7 @@ class DeviceEnum(AbstractEnum):
     INSERT_DRY_WET = "Insert Dry Wet"
     INSERT_REVERB = "Insert Reverb"
     INSTRUMENT_RACK = "Instrument Rack"
-    JJP_STRINGS = "JJP-Strings-Keys-Stereo"
+    JJP_STRINGS = "JJP-Strings-Keys Stereo"
     LFO_TOOL = "LFOTool_x64"
     L1_LIMITER = "L1 limiter Stereo"
     L1_ULTRAMAXIMIZER = "L1+ Ultramaximizer Stereo"
@@ -49,8 +53,10 @@ class DeviceEnum(AbstractEnum):
     PITCH = "Pitch"
     PLAY = "play_VST_x64"
     PRO_Q_3 = "Pro-Q 3"
+    PRO_Q_3_VST3 = "FabFilter Pro-Q 3"
     REVERB = "Reverb"
     REV2_EDITOR = "REV2Editor"
+    R_VERB = "RVerb Stereo"
     SAMPLE_PITCH_RACK = "Sample Pitch Rack"
     SATURATOR = "Saturator"
     SATURN_2 = "Saturn 2"
@@ -59,11 +65,12 @@ class DeviceEnum(AbstractEnum):
     SOOTHE2 = "soothe2"
     SOUNDID_REFERENCE_PLUGIN = "SoundID Reference Plugin"
     SPLICE = "Splice Bridge"
-    SPIFF = "Spiff"
+    SPIFF = "spiff"
     SSL_COMP = "SSLComp Stereo"
     SUPER_TAP_2 = "SuperTap 2-Taps Stereo"
     SUPER_TAP_6 = "SuperTap 6-Taps Stereo"
     SURFEREQ = "SurferEQ"
+    SYLENTH1 = "Sylenth1"
     TRACK_SPACER = "Trackspacer 2.5"
     TRUE_VERB = "TrueVerb Stereo"
     TUNER = "Tuner"
@@ -242,7 +249,12 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.AUTO_FILTER: 7,
                     DeviceEnum.BEAT_REPEAT: 7,
                     DeviceEnum.COMPRESSOR: 11,
+                    DeviceEnum.DECAPITATOR: 309,
+                    DeviceEnum.DE_ESSER: 90,
                     DeviceEnum.DELAY: 10,
+                    DeviceEnum.DRUM_BUSS: 18,
+                    DeviceEnum.DOUBLER2: 43,
+                    DeviceEnum.DOUBLER4: 46,
                     DeviceEnum.EFFECTRIX: 133,
                     DeviceEnum.ENIGMA: 0,
                     DeviceEnum.EQ_EIGHT: 31,
@@ -254,6 +266,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.GATE: 7,
                     DeviceEnum.GATEKEEPER: 130,
                     DeviceEnum.GLUE_COMPRESSOR: 6,
+                    DeviceEnum.H_COMP: 75,
                     DeviceEnum.INSTRUMENT_RACK: 10,
                     DeviceEnum.JJP_STRINGS: 280,
                     DeviceEnum.LFO_TOOL: 180,
@@ -263,25 +276,30 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.PITCH: 2,
                     DeviceEnum.PLAY: 214,
                     DeviceEnum.PRO_Q_3: 53,
+                    DeviceEnum.PRO_Q_3_VST3: 53,
                     DeviceEnum.REVERB: 9,
                     DeviceEnum.REV2_EDITOR: 80,
+                    DeviceEnum.R_VERB: 114,
                     DeviceEnum.SATURATOR: 8,
                     DeviceEnum.SATURN_2: 50,
                     DeviceEnum.SERUM: 147,
                     DeviceEnum.SIMPLER: 56,
                     DeviceEnum.SOOTHE2: 206,
+                    DeviceEnum.SOUNDID_REFERENCE_PLUGIN: 0,
                     DeviceEnum.SPIFF: 270,
+                    DeviceEnum.SSL_COMP: 81,
                     DeviceEnum.SUPER_TAP_2: 45,
                     DeviceEnum.SUPER_TAP_6: 45,
                     DeviceEnum.SURFEREQ: 116,
-                    DeviceEnum.SSL_COMP: 81,
-                    DeviceEnum.SOUNDID_REFERENCE_PLUGIN: 0,
+                    DeviceEnum.SYLENTH1: 314,
                     DeviceEnum.TRACK_SPACER: 207,
                     DeviceEnum.TRUE_VERB: 82,
                     DeviceEnum.TUNER: 0,
                     DeviceEnum.USAMO: 78,
                     DeviceEnum.UTILITY: 4,
                     DeviceEnum.VALHALLA_VINTAGE_VERB: 71,
+                    DeviceEnum.VCOMP: 52,
+                    DeviceEnum.VEQ: 55,
                 }
             )
         except Protocol0Error:
