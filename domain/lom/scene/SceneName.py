@@ -25,10 +25,16 @@ class SceneName(SlotManager):
         self._scene_playing_state = scene_playing_state
         self._name_listener.subject = scene
         self._last_updated_at = time.time()
+        self._cached_name = self._scene.name  # type: str
 
     def __repr__(self):
         # type: () -> str
         return "name of %s" % self._scene
+
+    def set_name(self, name):
+        # type: (str) -> None
+        self._scene.name = title(name)
+        self._cached_name = self._scene.name
 
     @subject_slot("name")
     def _name_listener(self):
@@ -85,5 +91,5 @@ class SceneName(SlotManager):
         if Song.looping_scene() and Song.looping_scene()._scene == self._scene:
             scene_name = "*%s" % scene_name
 
-        self._scene.name = title(scene_name)
+        self.set_name(scene_name)
         self._last_updated_at = time.time()

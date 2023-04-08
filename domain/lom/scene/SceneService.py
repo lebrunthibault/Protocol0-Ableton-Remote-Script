@@ -65,9 +65,6 @@ class SceneService(SlotManager):
             if len(previous_live_scenes_ids) and scene.live_id not in previous_live_scenes_ids:
                 Scheduler.defer(scene.on_added)
 
-        if len(previous_live_scenes_ids) > len(Song.scenes()) > 5:
-            Backend.client().show_warning("You just deleted a scene")
-
         DomainEventBus.defer_emit(ScenesMappedEvent())
 
         Logger.info("mapped scenes")
@@ -115,13 +112,18 @@ class SceneService(SlotManager):
         existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
+            # refresh the mapping
+            if scene_id not in existing_scene_ids:
+                # checking on name and not bar_length
+                if len(Song.scenes()) > 5 and scene.name != "0":
+                    Backend.client().show_warning("You just deleted %s" % scene)
+
+                del self._live_scene_id_to_scene[scene_id]
+
             scene.disconnect()
             if scene == Song.playing_scene():
                 PlayingSceneFacade.set(None)
 
-            # refresh the mapping
-            if scene_id not in existing_scene_ids:
-                del self._live_scene_id_to_scene[scene_id]
 
     def generate_scene(self, live_scene, index):
         # type: (Live.Scene.Scene, int) -> None

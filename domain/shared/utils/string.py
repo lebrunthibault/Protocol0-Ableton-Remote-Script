@@ -22,4 +22,6 @@ def title(s):
     if not s:
         return s
 
+    s = s.strip()
+
     return s[0].capitalize() + s[1:]

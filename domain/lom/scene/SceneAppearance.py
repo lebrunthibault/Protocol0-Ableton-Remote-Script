@@ -13,12 +13,16 @@ class SceneAppearance(object):
     @property
     def name(self):
         # type: () -> str
-        return self._live_scene and self._live_scene.name
+        if not self._live_scene:
+            return self._scene_name._cached_name
+        else:
+            return self._live_scene.name
 
     @name.setter
     def name(self, name):
         # type: (str) -> None
         if self._live_scene and name:
+            self._scene_name.set_name(name)
             self._live_scene.name = str(name).strip()
 
     def refresh(self):

@@ -50,7 +50,7 @@ class Scene(SlotManager):
 
     def __repr__(self):
         # type: () -> str
-        return "Scene %s (%s)" % (self.name, self.index)
+        return "Scene(%s (%s))" % (self.name, self.index)
 
     @property
     def abstract_tracks(self):
