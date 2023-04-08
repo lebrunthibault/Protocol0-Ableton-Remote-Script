@@ -39,7 +39,7 @@ class DeviceService(object):
 
         seq = Sequence()
         seq.add(track.select)
-        if device_enum.is_instrument:
+        if device_enum.is_instrument and track.instrument is not None:
             seq.add(self._track_crud_component.create_midi_track)
             seq.add(lambda: setattr(Song.selected_track(), "name", device_enum.value))
 
