@@ -413,6 +413,11 @@ class SimpleTrack(AbstractTrack):
 
         return seq.done()
 
+    @property
+    def load_time(self):
+        # type: () -> int
+        return self.devices.load_time
+
     def disconnect(self):
         # type: () -> None
         super(SimpleTrack, self).disconnect()

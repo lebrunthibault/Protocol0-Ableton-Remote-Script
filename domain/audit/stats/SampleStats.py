@@ -47,10 +47,10 @@ class SampleStats(object):
         output = collections.OrderedDict()  # type: Dict[str, Any]
         output["count"] = self.count
         output["total load time"] = "%.2fs" % (float(SAMPLE_LOAD_TIME * self.count) / 1000)
-        output["drum rack count"] = len(self.drum_racks)
-        output["simpler count"] = len(self.simplers)
+        # output["drum rack count"] = len(self.drum_racks)
+        # output["simpler count"] = len(self.simplers)
         output["drum rack stats"] = [str(stat) for stat in self.drum_rack_stats]
-        output["potential load time optimization"] = "%.2fs" % (
+        output["possible optimization"] = "%.2fs" % (
             float(self.potential_load_time_optimization) / 1000
         )
 

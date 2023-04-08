@@ -88,3 +88,8 @@ class AbstractGroupTrack(AbstractTrack):
             result.update(track.get_automated_parameters(scene_index))
 
         return result
+
+    @property
+    def load_time(self):
+        # type: () -> int
+        return sum(sub_track.load_time for sub_track in self.sub_tracks)

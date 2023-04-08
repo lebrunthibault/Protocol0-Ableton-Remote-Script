@@ -36,6 +36,7 @@ class DevicesStats(object):
     _EXCLUDED_DEVICE_NAMES = [
         DeviceEnum.USAMO.value,
         DeviceEnum.EXTERNAL_AUDIO_EFFECT.value,
+        DeviceEnum.SOUNDID_REFERENCE_PLUGIN.value,
         "Instrument Rack"
     ]
 
@@ -78,7 +79,7 @@ class DevicesStats(object):
         output = collections.OrderedDict()  # type: Dict[str, Any]
         output["count"] = self.count
         output["total load time"] = "%.2fs" % (float(self.total_load_time) / 1000)
-        output["devices stats"] = [str(stat) for stat in self.device_stats]
+        # output["top devices"] = [str(stat) for stat in self.device_stats[0:10]]
         output["play instances"] = self.play_instances
         output["opus instances"] = self.opus_instances
         output["kontakt instances"] = self.kontakt_instances

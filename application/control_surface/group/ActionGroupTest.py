@@ -1,13 +1,10 @@
 from functools import partial
 
-from typing import cast
-
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
+from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
-from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
@@ -59,4 +56,6 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        self._container.get(SongStatsService).display_song_stats()
+        # from protocol0.shared.logging.Logger import Logger
+        # Logger.dev(Song.selected_track().devices.load_time)

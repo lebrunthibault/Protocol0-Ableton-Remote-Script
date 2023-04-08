@@ -80,3 +80,5 @@ _.action_test  # unused method (application\control_surface\group\ActionGroupTes
 timeit  # unused function (domain\shared\utils\utils.py:110)
 _.show_automation  # unused method (domain\lom\track\TrackAutomationService.py:27)
 locate  # unused function (domain\shared\utils\utils.py:25)
+ClipStats  # unused class (domain\audit\stats\ClipStats.py:11)
+_.device_stats  # unused attribute (domain\audit\stats\DeviceStats.py:60)

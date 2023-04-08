@@ -139,6 +139,11 @@ class SimpleTrackDevices(SlotManager, Observable):
             list(chain(*[device.parameters for device in self.all])) + self.mixer_device.parameters
         )
 
+    @property
+    def load_time(self):
+        # type: () -> int
+        return sum(d.enum.load_time for d in self)
+
     def disconnect(self):
         # type: () -> None
         super(SimpleTrackDevices, self).disconnect()
