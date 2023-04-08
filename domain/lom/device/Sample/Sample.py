@@ -42,6 +42,16 @@ class Sample(object):
         # type: (bool) -> None
         self._sample.warping = warping
 
+    @property
+    def warp_mode(self):
+        # type: () -> Live.Clip.WarpMode
+        return self._sample.warp_mode
+
+    @warp_mode.setter
+    def warp_mode(self, warp_mode):
+        # type: (Live.Clip.WarpMode) -> None
+        self._sample.warp_mode = warp_mode
+
     def beat_to_sample_time(self, beat_time):
         # type: (float) -> float
         return self._sample.beat_to_sample_time(beat_time)

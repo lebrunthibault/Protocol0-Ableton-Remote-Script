@@ -14,4 +14,5 @@ class ActionGroupFactory(object):
         group_classes = ActionGroupInterface.__subclasses__()
 
         for group_class in group_classes:
-            group_class(container, component_guard).configure()
+            if group_class.CHANNEL is not None:
+                group_class(container, component_guard).configure()

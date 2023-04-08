@@ -1,8 +1,10 @@
 import Live
-from typing import List
+from typing import List, cast
 
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
+from protocol0.domain.lom.device.Sample.Sample import Sample
+from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.utils.string import smart_string
 from protocol0.shared.sequence.Sequence import Sequence
@@ -37,6 +39,15 @@ class DrumPad(SlotManager):
     def name(self):
         # type: () -> str
         return smart_string(self._drum_pad.name)
+
+    @property
+    def sample(self):
+        # type: () -> Sample
+        assert not self.is_empty, "pad is empty"
+        simpler = cast(SimplerDevice, self.chains[0].devices[0])
+        assert isinstance(simpler, SimplerDevice), "pad device is not a simpler"
+
+        return simpler.sample
 
     @property
     def note(self):

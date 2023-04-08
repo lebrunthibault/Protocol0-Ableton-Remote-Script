@@ -8,8 +8,6 @@ from protocol0.shared.Song import Song
 
 
 class ActionGroupPreset(ActionGroupInterface):
-    CHANNEL = 13
-
     def configure(self):
         # type: () -> None
         # PREset encoder

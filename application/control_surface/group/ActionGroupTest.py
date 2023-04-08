@@ -14,7 +14,7 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class ActionGroupTest(ActionGroupInterface):
-    CHANNEL = 16
+    CHANNEL = 13
 
     def configure(self):
         # type: () -> None
@@ -59,14 +59,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        drum_rack = cast(DrumRackDevice, Song.selected_device())
-        pad = drum_rack.selected_drum_pad
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(pad)
-        # Logger.dev(pad.chains)
-        Logger.dev(pad.chains[0])
-        simpler = cast(SimplerDevice, pad.chains[0].devices[0])
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev(simpler)
-        Logger.dev(simpler.sample)
-        Logger.dev(simpler.sample.warping)
+        pass
