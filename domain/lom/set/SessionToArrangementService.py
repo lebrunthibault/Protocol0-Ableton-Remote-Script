@@ -80,11 +80,11 @@ class SessionToArrangementService(object):
         self._quantization_component.clip_trigger_quantization = Live.Song.Quantization.q_half
 
         # make recording start at 1.1.1
-        # seq.add(self._pre_fire_first_scene)
+        seq.add(self._pre_fire_first_scene)
         seq.add(partial(setattr, self._recording_component, "record_mode", True))
-        seq.defer()
-        seq.wait_beats(1)
-        seq.add(Song.scenes()[0].fire)
+        # seq.defer()
+        # seq.wait_beats(1)
+        # seq.add(Song.scenes()[0].fire)
         seq.done()
 
     def _setup_bounce(self):
@@ -105,15 +105,15 @@ class SessionToArrangementService(object):
                     "Disabling external device of %s (for audio export)" % track
                 )
                 ext_device.is_enabled = False
-    #
-    # def _pre_fire_first_scene(self):
-    #     # type: () -> Sequence
-    #     scene = Song.scenes()[0]
-    #     scene.fire()
-    #     self._playback_component.stop_playing()
-    #     seq = Sequence()
-    #     seq.wait(2)
-    #     return seq.done()
+
+    def _pre_fire_first_scene(self):
+        # type: () -> Sequence
+        scene = Song.scenes()[0]
+        scene.fire()
+        self._playback_component.stop_playing()
+        seq = Sequence()
+        seq.wait(2)
+        return seq.done()
 
     def _stop_playing_on_last_scene_end(self):
         # type: () -> None

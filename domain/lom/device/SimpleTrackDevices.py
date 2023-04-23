@@ -142,7 +142,7 @@ class SimpleTrackDevices(SlotManager, Observable):
     @property
     def load_time(self):
         # type: () -> int
-        return sum(d.enum.load_time for d in self)
+        return sum(d.enum.load_time for d in self if d.enum is not None)
 
     def disconnect(self):
         # type: () -> None
