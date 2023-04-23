@@ -1,4 +1,5 @@
-from typing import Dict, Protocol
+from typing_extensions import Protocol
+from typing import Dict
 
 
 class Stats(Protocol):

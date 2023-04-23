@@ -3,8 +3,7 @@ import os
 import sys
 from os.path import dirname
 
-if sys.version_info.major == 2:
-    sys.path.insert(0, "%s\\venv\\Lib\\site-packages" % dirname(os.path.realpath(__file__)))
+sys.path.insert(0, "%s\\venv\\Lib\\site-packages" % dirname(os.path.realpath(__file__)))
 
 live_environment_loaded = "Live" in sys.modules
 

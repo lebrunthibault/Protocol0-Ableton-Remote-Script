@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 import types
 
 from typing import Optional, Any, List, Dict
@@ -27,7 +28,7 @@ class LoggerService(LoggerServiceInterface):
 
                 Logger.warning(e)
 
-        if not isinstance(message, basestring):
+        if sys.version_info.major == 2 and not isinstance(message, basestring):
             message = str(message)
 
         level = level or LogLevelEnum.INFO
@@ -48,5 +49,8 @@ class LoggerService(LoggerServiceInterface):
                     frame_info.method_name,
                 )
         for line in message.splitlines():
-            line = "P0 - %s" % line.decode("utf-8").encode("ascii", "replace")
+            if sys.version_info.major == 2:
+                line.decode("utf-8").encode("ascii", "replace")
+
+            line = "P0 - %s" % line
             logging.info(line)

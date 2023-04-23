@@ -1,4 +1,3 @@
-import sentry_sdk
 from typing import Dict, Any
 
 from protocol0.shared.Config import Config
@@ -9,11 +8,13 @@ class SentryService(object):
     def __init__(self):
         # type: () -> None
         self.activated = False
-        self.sdk = sentry_sdk
 
     def activate(self):
         # type: () -> None
-        self.sdk.init(
+        # noinspection PyUnresolvedReferences
+        import sentry_sdk
+
+        sentry_sdk.init(
             dsn=Config.SENTRY_DSN,
             before_send=self._before_send,
             # Set traces_sample_rate to 1.0 to capture 100%

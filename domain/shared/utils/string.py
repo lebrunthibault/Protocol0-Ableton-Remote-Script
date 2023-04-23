@@ -10,6 +10,7 @@ def smart_string(s):
 
     if not isinstance(s, basestring):
         s = str(s)
+
     try:
         return s.decode("utf-8").encode("ascii", "ignore")
     except UnicodeEncodeError:

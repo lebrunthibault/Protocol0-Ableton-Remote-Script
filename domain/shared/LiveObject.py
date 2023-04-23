@@ -1,4 +1,5 @@
-from typing import Protocol, Any
+from typing_extensions import Protocol
+from typing import Any
 
 
 def liveobj_valid(obj):

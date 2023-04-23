@@ -2,9 +2,9 @@ from functools import partial
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
-from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
@@ -25,7 +25,7 @@ class ActionGroupTest(ActionGroupInterface):
         self.add_encoder(
             identifier=2,
             name="start set launch time profiling",
-            on_press=self._container.get(SetProfilingService).profile_set,
+            on_press=Backend.client().start_set_profiling,
         )
 
         # CLR encoder
@@ -56,4 +56,4 @@ class ActionGroupTest(ActionGroupInterface):
     def action_test(self):
         # type: () -> None
         from protocol0.shared.logging.Logger import Logger
-        Logger.dev(Song.selected_clip())
+        Logger.dev("toto")

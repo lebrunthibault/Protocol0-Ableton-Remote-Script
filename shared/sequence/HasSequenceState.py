@@ -1,4 +1,5 @@
-from typing import Protocol, runtime_checkable, Any
+from typing_extensions import Protocol, runtime_checkable
+from typing import Any
 
 from protocol0.shared.observer.Observer import Observer
 from protocol0.shared.sequence.SequenceState import SequenceState
