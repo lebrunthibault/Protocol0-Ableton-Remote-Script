@@ -1,6 +1,4 @@
-from collections import Iterator
-
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Iterator
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipColorManager import \

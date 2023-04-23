@@ -1,5 +1,5 @@
 import traceback
-from collections import Iterator
+from typing import Iterator
 
 import Live
 from typing import TYPE_CHECKING, Optional, List, cast, Type

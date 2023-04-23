@@ -11,7 +11,6 @@ from protocol0.application.error.SentryService import SentryService
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.LogService import LogService
 from protocol0.domain.audit.SetFixerService import SetFixerService
-from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
@@ -186,7 +185,6 @@ class Container(ContainerInterface):
         )
         log_service = LogService(ableton_set, track_mapper_service, matching_track_service)
 
-        set_profiling_service = SetProfilingService()
         song_stats_service = SongStatsService()
 
         self._register(midi_service)
@@ -229,7 +227,6 @@ class Container(ContainerInterface):
         self._register(log_service)
         self._register(set_upgrade_service)
         self._register(set_fixer_service)
-        self._register(set_profiling_service)
         self._register(song_stats_service)
 
         self._register(session_to_arrangement_service)

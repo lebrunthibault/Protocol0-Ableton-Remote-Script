@@ -24,9 +24,10 @@ class SongInitService(object):
         CommandBus.dispatch(ResetPlaybackCommand())
 
         DomainEventBus.emit(SongInitializedEvent())
-        ApplicationView.show_session()
         seq = Sequence()
-        seq.wait(10)
+        seq.wait(2)
+        seq.add(ApplicationView.show_session)
+        seq.wait(8)
 
         if not self._ableton_set.is_unknown and not self._ableton_set.is_test:
             seq.add(self._check_sound_id_device)
