@@ -12,20 +12,6 @@ class ClipAppearance(object):
         self._color = color
 
     @property
-    def name(self):
-        # type: () -> str
-        if self._live_clip:
-            return self._live_clip.name
-        else:
-            return ""
-
-    @name.setter
-    def name(self, name):
-        # type: (str) -> None
-        if self._live_clip and name:
-            self._live_clip.name = str(name).strip()  # noqa
-
-    @property
     def color(self):
         # type: () -> int
         return self._live_clip.color_index if self._live_clip else 0

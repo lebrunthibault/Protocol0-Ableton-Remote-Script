@@ -6,6 +6,7 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional
 
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils.string import smart_string
 from protocol0.domain.shared.utils.utils import get_length_legend
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
@@ -26,6 +27,20 @@ class ClipName(SlotManager):
         self.register_slot(self._live_clip, partial(self._name_listener, force=True), "end_marker")
         self._name_listener.subject = self._live_clip
         self._base_name = None  # type: Optional[str]
+
+    @property
+    def name(self):
+        # type: () -> str
+        if self._live_clip:
+            return smart_string(self._live_clip.name)
+        else:
+            return ""
+
+    @name.setter
+    def name(self, name):
+        # type: (str) -> None
+        if self._live_clip and name:
+            self._live_clip.name = str(name).strip()  # noqa
 
     @property
     def base_name(self):

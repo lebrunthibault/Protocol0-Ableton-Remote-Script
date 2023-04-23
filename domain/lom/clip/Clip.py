@@ -56,7 +56,7 @@ class Clip(SlotManager, Observable):
         if isinstance(observable, ClipLoop):
             self.notify_observers()
 
-    name = cast(str, ForwardTo("appearance", "name"))
+    name = cast(str, ForwardTo("clip_name", "name"))
     color = cast(int, ForwardTo("appearance", "color"))
     length = cast(float, ForwardTo("loop", "length"))
     bar_length = cast(float, ForwardTo("loop", "bar_length"))

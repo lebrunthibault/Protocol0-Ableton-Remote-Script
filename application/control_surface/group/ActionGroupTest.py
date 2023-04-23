@@ -55,11 +55,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        device = Song.selected_device()
-        params = device.parameters
         from protocol0.shared.logging.Logger import Logger
-        Logger.dev(params)
-
-        for param in params:
-            from protocol0.shared.logging.Logger import Logger
-            Logger.dev(param.name)
+        Logger.dev(Song.selected_clip())
