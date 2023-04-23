@@ -33,8 +33,6 @@ class FireSceneToPositionCommandHandler(CommandHandlerInterface):
 
         if bar_length == -1:
             self._container.get(ScenePlaybackService).fire_previous_scene_to_last_bar()
-        elif bar_length == 0:
-            return
         else:
             # Launching the last bar almost always means we don't want to loop
             if (
