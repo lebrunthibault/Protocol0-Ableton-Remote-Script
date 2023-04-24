@@ -1,8 +1,8 @@
 import inspect
+import sys
 import types
 from functools import partial
 
-from qualname import qualname
 from typing import Any, Callable, Optional, Type
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -47,8 +47,17 @@ def get_class_name_from_method(func):
     if class_name and all(word not in class_name for word in ["function", "None"]):
         return class_name
 
+
+
     try:
-        return ".".join(qualname(func).split(".")[:-1])
+        if sys.version_info.major == 2:
+            from qualname import qualname
+
+            func_qualname = qualname(func)
+        else:
+            func_qualname = func.__qualname__
+            
+        return ".".join(func_qualname.split(".")[:-1])
     except (AttributeError, IOError):
         return "unknown %s" % func
 
