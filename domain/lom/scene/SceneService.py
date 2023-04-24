@@ -43,7 +43,7 @@ class SceneService(SlotManager):
     @property
     def scenes(self):
         # type: () -> List[Scene]
-        return self._live_scene_id_to_scene.values()
+        return list(self._live_scene_id_to_scene.values())
 
     @property
     def last_scene(self):
