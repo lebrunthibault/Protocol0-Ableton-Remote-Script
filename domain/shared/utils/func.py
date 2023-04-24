@@ -56,7 +56,7 @@ def get_class_name_from_method(func):
             func_qualname = qualname(func)
         else:
             func_qualname = func.__qualname__
-            
+
         return ".".join(func_qualname.split(".")[:-1])
     except (AttributeError, IOError):
         return "unknown %s" % func
