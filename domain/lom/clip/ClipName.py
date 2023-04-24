@@ -86,8 +86,11 @@ class ClipName(SlotManager):
 
     def _get_length_legend(self):
         # type: () -> str
-        if hasattr(self._live_clip, "warping") and not self._live_clip.warping:
-            return ""
+        try:
+            if hasattr(self._live_clip, "warping") and not self._live_clip.warping:
+                return ""
+        except RuntimeError:
+            pass
 
         return get_length_legend(
             self._live_clip.loop_end - self._live_clip.loop_start,
