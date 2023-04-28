@@ -24,6 +24,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SceneService(SlotManager):
+    # noinspection PyInitNewSignature
     def __init__(self, live_song, scene_crud_component):
         # type: (Live.Song.Song, SceneCrudComponent) -> None
         super(SceneService, self).__init__()
@@ -111,7 +112,7 @@ class SceneService(SlotManager):
         """cleaning all scenes always"""
         existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
 
-        for scene_id, scene in self._live_scene_id_to_scene.items():
+        for scene_id, scene in self._live_scene_id_to_scene.copy().items():
             # refresh the mapping
             if scene_id not in existing_scene_ids:
                 # checking on name and not bar_length
