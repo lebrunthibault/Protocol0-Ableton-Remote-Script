@@ -33,7 +33,7 @@ class CommandBusHistory(object):
         """Delay in ms"""
         time_limit = time.time() - delay
 
-        for entry in reversed(filter(None, self._history)):
+        for entry in reversed(list(filter(None, self._history))):
             if entry.executed_at < time_limit:
                 return None
             if isinstance(entry.command, command_class):

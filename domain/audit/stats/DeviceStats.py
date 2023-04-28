@@ -52,7 +52,7 @@ class DevicesStats(object):
 
             device_stats_dict[device.type_name].increment()
 
-        devices_stats = device_stats_dict.values()
+        devices_stats = list(device_stats_dict.values())
         devices_stats.sort(key=lambda x: x.total_load_time, reverse=True)
 
         self.count = len(devices)

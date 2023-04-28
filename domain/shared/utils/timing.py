@@ -131,7 +131,7 @@ def accelerate(func):
         last_calls.append(time.time())
 
         duration_second = float(ACCELERATION_ACTIVATION_DURATION) / 1000
-        last_calls = filter(lambda t: t >= time.time() - duration_second, last_calls)
+        last_calls = list(filter(lambda t: t >= time.time() - duration_second, last_calls))
         decorate.last_calls[object_source] = last_calls  # type: ignore[attr-defined]
 
         acceleration = len(last_calls) - FINE_TUNING_RANGE + 1

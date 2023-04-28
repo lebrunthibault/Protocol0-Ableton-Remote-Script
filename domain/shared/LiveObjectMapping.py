@@ -48,7 +48,7 @@ class LiveObjectMapping(object):
         )
 
         self._live_id_to_object = live_id_to_object
-        self._objects = self._live_id_to_object.values()
+        self._objects = list(self._live_id_to_object.values())
 
     def _create_object(self, live_object):
         # type: (LiveObject) -> T
