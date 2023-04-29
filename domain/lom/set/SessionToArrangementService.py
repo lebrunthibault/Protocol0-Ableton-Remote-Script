@@ -98,7 +98,7 @@ class SessionToArrangementService(object):
 
         for track in Song.external_synth_tracks():
             ext_device = find_if(
-                lambda d: d.enum.is_external_device, list(track.midi_track.devices)
+                lambda d: d.enum is not None and d.enum.is_external_device, list(track.midi_track.devices)
             )
             if ext_device.is_enabled:
                 Backend.client().show_warning(
