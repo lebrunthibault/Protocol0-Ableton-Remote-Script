@@ -12,8 +12,12 @@ class TrackService(object):
 
     def _on_selected_track_changed_event(self, _):
         # type: (SelectedTrackChangedEvent) -> None
-        if Song.selected_track().is_foldable:
-            ApplicationView.show_device()
+        pass
+        # if Song.selected_track().is_foldable:
+        #     try:
+        #         ApplicationView.show_device()
+        #     except RuntimeError:  # can happen on startup
+        #         pass
 
     def go_to_group_track(self):
         # type: () -> None

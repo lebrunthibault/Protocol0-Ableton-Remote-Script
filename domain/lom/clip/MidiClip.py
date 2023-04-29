@@ -42,10 +42,14 @@ class MidiClip(Clip):
         # type: () -> List[Note]
         if not self._clip:
             return []
-        # noinspection PyArgumentList
+
+        # noinspection PyArgumentList,PyUnresolvedReferences
         clip_notes = [
-            Note(*note) for note in self._clip.get_notes(self.loop.start, 0, self.length, 128)
+            # Note(*note) for note in self._clip.get_notes(self.loop.start, 0, self.length, 128)
+            Note.from_midi_note(note)
+            for note in self._clip.get_notes_extended(0, 128, self.loop.start, self.length)
         ]
+
         notes = list(self._get_notes_from_cache(notes=clip_notes))
         notes.sort(key=lambda x: x.start)
         return notes
@@ -141,9 +145,7 @@ class MidiClip(Clip):
         for automated_parameter in automated_parameters:
             if automated_parameter.name.startswith("A-"):
                 b_parameter_name = automated_parameter.name.replace("A-", "B-")
-                b_parameter = find_if(
-                    lambda p: p.name == b_parameter_name, device_parameters
-                )
+                b_parameter = find_if(lambda p: p.name == b_parameter_name, device_parameters)
                 assert b_parameter, "Cannot find %s" % b_parameter_name
                 if b_parameter not in automated_parameters:
                     self.automation.create_envelope(b_parameter)

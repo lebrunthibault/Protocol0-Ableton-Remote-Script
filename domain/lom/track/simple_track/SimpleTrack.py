@@ -50,6 +50,7 @@ class SimpleTrack(AbstractTrack):
     IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
 
+    # noinspection PyInitNewSignature
     def __init__(self, live_track, index):
         # type: (Live.Track.Track, int) -> None
         self._track = live_track  # type: Live.Track.Track
