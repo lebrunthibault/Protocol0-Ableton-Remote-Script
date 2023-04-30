@@ -111,7 +111,7 @@ class AbletonSet(object):
         # type: (Dict) -> None
         if self._title is not None:
             Logger.warning("Tried overwriting set title of %s" % self)
-            return
+            # return
 
         self._title = res["title"]
         self._path = res["path"]
