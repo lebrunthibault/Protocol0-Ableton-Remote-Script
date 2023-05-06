@@ -23,13 +23,15 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import Simple
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
-from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import \
-    SimpleTrackFlattenedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackFlattenedEvent import (
+    SimpleTrackFlattenedEvent,
+)
 from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import (
     SimpleTrackMonitoringState,
 )
-from protocol0.domain.lom.track.simple_track.SimpleTrackSaveStartedEvent import \
-    SimpleTrackSaveStartedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackSaveStartedEvent import (
+    SimpleTrackSaveStartedEvent,
+)
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -72,16 +74,16 @@ class SimpleTrack(AbstractTrack):
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._view = live_track.view
 
+        self.devices = SimpleTrackDevices(live_track)
+        self.devices.register_observer(self)
 
         self._clip_config = ClipConfig(self.color)
-        self._clip_slots = SimpleTrackClipSlots(live_track, self.CLIP_SLOT_CLASS, self._clip_config)
+        self._clip_slots = SimpleTrackClipSlots(
+            live_track, self.CLIP_SLOT_CLASS, self._clip_config, self.devices
+        )
         self._clip_slots.build()
         self._clip_slots.register_observer(self)
         self.clip_tail = ClipTail(self._clip_slots)
-
-        self.devices = SimpleTrackDevices(live_track)
-        self.devices.register_observer(self)
-        self.devices.build()
 
         self.monitoring_state = SimpleTrackMonitoringState(self)
 
@@ -92,6 +94,8 @@ class SimpleTrack(AbstractTrack):
         self.arm_state.register_observer(self)
 
         self._output_meter_level_listener.subject = None
+
+        self.devices.build()
 
     device_insert_mode = cast(int, ForwardTo("_view", "device_insert_mode"))
 

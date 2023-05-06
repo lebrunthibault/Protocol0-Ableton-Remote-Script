@@ -21,11 +21,11 @@ class MatchingTrackClipColorManager(object):
         colors_on = any(c.color != self._clip_track.color for c in self._clip_track.clips)
 
         if colors_on:
-            self._revert_colouring()
+            self._revert_coloring()
         else:
-            self._set_colours()
+            self._set_colors()
 
-    def _revert_colouring(self):
+    def _revert_coloring(self):
         # type: () -> None
         self._router.monitor_base_track()
         clips = self._clip_track.clips + self._audio_track.clips
@@ -35,7 +35,7 @@ class MatchingTrackClipColorManager(object):
         for clip in clips:
             clip.color = self._clip_track.color
 
-    def _set_colours(self):
+    def _set_colors(self):
         # type: () -> None
         self._router.monitor_audio_track()  # show clip colors
 
@@ -45,7 +45,7 @@ class MatchingTrackClipColorManager(object):
         )
 
         for clip_info in clip_infos:
-            clips = clip_info.get_clips(self._clip_track.clip_slots)
+            clips = clip_info.get_clips(self._clip_track._clip_slots.clips)
             for clip in clips:
                 clip.color = color_index
 

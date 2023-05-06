@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, List, Dict, Optional
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
-from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
@@ -56,11 +55,11 @@ class ClipInfo(object):
 
         return clip_infos
 
-    def get_clips(self, clip_slots):
-        # type: (List[ClipSlot]) -> List[Clip]
+    def get_clips(self, clips):
+        # type: (List[Clip]) -> List[Clip]
         clip_indexes = [self.index] + self._duplicate_indexes
 
-        return [clip_slots[index].clip for index in clip_indexes]
+        return [clip for clip in clips if clip.index in clip_indexes]
 
     def already_bounced_to(self, track):
         # type: (SimpleAudioTrack) -> bool

@@ -7,6 +7,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotHasClipEvent import ClipSlotHasClipEvent
+from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.SimpleTrackClips import SimpleTrackClips
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -18,15 +19,16 @@ from protocol0.shared.observer.Observable import Observable
 
 
 class SimpleTrackClipSlots(SlotManager, Observable):
-    def __init__(self, live_track, clip_slot_class, clip_config):
-        # type: (Live.Track.Track, Type[ClipSlot], ClipConfig) -> None
+    # noinspection PyInitNewSignature
+    def __init__(self, live_track, clip_slot_class, clip_config, track_devices):
+        # type: (Live.Track.Track, Type[ClipSlot], ClipConfig, SimpleTrackDevices) -> None
         super(SimpleTrackClipSlots, self).__init__()
         self._live_track = live_track
         self._clip_slot_class = clip_slot_class
 
         self._clip_slots = []  # type: List[ClipSlot]
 
-        self._clips = SimpleTrackClips(self, live_track.color_index)
+        self._clips = SimpleTrackClips(self, track_devices, live_track.color_index)
         self._has_clip_listener.replace_subjects(live_track.clip_slots)
 
         self._instrument = None  # type: Optional[InstrumentInterface]
@@ -102,7 +104,7 @@ class SimpleTrackClipSlots(SlotManager, Observable):
         if clip_slot.clip:
             clip_slot.clip.color_index = self._live_track.color_index
 
-    def toggle_colours(self):
+    def toggle_colors(self):
         # type: () -> None
         self._clips.clip_color_manager.toggle_colors()
 

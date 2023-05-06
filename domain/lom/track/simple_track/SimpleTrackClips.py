@@ -1,6 +1,7 @@
 from typing import List, TYPE_CHECKING, Iterator
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipColorManager import \
     SimpleTrackClipColorManager
 
@@ -9,10 +10,10 @@ if TYPE_CHECKING:
 
 
 class SimpleTrackClips(object):
-    def __init__(self, clip_slots, track_color):
-        # type: (SimpleTrackClipSlots, int) -> None
+    def __init__(self, clip_slots, track_devices, track_color):
+        # type: (SimpleTrackClipSlots, SimpleTrackDevices, int) -> None
         self._clip_slots = clip_slots
-        self.clip_color_manager = SimpleTrackClipColorManager(self, track_color)
+        self.clip_color_manager = SimpleTrackClipColorManager(self, track_devices, track_color)
 
     def __iter__(self):
         # type: () -> Iterator[Clip]

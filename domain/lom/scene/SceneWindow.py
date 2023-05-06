@@ -25,7 +25,7 @@ class SceneWindow(object):
     def apply_to_scene(self, clips):
         # type: (SceneClips) -> None
         # reversing because we use the midi clip length for audio and audio tail
-        for track, clip in reversed(zip(clips.tracks, clips.all)):
+        for track, clip in reversed(list(zip(clips.tracks, clips.all))):
             clip_length = clip.length
             if isinstance(track, SimpleAudioExtTrack):
                 clip_length = track.abstract_group_track.midi_track.clip_slots[

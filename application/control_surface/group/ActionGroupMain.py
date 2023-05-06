@@ -8,6 +8,8 @@ from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
+from protocol0.domain.lom.track.group_track.matching_track.MatchingTrackService import \
+    MatchingTrackService
 from protocol0.domain.track_recorder.RecordService import RecordService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.shared.Song import Song
@@ -95,9 +97,9 @@ class ActionGroupMain(ActionGroupInterface):
             on_long_press=lambda: partial(record_track, RecordTypeEnum.MIDI_UNLIMITED),
         )
 
-        # SELected parameter encoder
+        # MATCh clip colors
         self.add_encoder(
             identifier=13,
-            name="selected parameter",
-            on_scroll=self._container.get(DeviceService).scroll_selected_parameter,
+            name="match clip colors between base track and matching track",
+            on_press=self._container.get(MatchingTrackService).match_clip_colors,
         )
