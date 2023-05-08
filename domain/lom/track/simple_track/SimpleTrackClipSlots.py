@@ -101,8 +101,12 @@ class SimpleTrackClipSlots(SlotManager, Observable):
     def _has_clip_listener(self, clip_slot):
         # type: (Live.ClipSlot.ClipSlot) -> None
         DomainEventBus.emit(ClipSlotHasClipEvent(self._live_track))
-        if clip_slot.clip:
-            clip_slot.clip.color_index = self._live_track.color_index
+        # noinspection PyBroadException
+        try:
+            if clip_slot.clip:
+                clip_slot.clip.color_index = self._live_track.color_index
+        except Exception:
+            pass
 
     def toggle_colors(self):
         # type: () -> None

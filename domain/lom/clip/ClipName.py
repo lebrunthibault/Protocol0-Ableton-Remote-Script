@@ -72,7 +72,12 @@ class ClipName(SlotManager):
 
     def _get_base_name(self):
         # type: () -> str
-        clip_name = self._live_clip.name or ""
+        # noinspection PyBroadException
+        try:
+            clip_name = self._live_clip.name or ""
+        except Exception:
+            return ""
+
         if re.match("^\\d+\\s?(bar|beat|b)?s?\\s*$", clip_name):
             return ""
         match = re.match("^(?P<base_name>[^(]*)", clip_name)
