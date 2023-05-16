@@ -17,7 +17,7 @@ from protocol0.domain.shared.utils.forward_to import ForwardTo
 
 
 class ExternalSynthTrack(AbstractGroupTrack):
-    def __init__(self, base_group_track):
+    def __init__(self, base_group_track):  # noqa
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track)
 

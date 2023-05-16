@@ -39,6 +39,8 @@ class ExtArmState(AbstractTrackArmState):
         self._base_track.is_folded = False
         self._base_track.muted = False
 
+        self._midi_track.external_device.is_enabled = True
+
         if self._midi_track.input_routing.type == InputRoutingTypeEnum.NO_INPUT:
             self._midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
 

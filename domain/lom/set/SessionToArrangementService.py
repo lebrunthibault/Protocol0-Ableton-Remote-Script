@@ -1,7 +1,6 @@
 from functools import partial
 
 import Live
-
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ResetPlaybackCommand import ResetPlaybackCommand
 from protocol0.domain.audit.SetFixerService import SetFixerService
@@ -18,7 +17,6 @@ from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -97,14 +95,7 @@ class SessionToArrangementService(object):
         self._recorded_bar_length = 0
 
         for track in Song.external_synth_tracks():
-            ext_device = find_if(
-                lambda d: d.enum is not None and d.enum.is_external_device, list(track.midi_track.devices)
-            )
-            if ext_device.is_enabled:
-                Backend.client().show_warning(
-                    "Disabling external device of %s (for audio export)" % track
-                )
-                ext_device.is_enabled = False
+            track.midi_track.external_device.is_enabled = False
 
     def _pre_fire_first_scene(self):
         # type: () -> Sequence
@@ -148,7 +139,7 @@ class SessionToArrangementService(object):
 
     def _validate_recording_duration(self):
         # type: () -> None
-        expected_bar_length = SceneStats().bar_length + 1  # empty 1st bar
+        expected_bar_length = SceneStats().bar_length
 
         if expected_bar_length != self._recorded_bar_length:
             Backend.client().show_error(
