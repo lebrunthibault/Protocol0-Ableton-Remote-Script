@@ -1,8 +1,7 @@
 import os
-from collections import Iterator
 
 import pytest
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 from protocol0.shared.Config import Config
 

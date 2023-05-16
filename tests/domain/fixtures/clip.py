@@ -32,7 +32,7 @@ class AbletonClip(Subject):
         self.is_playing = False
 
     # noinspection PyUnusedLocal
-    def get_notes(self, *a, **k):
+    def get_notes_extended(self, *a, **k):
         return ()
 
     def select_all_notes(self):

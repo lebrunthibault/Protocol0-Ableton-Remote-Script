@@ -63,5 +63,5 @@ def test_sequence_parallel_wait_for_event_match():
     for i in input_data:
         DomainEventBus.emit(TestEvent(i))
 
-    assert test_res == input_data
+    assert test_res == list(input_data)
     seq._cancel()

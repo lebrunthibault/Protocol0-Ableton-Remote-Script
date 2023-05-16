@@ -1,23 +1,20 @@
 from functools import partial
 
-import Live
 from typing import Optional
 
+import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DeviceLoadedEvent import DeviceLoadedEvent
-from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.ext_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.group_track.ext_track.SimpleMidiExtTrack import SimpleMidiExtTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -100,21 +97,3 @@ class DeviceService(object):
         parameter = device.get_parameter_by_name(device.enum.default_parameter)
         assert parameter is not None, "parameter not found"
         clip.automation.show_parameter_envelope(parameter)
-
-    def scroll_selected_parameter(self, go_next):
-        # type: (bool) -> None
-        param = Song.selected_parameter()
-        if param is None:
-            raise Protocol0Warning("There is no selected parameter")
-
-        param.scroll(go_next)
-
-        # saturator make up gain
-        if param.name == DeviceParameterEnum.SATURATOR_DRIVE.parameter_name:
-            device = find_if(
-                lambda d: param in d.parameters,
-                Song.selected_track().devices.get_from_enum(DeviceEnum.SATURATOR),
-            )
-            saturator_output = device.get_parameter_by_name(DeviceParameterEnum.SATURATOR_OUTPUT)
-
-            saturator_output.value = -param.value

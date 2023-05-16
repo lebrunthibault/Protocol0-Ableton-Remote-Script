@@ -209,7 +209,7 @@ class DeviceEnum(AbstractEnum):
                 cls.UTILITY,
             ],
             [
-                DeviceEnumGroup("Comp", [cls.SSL_COMP, cls.COMPRESSOR, cls.H_COMP, cls.C1_COMP, cls.VCOMP]),
+                DeviceEnumGroup("Comp", [cls.COMPRESSOR, cls.SSL_COMP, cls.H_COMP, cls.C1_COMP, cls.VCOMP]),
                 DeviceEnumGroup("Limiter", [cls.LIMITER, cls.L1_LIMITER, cls.L1_ULTRAMAXIMIZER]),
                 cls.TRACK_SPACER,
             ],
