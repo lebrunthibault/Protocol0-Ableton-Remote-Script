@@ -216,7 +216,7 @@ class DeviceEnum(AbstractEnum):
             [
                 DeviceEnumGroup("Vol Mod", [cls.LFO_TOOL, cls.GATEKEEPER]),
                 DeviceEnumGroup("Sat", [cls.SATURN_2, cls.SATURATOR, cls.DECAPITATOR]),
-                DeviceEnumGroup("Verb", [cls.VALHALLA_VINTAGE_VERB, cls.TRUE_VERB, cls.INSERT_REVERB]),
+                DeviceEnumGroup("Reverb", [cls.VALHALLA_VINTAGE_VERB, cls.TRUE_VERB, cls.INSERT_REVERB]),
                 DeviceEnumGroup("Delay", [cls.SUPER_TAP_6, cls.SUPER_TAP_2, cls.DELAY, cls.INSERT_DELAY]),
             ],
             [
