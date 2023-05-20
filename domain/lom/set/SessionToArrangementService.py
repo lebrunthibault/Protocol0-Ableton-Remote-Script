@@ -18,7 +18,6 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.shared.Song import Song
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -147,4 +146,4 @@ class SessionToArrangementService(object):
                 % (expected_bar_length, self._recorded_bar_length)
             )
         else:
-            Logger.info("Recording valid")
+            Backend.client().show_success("Recording valid (%s bars)" % expected_bar_length)

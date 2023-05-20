@@ -41,6 +41,7 @@ class DeviceEnum(AbstractEnum):
     INSERT_DELAY = "Insert Delay"
     INSERT_DRY_WET = "Insert Dry Wet"
     INSERT_REVERB = "Insert Reverb"
+    INSERT_VOLUME = "Insert Volume"
     INSTRUMENT_RACK = "Instrument Rack"
     JJP_STRINGS = "JJP-Strings-Keys Stereo"
     LFO_TOOL = "LFOTool_x64"
@@ -99,6 +100,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.INSERT_DELAY,
             DeviceEnum.INSERT_DRY_WET,
             DeviceEnum.INSERT_REVERB,
+            DeviceEnum.INSERT_VOLUME,
         ]
 
     @property
@@ -214,10 +216,10 @@ class DeviceEnum(AbstractEnum):
                 cls.TRACK_SPACER,
             ],
             [
-                DeviceEnumGroup("Vol Mod", [cls.LFO_TOOL, cls.GATEKEEPER]),
+                DeviceEnumGroup("Vol Mod", [cls.LFO_TOOL, cls.GATEKEEPER, cls.INSERT_VOLUME]),
                 DeviceEnumGroup("Sat", [cls.SATURN_2, cls.SATURATOR, cls.DECAPITATOR]),
-                DeviceEnumGroup("Reverb", [cls.VALHALLA_VINTAGE_VERB, cls.TRUE_VERB, cls.INSERT_REVERB]),
-                DeviceEnumGroup("Delay", [cls.SUPER_TAP_6, cls.SUPER_TAP_2, cls.DELAY, cls.INSERT_DELAY]),
+                DeviceEnumGroup("Reverb", [cls.INSERT_REVERB, cls.VALHALLA_VINTAGE_VERB, cls.TRUE_VERB]),
+                DeviceEnumGroup("Delay", [cls.INSERT_DELAY, cls.SUPER_TAP_6, cls.SUPER_TAP_2, cls.DELAY]),
             ],
             [
                 cls.DRUM_RACK,
@@ -226,11 +228,6 @@ class DeviceEnum(AbstractEnum):
                 cls.OPUS,
             ],
         ]
-
-    @classmethod
-    def insert_favorites(cls):
-        # type: () -> List[DeviceEnum]
-        return [cls.INSERT_DELAY, cls.INSERT_REVERB, cls.INSERT_DRY_WET]
 
     @property
     def load_time(self):
