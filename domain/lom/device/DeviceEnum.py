@@ -40,6 +40,7 @@ class DeviceEnum(AbstractEnum):
     KONTAKT = "Kontakt 7"
     INSERT_DELAY = "Insert Delay"
     INSERT_DRY_WET = "Insert Dry Wet"
+    INSERT_FILTER = "Insert Filter"
     INSERT_REVERB = "Insert Reverb"
     INSERT_VOLUME = "Insert Volume"
     INSTRUMENT_RACK = "Instrument Rack"
@@ -205,8 +206,7 @@ class DeviceEnum(AbstractEnum):
         # type: () -> List[List[Union[DeviceEnum, DeviceEnumGroup]]]
         return [
             [
-                cls.AUTO_FILTER_HIGH_PASS,
-                cls.AUTO_FILTER_LOW_PASS,
+                DeviceEnumGroup("Filter", [cls.INSERT_FILTER, cls.AUTO_FILTER_HIGH_PASS, cls.AUTO_FILTER_LOW_PASS]),
                 DeviceEnumGroup("EQ", [cls.PRO_Q_3, cls.EQ_EIGHT, cls.VEQ]),
                 cls.UTILITY,
             ],
@@ -216,14 +216,13 @@ class DeviceEnum(AbstractEnum):
                 cls.TRACK_SPACER,
             ],
             [
-                DeviceEnumGroup("Vol Mod", [cls.LFO_TOOL, cls.GATEKEEPER, cls.INSERT_VOLUME]),
+                DeviceEnumGroup("Volume", [cls.LFO_TOOL, cls.GATEKEEPER, cls.INSERT_VOLUME]),
                 DeviceEnumGroup("Sat", [cls.SATURN_2, cls.SATURATOR, cls.DECAPITATOR]),
                 DeviceEnumGroup("Reverb", [cls.INSERT_REVERB, cls.VALHALLA_VINTAGE_VERB, cls.TRUE_VERB]),
                 DeviceEnumGroup("Delay", [cls.INSERT_DELAY, cls.SUPER_TAP_6, cls.SUPER_TAP_2, cls.DELAY]),
             ],
             [
                 cls.DRUM_RACK,
-                cls.SPLICE,
                 cls.KONTAKT,
                 cls.OPUS,
             ],
