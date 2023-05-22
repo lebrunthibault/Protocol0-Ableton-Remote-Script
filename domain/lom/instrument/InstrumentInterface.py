@@ -24,6 +24,7 @@ from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializer
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import (
     PresetInitializerInterface,
 )
+from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.Song import Song
 from protocol0.shared.sequence.Sequence import Sequence
@@ -63,7 +64,8 @@ def load_instrument_track(instrument_cls):
     seq.wait_for_backend_event("instrument_loaded")
     seq.add(partial(setattr, insert_track, "color", track_color))
     seq.defer()
-    # seq.add(lambda: Song.selected_track().click())
+    seq.wait_for_event(TracksMappedEvent)
+    seq.add(partial(Backend.client().close_explorer_window, "default"))
     return seq.done()
 
 
@@ -82,6 +84,7 @@ class InstrumentInterface(SlotManager):
     INSTRUMENT_TRACK_NAME = ""
     IS_EXTERNAL_SYNTH = False
 
+    # noinspection PyInitNewSignature
     def __init__(self, device, track_name):
         # type: (Optional[Device], str) -> None
         super(InstrumentInterface, self).__init__()

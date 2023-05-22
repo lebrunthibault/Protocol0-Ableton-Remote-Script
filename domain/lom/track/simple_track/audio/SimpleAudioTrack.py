@@ -68,7 +68,7 @@ class SimpleAudioTrack(SimpleTrack):
         seq.add(partial(setattr, self, "color", track_color))
         seq.wait_for_backend_event("matching_track_loaded")
         seq.wait_for_event(TracksMappedEvent)
-        seq.add(Backend.client().close_tracks_window)
+        seq.add(partial(Backend.client().close_explorer_window, "tracks"))
         seq.add(partial(Backend.client().show_success, "Track loaded"))
         return seq.done()
 

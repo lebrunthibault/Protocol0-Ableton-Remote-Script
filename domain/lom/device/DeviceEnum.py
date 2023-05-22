@@ -100,6 +100,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.SAMPLE_PITCH_RACK,
             DeviceEnum.INSERT_DELAY,
             DeviceEnum.INSERT_DRY_WET,
+            DeviceEnum.INSERT_FILTER,
             DeviceEnum.INSERT_REVERB,
             DeviceEnum.INSERT_VOLUME,
         ]
@@ -112,11 +113,7 @@ class DeviceEnum(AbstractEnum):
     @property
     def can_be_saved(self):
         # type: () -> bool
-        return self not in [
-            DeviceEnum.REV2_EDITOR,
-            DeviceEnum.PLAY,
-            DeviceEnum.OPUS
-        ]
+        return self not in [DeviceEnum.REV2_EDITOR, DeviceEnum.PLAY, DeviceEnum.OPUS]
 
     @property
     def browser_name(self):
@@ -206,20 +203,29 @@ class DeviceEnum(AbstractEnum):
         # type: () -> List[List[Union[DeviceEnum, DeviceEnumGroup]]]
         return [
             [
-                DeviceEnumGroup("Filter", [cls.INSERT_FILTER, cls.AUTO_FILTER_HIGH_PASS, cls.AUTO_FILTER_LOW_PASS]),
+                DeviceEnumGroup(
+                    "Filter",
+                    [cls.INSERT_FILTER, cls.AUTO_FILTER_HIGH_PASS, cls.AUTO_FILTER_LOW_PASS],
+                ),
                 DeviceEnumGroup("EQ", [cls.PRO_Q_3, cls.EQ_EIGHT, cls.VEQ]),
                 cls.UTILITY,
             ],
             [
-                DeviceEnumGroup("Comp", [cls.COMPRESSOR, cls.SSL_COMP, cls.H_COMP, cls.C1_COMP, cls.VCOMP]),
-                DeviceEnumGroup("Limiter", [cls.LIMITER, cls.L1_LIMITER, cls.L1_ULTRAMAXIMIZER]),
+                DeviceEnumGroup(
+                    "Comp", [cls.COMPRESSOR, cls.SSL_COMP, cls.H_COMP, cls.C1_COMP, cls.VCOMP]
+                ),
+                DeviceEnumGroup("Sat", [cls.SATURN_2, cls.SATURATOR, cls.DECAPITATOR]),
+                # DeviceEnumGroup("Limiter", [cls.LIMITER, cls.L1_LIMITER, cls.L1_ULTRAMAXIMIZER]),
                 cls.TRACK_SPACER,
             ],
             [
                 DeviceEnumGroup("Volume", [cls.LFO_TOOL, cls.GATEKEEPER, cls.INSERT_VOLUME]),
-                DeviceEnumGroup("Sat", [cls.SATURN_2, cls.SATURATOR, cls.DECAPITATOR]),
-                DeviceEnumGroup("Reverb", [cls.INSERT_REVERB, cls.VALHALLA_VINTAGE_VERB, cls.TRUE_VERB]),
-                DeviceEnumGroup("Delay", [cls.INSERT_DELAY, cls.SUPER_TAP_6, cls.SUPER_TAP_2, cls.DELAY]),
+                DeviceEnumGroup(
+                    "Delay", [cls.INSERT_DELAY, cls.SUPER_TAP_6, cls.SUPER_TAP_2, cls.DELAY]
+                ),
+                DeviceEnumGroup(
+                    "Reverb", [cls.INSERT_REVERB, cls.VALHALLA_VINTAGE_VERB, cls.TRUE_VERB]
+                ),
             ],
             [
                 cls.DRUM_RACK,

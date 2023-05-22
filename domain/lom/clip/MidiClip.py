@@ -133,6 +133,22 @@ class MidiClip(Clip):
 
         return None
 
+    def to_mono(self):
+        # type: () -> None
+        """If notes overlap : make end of each note match the start of the next one"""
+        notes = self.get_notes()
+
+        if len(notes) < 2:
+            return None
+
+        current_note = notes[0]
+
+        for next_note in notes[1:]:
+            current_note.end = max(current_note.end, next_note.start)
+            current_note = next_note
+
+            self.set_notes(notes)
+
     def get_linked_parameters(self, device_parameters):
         # type: (List[DeviceParameter]) -> List[LinkedDeviceParameters]
         """
