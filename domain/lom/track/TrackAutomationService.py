@@ -127,16 +127,27 @@ class TrackAutomationService(object):
         track = Song.selected_track()
         colors_on = any(c.color != track.color for c in track.clips)
 
+        device_parameters = []
+
         if colors_on:
             for clip in track.clips:
                 clip.color = track.color
+            return
+
+        for clip in track.clips:
+            if clip.automation.has_automation(track.devices.parameters):
+                for device in track.devices.all:
+                    parameters = list(clip.automation.get_automated_parameters(device.parameters))
+                    if len(parameters):
+                        device_parameters.append((device, parameters[0]))
+
+                clip.color = ClipColorEnum.BLINK.value
+
+        if not len(device_parameters):
+            Backend.client().show_warning("No automation")
         else:
-            has_automation = False
+            parameters_name = ["%s: %s" % (d.name, p.name) for d, p in set(device_parameters)]
 
-            for clip in track.clips:
-                if clip.automation.has_automation(track.devices.parameters):
-                    has_automation = True
-                    clip.color = ClipColorEnum.BLINK.value
+            Backend.client().show_info(
+                "Automated parameters: \n\n  - {}".format("\n  - ".join(parameters_name)))
 
-            if not has_automation:
-                Backend.client().show_warning("No automation")

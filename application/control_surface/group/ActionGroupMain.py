@@ -51,8 +51,8 @@ class ActionGroupMain(ActionGroupInterface):
         self.add_encoder(
             identifier=3,
             name="automation",
-            on_press=lambda: self._container.get(TrackAutomationService).select_or_sync_automation,
-            on_long_press=self._container.get(TrackAutomationService).color_clip_with_automation,
+            on_press=self._container.get(TrackAutomationService).color_clip_with_automation,
+            on_long_press=lambda: self._container.get(TrackAutomationService).select_or_sync_automation,
         )
 
         # VOLume encoder

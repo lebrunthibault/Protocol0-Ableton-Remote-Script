@@ -36,12 +36,9 @@ def load_instrument_track(instrument_cls):
     track_color = insert_track.color
 
 
-    from protocol0.shared.logging.Logger import Logger
-    Logger.dev("load_instrument_track")
     seq = Sequence()
     seq.add(insert_track.focus)
     seq.add(partial(Backend.client().load_instrument_track, instrument_cls.INSTRUMENT_TRACK_NAME))
-    seq.log("focused")
     seq.wait_for_backend_event("instrument_loaded")
     seq.add(partial(setattr, insert_track, "color", track_color))
     seq.defer()

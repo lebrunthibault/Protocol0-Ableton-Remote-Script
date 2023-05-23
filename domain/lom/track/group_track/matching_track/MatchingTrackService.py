@@ -156,7 +156,4 @@ class MatchingTrackService(object):
         if matching_track is not None:
             matching_track.clip_color_manager.toggle_clip_colors()
         else:
-            from protocol0.shared.logging.Logger import Logger
-            Logger.dev(Song.selected_track())
-            Logger.dev(dir(Song.selected_track()))
             Song.selected_track()._clip_slots.toggle_colors()
