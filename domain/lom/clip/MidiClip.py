@@ -14,6 +14,7 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Song import Song
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -173,6 +174,9 @@ class MidiClip(Clip):
     def synchronize_automation_layers(self, device_parameters):
         # type: (List[DeviceParameter]) -> Sequence
         parameters_couple = self.get_linked_parameters(device_parameters)
+
+        Logger.info("parameters_couple: %s" % parameters_couple)
+
         if len(parameters_couple) == 0:
             raise Protocol0Warning("This clip has no linked automated parameters")
 
