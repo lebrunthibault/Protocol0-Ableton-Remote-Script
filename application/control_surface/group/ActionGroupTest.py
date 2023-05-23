@@ -5,6 +5,7 @@ from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnaly
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.track.simple_track.audio.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Song import Song
 from protocol0.shared.logging.Logger import Logger
 
@@ -55,4 +56,6 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Song.selected_track().flatten()
+        Song.selected_clip().show_notes()
+
+        Scheduler.wait_ms(1000, Song.selected_clip().automation.show_envelope)

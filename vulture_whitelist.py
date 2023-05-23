@@ -81,3 +81,4 @@ _.show_automation  # unused method (domain\lom\track\TrackAutomationService.py:2
 locate  # unused function (domain\shared\utils\utils.py:25)
 ClipStats  # unused class (domain\audit\stats\ClipStats.py:11)
 _.device_stats  # unused attribute (domain\audit\stats\DeviceStats.py:60)
+_.toggle_notes  # unused method (domain\lom\clip\Clip.py:206)

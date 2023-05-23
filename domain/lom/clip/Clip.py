@@ -40,6 +40,7 @@ class Clip(SlotManager, Observable):
         )  # type: ClipPlayingPosition
 
         self.loop.register_observer(self)
+        self._notes_shown = True
 
         self.previous_hash = 0
 
@@ -201,6 +202,15 @@ class Clip(SlotManager, Observable):
         # type: () -> None
         self.automation.show_envelope()
         self.automation.hide_envelope()
+
+    def toggle_notes(self):
+        # type: () -> None
+        if self._notes_shown:
+            self.automation.show_envelope()
+        else:
+            self.automation.hide_envelope()
+
+        self._notes_shown = not self._notes_shown
 
     def on_added(self):
         # type: () -> Optional[Sequence]

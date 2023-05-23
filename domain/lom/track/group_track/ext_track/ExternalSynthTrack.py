@@ -41,12 +41,12 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # use the ext tracks instead of simple tracks
         self.base_track.sub_tracks = self.sub_tracks
 
+        self._solo_state = ExtSoloState(self.base_track)
+
         self.monitoring_state = ExtMonitoringState(self.base_track)
 
         self.arm_state = ExtArmState(self.base_track, self.midi_track)
         self.arm_state.register_observer(self.monitoring_state)
-
-        self._solo_state = ExtSoloState(self.base_track)
 
     is_armed = cast(bool, ForwardTo("arm_state", "is_armed"))
     solo = cast(bool, ForwardTo("_solo_state", "solo"))

@@ -109,8 +109,6 @@ class AbletonSet(object):
 
     def _set_from_server_response(self, res):
         # type: (Dict) -> None
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev("set updated from server response: %s" % res)
         if self._title is not None:
             Logger.warning("Tried overwriting set title of %s" % self)
             # return
