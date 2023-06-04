@@ -1,3 +1,8 @@
+## Disclaimer : this project moved to this new protocol0 monorepo : https://github.com/lebrunthibault/protocol0
+to make it easier to develop both the script, the backend and other related tools.
+
+It is now deprecated and will be archived.
+
 # Protocol0 Control Surface Script for Ableton
 
 Protocol0 is a control surface script for Ableton Live (tested on 11 and 10)
