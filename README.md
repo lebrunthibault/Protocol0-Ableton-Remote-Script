@@ -1,7 +1,4 @@
-## Disclaimer : this project moved to this new protocol0 monorepo : https://github.com/lebrunthibault/protocol0
-to make it easier to develop both the script, the backend and other related tools.
-
-It is now deprecated and will be archived.
+# Disclaimer : this project moved to the [protocol0](https://github.com/lebrunthibault/protocol0/tree/main/p0_script) monorepo
 
 # Protocol0 Control Surface Script for Ableton
 
