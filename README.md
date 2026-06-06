@@ -1,5 +1,7 @@
 # Disclaimer : this project moved to the [protocol0](https://github.com/lebrunthibault/protocol0/tree/main/p0_script) monorepo
 
+The project is now a keyboard shortcut manager for Live : see [website](https://www.protocol0.live/)
+
 # Protocol0 Control Surface Script for Ableton
 
 Protocol0 is a control surface script for Ableton Live (tested on 11 and 10)
